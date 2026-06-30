@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0012: 完整四通道光功率控制电路设计</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .schematic {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem 1.5rem;
+      margin: 1.2rem 0;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      line-height: 1.35;
+      overflow-x: auto;
+    }
+    .schematic .title {
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-dark);
+      margin-bottom: 0.3rem;
+    }
+    .schematic .comment {
+      color: var(--muted);
+      font-style: italic;
+    }
+    .part-ref {
+      color: var(--accent-dark);
+      font-weight: 600;
+    }
+    .bom-table td:nth-child(1) { font-family: var(--mono); white-space: nowrap; }
+    .bom-table td:nth-child(4) { font-size: 0.85rem; color: var(--text-secondary); }
+    .bom-table td:nth-child(5) { font-size: 0.85rem; color: var(--text-secondary); }
+    .flow-diagram {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin: 1.2rem 0;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+    .flow-diagram .block {
+      display: inline-block;
+      background: var(--accent-light);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 0.2rem 0.6rem;
+      margin: 0.1rem;
+    }
+    .flow-diagram .arrow { color: var(--muted); }
+    .calc-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+    }
+    .calc-box .label { color: var(--accent-dark); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<h1>完整四通道光功率控制电路设计</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  光电检测信号链 · Lesson 0012 — 综合设计项目
+  <span style="color: var(--muted); font-size: 0.82rem;">｜DAC8568(L10) · OPA2705(L09) · VOA(L07) · SPI(L11)</span>
+</p>
+
+<blockquote>
+  <strong>设计目标</strong>
+  <p>基于你已学会的所有器件，设计一台<strong>四通道可调光衰减模块</strong>的完整电路。这是光测试仪表中的标准功能模块——四路独立光通道，每路可从 0~40 dB 精确调节衰减量，带光功率监测输出。</p>
+</blockquote>
+
+<!-- ============================================ -->
+<!--  SECTION 1: SYSTEM ARCHITECTURE             -->
+<!-- ============================================ -->
+<h2>1. 系统架构</h2>
+
+<div class="flow-diagram">
+<span class="block">MCU</span>
+<span class="arrow">── SPI ──▶</span> <span class="block">DAC8568</span> <span class="arrow">── 4ch ──▶</span>
+<span class="block">OPA2705#1</span> <span class="arrow">──▶</span> <span class="block">VOA#1</span> <span class="arrow">▶</span> 光输出
+<span style="display:block; height:0.2rem;"></span>
+<span style="visibility:hidden;">MCU</span>
+<span style="visibility:hidden;">── SPI ──▶</span> <span style="visibility:hidden;">DAC8568</span> <span style="visibility:hidden;">── 4ch ──▶</span>
+<span class="block">OPA2705#1</span> <span class="arrow">──▶</span> <span class="block">VOA#2</span> <span class="arrow">▶</span> 光输出
+<span style="display:block; height:0.2rem;"></span>
+<span style="visibility:hidden;">MCU</span>
+<span style="visibility:hidden;">── SPI ──▶</span> <span style="visibility:hidden;">DAC8568</span> <span style="visibility:hidden;">── 4ch ──▶</span>
+<span class="block">OPA2705#2</span> <span class="arrow">──▶</span> <span class="block">VOA#3</span> <span class="arrow">▶</span> 光输出
+<span style="display:block; height:0.2rem;"></span>
+<span style="visibility:hidden;">MCU</span>
+<span style="visibility:hidden;">── SPI ──▶</span> <span style="visibility:hidden;">DAC8568</span> <span style="visibility:hidden;">── 4ch ──▶</span>
+<span class="block">OPA2705#2</span> <span class="arrow">──▶</span> <span class="block">VOA#4</span> <span class="arrow">▶</span> 光输出
+<span style="display:block; height:0.4rem;"></span>
+<span class="block">PD阵列</span> <span class="arrow">──▶</span> <span class="block">TIA</span> <span class="arrow">──▶</span> <span class="block">OPA2705#3A</span> <span class="arrow">──▶</span> <span class="block">OPA2705#3B</span> <span class="arrow">──▶</span> <span class="block">ADC</span>
+<span style="display:block; height:0.2rem;"></span>
+<span class="block" style="background:#f0fdf4;border-color:var(--success);">铁氧体磁珠</span> <span class="arrow">──</span> 分布于每个电源域
+</div>
+
+<h3>1.1 资源分配</h3>
+
+<table>
+  <tr><th>芯片</th><th>通道</th><th>功能</th><th>参考位号</th></tr>
+  <tr><td>DAC8568</td><td>8 选 4</td><td>DAC A/B/C/D → VOA 控制电压</td><td>U1</td></tr>
+  <tr><td rowspan="2">OPA2705 #1</td><td>A</td><td>VOA #1 缓冲器（跟随后接 RC）</td><td>U3A</td></tr>
+  <tr><td>B</td><td>VOA #2 缓冲器</td><td>U3B</td></tr>
+  <tr><td rowspan="2">OPA2705 #2</td><td>A</td><td>VOA #3 缓冲器</td><td>U4A</td></tr>
+  <tr><td>B</td><td>VOA #4 缓冲器</td><td>U4B</td></tr>
+  <tr><td rowspan="2">OPA2705 #3</td><td>A</td><td>监测 TIA 二级增益</td><td>U5A</td></tr>
+  <tr><td>B</td><td>抗混叠有源低通滤波器</td><td>U5B</td></tr>
+  <tr><td>TIA (OPA381)</td><td>1</td><td>光电监测前端 I-V 转换</td><td>U2</td></tr>
+</table>
+
+<p><strong>位号规则</strong>：U1=DAC8568, U2=OPA381(TIA), U3/U4=OPA2705(VOA驱动), U5=OPA2705(监测)。</p>
+
+<!-- ============================================ -->
+<!--  SECTION 2: POWER DISTRIBUTION              -->
+<!-- ============================================ -->
+<h2>2. 电源分配网络</h2>
+
+<h3>2.1 电源轨定义</h3>
+
+<table>
+  <tr><th>电源轨</th><th>电压</th><th>用途</th><th>最大电流</th></tr>
+  <tr><td>+5VA</td><td>+5.0 V</td><td>DAC8568、OPA2705、OPA381 模拟电源</td><td>~50 mA</td></tr>
+  <tr><td>+3.3VD</td><td>+3.3 V</td><td>MCU、SPI 接口数字电源</td><td>~100 mA</td></tr>
+  <tr><td>+120V</td><td>+120 V</td><td>MEMS VOA 偏置（外部 HV 模块）</td><td>~10 mA</td></tr>
+  <tr><td>V<sub>REF</sub></td><td>+2.5 V</td><td>DAC8568 内部基准或外部 REF5025</td><td>~2 mA</td></tr>
+</table>
+
+<h3>2.2 各电源域去耦</h3>
+
+<div class="schematic">
+<span class="title">图1: +5VA 模拟电源 π 型滤波器</span>
+<br><br>
+  +5V_IN ──┬── [FB1: 120Ω@100MHz] ──┬── +5VA (至 U1/U2/U3/U4/U5)
+           │                         │
+          [C1]                      [C3]
+         (10µF/16V                  (100nF/16V
+          X7R)                       X5R)        → +5VA
+           │                         │
+          GND                       GND
+           │
+          [C2: 10µF/16V X7R] (输入侧大电容)
+           │
+          GND
+<br><br>
+  <span class="comment">// FB1: BLM18PG121SN1 (Murata, 120Ω@100MHz, DCR=0.15Ω, 300mA)</span>
+  <span class="comment">// C1/C2: GRM188R61C106KE84 (Murata 0603, 10µF/16V X7R)</span>
+  <span class="comment">// C3: GRM188R71H104KA93 (Murata 0603, 100nF/50V X5R)</span>
+</div>
+
+<div class="schematic">
+<span class="title">图2: +3.3VD 数字电源滤波</span>
+<br><br>
+  +3.3V_IN ──┬── [FB2: 30Ω@100MHz] ──┬── +3.3VD (至 MCU)
+             │                        │
+            [C4]                     [C6]
+           (10µF/10V                 (100nF/16V
+            X7R)                      X5R)
+             │                        │
+            GND                      GND
+             │
+            [C5: 0.1µF/16V X5R]
+             │
+            GND
+<br><br>
+  <span class="comment">// FB2: BLM18AG221SN1 (Murata, 30Ω@100MHz, DCR=0.05Ω, 500mA)</span>
+  <span class="comment">// 数字电源用低阻抗磁珠，额定电流需 > 实际电流 2×</span>
+</div>
+
+<div class="callout callout-info">
+  <strong>🔗 电源去耦原理</strong>
+  <p>Lesson 0008 学过：磁珠 + 电容 = π 型滤波器。这里 +5VA 用 120Ω 磁珠（模拟电源对低频纹波容忍度低），+3.3VD 用 30Ω 磁珠（数字电源电流大，防饱和）。每个运放的电源引脚旁再各放一个 100nF MLCC——见各器件章节。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 3: DAC8568                         -->
+<!-- ============================================ -->
+<h2>3. DAC8568 电路</h2>
+
+<div class="schematic">
+<span class="title">图3: DAC8568 (U1) — 四通道 VOA 控制电压生成</span>
+<br><br>
+  <span class="comment">// 电源</span>
+  U1-16(V<sub>DD</sub>)   ─── +5VA
+  U1-5(GND)       ─── GND (模拟地)
+<br>
+  <span class="comment">// 去耦</span>
+  U1-16 ── [C7: 100nF/16V X5R] ── GND   (紧靠引脚)
+  U1-16 ── [C8: 10µF/16V X7R]  ── GND   (稍远)
+<br>
+  <span class="comment">// 内部基准 (2.5V, 5ppm/°C)</span>
+  U1-3(V<sub>REF</sub>)    ─── [C9: 100nF/50V NP0] ── U1-4(V<sub>REF</sub>GND)
+  U1-4(V<sub>REF</sub>GND) ─── GND (单点连接, 走线宽 0.5mm)
+  <span class="comment">// 使用内部基准: 不接外部基准, C9 补偿基准缓冲器</span>
+<br>
+  <span class="comment">// SPI 接口 (至 MCU)</span>
+  U1-11(SYNC) ─── [R1: 10kΩ] ── +3.3VD  (上拉) ─── MCU GPIO (CS_DAC)
+  U1-12(SCLK) ─── [R2: 22Ω]  ── MCU SPI1_SCLK   (串联阻尼电阻)
+  U1-13(DIN)  ─── [R3: 22Ω]  ── MCU SPI1_MOSI   (串联阻尼电阻)
+  U1-14(LDAC) ─── [R4: 10kΩ] ── GND (永久低电平, LDAC 功能由 SPI 命令控制)
+<br>
+  U1-15(CLR)  ─── [R5: 10kΩ] ── +3.3VD (拉高, 禁止异步清零)
+<br>
+  <span class="comment">// 未使用通道 E-H: 输出悬空, 软件中设置为 0 输出</span>
+  U1-6(V<sub>OUT E</sub>)~U1-9(V<sub>OUT H</sub>) ─── 悬空
+<br>
+  <span class="comment">// 输出通道 A~D (至 OPA2705 缓冲器)</span>
+  U1-1(V<sub>OUT A</sub>) ─── [R6: 100Ω] ── U3A(+)  ← VOA #1 控制
+  U1-2(V<sub>OUT B</sub>) ─── [R7: 100Ω] ── U3B(+)  ← VOA #2 控制
+  U1-10(V<sub>OUT C</sub>)── [R8: 100Ω] ── U4A(+)  ← VOA #3 控制
+  U1-9(V<sub>OUT D</sub>) ── [R9: 100Ω] ── U4B(+)  ← VOA #4 控制
+</div>
+
+<h3>3.1 设计要点</h3>
+<ul>
+  <li><strong>R1/R4/R5 (10kΩ 上拉/下拉)</strong>：确保 MCU 未初始化时 SPI 和逻辑引脚处于确定状态。CS 和 CLR 上拉到 +3.3VD（从设备视角的安全电平），LDAC 下拉到 GND（永久使能同步功能）</li>
+  <li><strong>R2/R3 (22Ω 串联阻尼)</strong>：抑制 SPI 时钟和数据线上的振铃。PCB 走线每 10cm 约 0.5ns 传输延迟，22Ω 匹配约 50Ω 的典型走线阻抗</li>
+  <li><strong>R6~R9 (100Ω 隔离)</strong>：DAC 输出缓冲器驱动容性负载时可能振荡。100Ω 将运放输入电容与 DAC 输出隔离开</li>
+  <li><strong>C9 (NP0/C0G)</strong>：基准去耦电容选用 NP0 材质而非 X7R——NP0 电压系数几乎为零，不随 DC 偏置变化容量</li>
+</ul>
+
+<div class="calc-box">
+<span class="label">VREF 去耦电容选型计算：</span><br>
+  去耦电容在 f = 1/(2π × R_OUT × C) 处形成低通滤波。<br>
+  DAC8568 基准缓冲器输出电阻 ≈ 10kΩ，C9 = 100nF<br>
+  f_c = 1/(2π × 10kΩ × 100nF) ≈ 160 Hz<br>
+  → 对 >1.6 kHz 的噪声提供 >20 dB 衰减（一阶 -20dB/dec）。<br>
+  这确保了 VREF 线上 50Hz/100Hz 工频纹波被充分抑制。
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 4: VOA DRIVE CHANNELS              -->
+<!-- ============================================ -->
+<h2>4. VOA 驱动通道（×4 完全相同）</h2>
+
+<p>四路 VOA 驱动电路完全对称。以通道 #1 为例详述，其余三路仅参考位号不同。</p>
+
+<div class="schematic">
+<span class="title">图4: VOA #1 驱动通道 — DAC8568 输出 → OPA2705 缓冲 → VOA</span>
+<br><br>
+  <span class="comment">// 来自 DAC8568</span>
+  U1-1(V<sub>OUT A</sub>) ── R6(100Ω) ──┬── U3A(+)(同相输入, 引脚3)
+                                     │
+                                    [C10: 1nF/50V NP0]
+                                     │
+                                    GND
+  <span class="comment">// (C10 + R6 构成 1.6 MHz 低通, 滤除 DAC 输出毛刺)</span>
+<br>
+  <span class="comment">// OPA2705 #1A 缓冲器 (U3, 单位增益)</span>
+  U3A-1(OUT A) ──┬── [R10: 100Ω] ── [C11: 100nF/50V X7R] ── GND
+                  │                    <span class="comment">// RC 后置滤波, f_c=16kHz</span>
+                  │
+                  └── U3A-2(-IN)   <span class="comment">// 单位增益反馈: 输出直接连反相输入</span>
+  U3A-3(+IN)  ─── 见上 (来自 DAC)
+  U3A-4(V-)   ─── GND (单电源)
+  U3A-8(V+)   ─── +5VA
+                  │
+                 [C12: 100nF/16V X5R]  <span class="comment">// 运放电源去耦, 紧靠引脚</span>
+                  │
+                 GND
+<br>
+  <span class="comment">// 缓冲器输出 → VOA 驱动接口</span>
+  U3A-1 ── [R10] ──┬── [C11] ── GND
+                    │
+                    └─── J1(VOA_CTRL1)  <span class="comment">// 至 VOA #1 控制输入端</span>
+                         (0~+5V, 对应 VOA 衰减 40~0 dB)
+<br><br>
+  <span class="comment">// ────────────────────────────────────────────</span>
+  <span class="comment">// OPA2705 #1 另一通道 (U3B) — VOA #2, 完全相同</span>
+  <span class="comment">// 位号: R11(100Ω), C13(1nF), R12(100Ω), C14(100nF), C15(100nF)</span>
+  <span class="comment">// ────────────────────────────────────────────</span>
+</div>
+
+<h3>4.1 电压-衰减映射</h3>
+
+<table>
+  <tr><th>DAC 代码</th><th>V<sub>OUT</sub> (DAC)</th><th>VOA 控制电压</th><th>VOA 衰减</th></tr>
+  <tr><td>0x0000</td><td>0 V</td><td>0 V</td><td>40 dB (最大衰减)</td></tr>
+  <tr><td>0x199A</td><td>0.625 V</td><td>0.625 V</td><td>30 dB</td></tr>
+  <tr><td>0x3333</td><td>1.25 V</td><td>1.25 V</td><td>20 dB</td></tr>
+  <tr><td>0x4CCC</td><td>1.875 V</td><td>1.875 V</td><td>10 dB</td></tr>
+  <tr><td>0x6666</td><td>2.5 V</td><td>2.5 V</td><td>0 dB (最小衰减)</td></tr>
+  <tr><td>0x7FFF</td><td>3.0 V</td><td>3.0 V</td><td><em>超出范围(注)</em></td></tr>
+</table>
+<p style="font-size:0.85rem; color:var(--text-secondary);">注：假定 VOA 控制电压 0~2.5V 对应 40~0 dB 衰减范围。DAC 满量程 2.5V。实际映射关系以具体 VOA 数据手册为准。</p>
+
+<h3>4.2 通道 2~4 的位号对应</h3>
+
+<table>
+  <tr><th>通道</th><th>DAC 输出</th><th>OPA2705</th><th>隔离电阻</th><th>输入滤波</th><th>输出 RC</th><th>去耦</th></tr>
+  <tr><td>VOA #1</td><td>U1-1(A)</td><td>U3A</td><td>R6=100Ω</td><td>C10=1nF</td><td>R10=100Ω + C11=100nF</td><td>C12=100nF</td></tr>
+  <tr><td>VOA #2</td><td>U1-2(B)</td><td>U3B</td><td>R7=100Ω</td><td>C13=1nF</td><td>R12=100Ω + C14=100nF</td><td>C15=100nF</td></tr>
+  <tr><td>VOA #3</td><td>U1-10(C)</td><td>U4A</td><td>R8=100Ω</td><td>C16=1nF</td><td>R13=100Ω + C17=100nF</td><td>C18=100nF</td></tr>
+  <tr><td>VOA #4</td><td>U1-9(D)</td><td>U4B</td><td>R9=100Ω</td><td>C19=1nF</td><td>R14=100Ω + C20=100nF</td><td>C21=100nF</td></tr>
+</table>
+
+<div class="calc-box">
+<span class="label">输出滤波器设计：</span><br>
+  R10(100Ω) + C11(100nF) 构成一阶 RC 低通：<br>
+  f_c = 1/(2π × 100Ω × 100nF) = 15.9 kHz<br>
+  <br>
+  <span class="label">作用：</span><br>
+  • 限制 VOA 控制电压的 BW 至 ~16 kHz，防止 DAC 输出代码切换时<br>
+    的毛刺（glitch）直接馈入 VOA<br>
+  • 与 MEMS VOA 的机械响应时间（~5 ms）匹配——VOA 根本响应不了<br>
+    比 200 Hz 更快的控制变化，所以 16 kHz 滤波绰绰有余<br>
+  • 不干扰闭环控制带宽（通常 &lt;100 Hz）
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 5: HIGH-VOLTAGE OPTION (MEMO)     -->
+<!-- ============================================ -->
+<h2>5. 高压驱动扩展（备选）</h2>
+
+<p>如果你的 VOA 是裸 MEMS 芯片（需要 0~120 V 驱动而非 0~5 V），在 OPA2705 缓冲器之后增加一级高压放大器：</p>
+
+<div class="schematic">
+<span class="title">图5: 高压驱动级（每个 VOA 通道选配）</span>
+<br><br>
+  OPA2705 输出 ── [R15: 10kΩ] ──┬── OPA454 (+IN)
+                                  │
+                                 [R16: 10kΩ]
+                                  │
+                                 GND (偏置为 0V 参考)
+<br>
+  OPA454-1(OUT) ──┬── [D1: 1N4148] ── +120V_RAIL (自举供电)
+                   │
+                   └─── HV_OUT (0~+120V) ─── J2(VOA_HV)
+                   │
+                   └── [R18: 49.9kΩ, 0.1%] ──┬── OPA454(-IN)
+                                              │
+                                             [R17: 1kΩ, 0.1%]
+                                              │
+                                             GND
+<br>
+  <span class="comment">// 增益 = 1 + R18/R17 = 1 + 49.9/1 = 50.9 ≈ 51</span>
+  <span class="comment">// 0~2.5V 输入 → 0~127.5 V 输出 (覆盖 0~120V 范围)</span>
+  <span class="comment">// OPA454 供电: V+ = +120V, V- = GND (单电源)</span>
+  <span class="comment">// 注意: OPA454 的绝对最大供电为 100V，需选择 HV 版本或其他器件</span>
+</div>
+
+<p style="color:var(--warning); font-size:0.88rem;">⚠ <strong>高压安全</strong>：+120V 电源域与低压模拟域之间需保持 ≥2.0 mm 爬电距离（2 层 FR4）。高压走线远离低压节点。</p>
+
+<!-- ============================================ -->
+<!--  SECTION 6: OPTICAL MONITOR + TIA           -->
+<!-- ============================================ -->
+<h2>6. 光功率监测链路</h2>
+
+<p>每个 VOA 通道的输出端用 90/10 抽头耦合器分光，10% 端口引至光电监测链路：</p>
+
+<div class="schematic">
+<span class="title">图6: 光电二极管 + TIA (OPA381, U2)</span>
+<br><br>
+  <span class="comment">// 来自抽头耦合器 10% 端口</span>
+  PD1(+)  ─── +5V (反偏模式, 通过 [R19: 10kΩ] 偏置)
+  PD1(-)  ───┬── U2-2(-IN)
+             │
+         ┌───┴─── [R20: Rf = 100kΩ, 0.1%] ────┬── U2-6(OUT)
+         │                                      │
+         └─── [C22: 2.2pF/50V NP0] ────────────┘
+             <span class="comment">// Cf = 2.2pF (由 TIA 稳定性公式计算)</span>
+<br>
+  U2-3(+IN) ─── GND
+  U2-7(V+)   ─── +5VA
+                 │
+                [C23: 100nF/16V X5R] ─── GND
+  U2-4(V-)   ─── GND
+<br><br>
+<span class="comment">// TIA 输出电压: Vout = -Ipd × Rf</span>
+<span class="comment">// Ipd = 50µA @ 100µW 输入 (R=0.5A/W 的 PD)</span>
+<span class="comment">// Vout = -50µA × 100kΩ = -5.0V → 超出范围!</span>
+<span class="comment">// → 所以 PD 改用光伏模式 (零偏), 或降低 Rf</span>
+<br><br>
+  <span class="comment">// 修正: 改用光伏模式 (零偏), Rf=20kΩ</span>
+  PD1(+)  ─── GND
+  PD1(-)  ───┬── U2-2(-IN)
+             │
+         ┌───┴─── [R20: Rf = 20kΩ, 0.1%] ────┬── U2-6(OUT)
+         │                                      │
+         └─── [C22: 10pF/50V NP0] ─────────────┘
+<br>
+  <span class="comment">// 光伏模式输出: Vout = Ipd × Rf = 50µA × 20kΩ = 1.0V @ 100µW</span>
+  <span class="comment">// Vout = 0.5µA × 20kΩ = 10mV @ 1µW  (动态范围 ~40dB)</span>
+</div>
+
+<h3>6.1 TIA 补偿计算</h3>
+
+<div class="calc-box">
+<span class="label">TIA 稳定性验证 (复习 Lesson 0003)：</span><br>
+  C_PD (PIN 结电容) ≈ 10pF<br>
+  C_opamp (OPA381 共模电容) ≈ 4pF<br>
+  C_in = C_PD + C_opamp ≈ 14pF<br>
+  Rf = 20kΩ, Cf = 10pF<br>
+  <br>
+  反馈零点: f_z = 1/(2π × Rf × Cf) = 1/(6.28 × 20k × 10p) = 796 kHz<br>
+  噪声增益零点: f_nz = 1/(2π × Rf × C_in) = 1/(6.28 × 20k × 14p) = 568 kHz<br>
+  <br>
+  比值: C_in/Cf = 14/10 = 1.4 → 噪声增益峰值 ≈ 1.4, 相位裕度 >70° ✅<br>
+  <br>
+  OPA381 GBW = 18MHz<br>
+  TIA 闭环带宽 ≈ GBW × Cf / (C_in + Cf) = 18M × 10p / (14p + 10p) ≈ 7.5 MHz<br>
+  <span class="comment">// 对于光功率监测 DC~10kHz 信号绰绰有余</span>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 7: SECOND STAGE + ANTI-ALIAS      -->
+<!-- ============================================ -->
+<h2>7. TIA 二级放大器 + 抗混叠滤波（OPA2705 #3）</h2>
+
+<div class="schematic">
+<span class="title">图7: U5A — 二级同相增益放大器</span>
+<br><br>
+  U2-6(TIA OUT) ── [C24: 100nF/16V X5R] ──┬── U5A-3(+IN) (AC 耦合)
+                                            │
+                                           [R21: 100kΩ]
+                                            │
+                                           GND (偏置到 GND)
+<br>
+  U5A-1(OUT) ──┬── [R24: 100Ω] ── 至 U5B
+                │
+                └── [R22: 49.9kΩ, 0.1%] ──┬── U5A-2(-IN)
+                                           │
+                                          [R23: 10kΩ, 0.1%]
+                                           │
+                                          GND
+<br>
+  U5A-8(V+)   ─── +5VA    │  [C25: 100nF/16V X5R] ── GND
+  U5A-4(V-)   ─── GND
+<br>
+  <span class="comment">// 增益 G = 1 + R22/R23 = 1 + 49.9k/10k = 5.99 ≈ 6</span>
+  <span class="comment">// C24(100nF) + R21(100kΩ) 高通: f_c = 1/(2π×100k×100n) = 16 Hz</span>
+  <span class="comment">// → 滤除 TIA 输出 DC 分量, 只放大 AC 或准 DC 光功率变化</span>
+</div>
+
+<div class="schematic">
+<span class="title">图8: U5B — 二阶 Sallen-Key 低通滤波器 → ADC</span>
+<br><br>
+  U5A-1 ── R24(100Ω) ──┬── [R25: 10kΩ, 0.1%] ──┬── [R26: 10kΩ, 0.1%] ──┬── U5B-5(+IN)
+                        │                          │                      │
+                       GND                        [C26: 10nF/50V NP0]   [C27: 10nF/50V NP0]
+                                                   │                      │
+                                                  GND                    GND
+<br>
+  U5B-7(OUT) ──┬── U5B-6(-IN)  <span class="comment">// 单位增益 Sallen-Key</span>
+                │
+                └── [R27: 100Ω] ── J3(ADC_IN) <span class="comment">// 至 ADC 输入</span>
+                │
+               [C28: 100pF/50V NP0] <span class="comment">// ADC 输入采样电容</span>
+                │
+               GND
+<br>
+  U5B-8(V+)  ─── +5VA     │  [C29: 100nF/16V X5R] ── GND
+  U5B-4(V-)  ─── GND
+</div>
+
+<div class="calc-box">
+<span class="label">Sallen-Key 滤波器参数：</span><br>
+  R25 = R26 = 10kΩ, C26 = C27 = 10nF<br>
+  Q = 0.5 (单位增益 Sallen-Key 的临界阻尼)<br>
+  f_c = 1/(2π × √(R25×R26×C26×C27)) = 1/(2π × 10k × 10n) = 1.59 kHz<br>
+  <br>
+  <span class="label">为什么选 1.6 kHz 转折频率：</span><br>
+  • 光功率变化速度远低于此 (典型 &lt;10 Hz 闭环带宽)<br>
+  • 为 ADC 提供抗混叠保护 (ADC 采样率 ~1 kSPS, Nyquist=500 Hz → 还需 ADC 内部数字滤波器)<br>
+  • 在 ADC 前端进一步抑制 50/100 Hz 工频及其谐波
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 8: BILL OF MATERIALS              -->
+<!-- ============================================ -->
+<h2>8. 完整物料清单</h2>
+
+<h3>8.1 有源器件</h3>
+<table class="bom-table">
+  <tr><th>位号</th><th>型号</th><th>封装</th><th>数量</th><th>用途</th></tr>
+  <tr><td>U1</td><td><strong>DAC8568</strong></td><td>TSSOP-16</td><td>1</td><td>4通道 VOA 控制电压输出</td></tr>
+  <tr><td>U2</td><td><strong>OPA381</strong></td><td>SOT-23-5</td><td>1</td><td>光电监测 TIA</td></tr>
+  <tr><td>U3, U4</td><td><strong>OPA2705</strong> × 2</td><td>SOIC-8</td><td>2</td><td>VOA 缓冲器 (4 通道)</td></tr>
+  <tr><td>U5</td><td><strong>OPA2705</strong></td><td>SOIC-8</td><td>1</td><td>二级增益 + 有源滤波</td></tr>
+  <tr><td>—</td><td>MCU (STM32G4 等)</td><td>LQFP-64</td><td>1</td><td>SPI 控制器 + PID 算法</td></tr>
+  <tr><td>—</td><td>ADC (ADS1256 等)</td><td>TSSOP-28</td><td>1</td><td>监测链路数字转换</td></tr>
+</table>
+
+<h3>8.2 无源器件 — 电阻</h3>
+<table class="bom-table">
+  <tr><th>位号</th><th>阻值</th><th>精度</th><th>封装</th><th>数量</th><th>用途</th></tr>
+  <tr><td>R1, R4, R5</td><td>10 kΩ</td><td>±5%</td><td>0603</td><td>3</td><td>SPI 上拉/下拉</td></tr>
+  <tr><td>R2, R3</td><td>22 Ω</td><td>±5%</td><td>0603</td><td>2</td><td>SPI 串联阻尼</td></tr>
+  <tr><td>R6, R7, R8, R9</td><td>100 Ω</td><td>±1%</td><td>0603</td><td>4</td><td>DAC→运放隔离</td></tr>
+  <tr><td>R10, R12, R13, R14</td><td>100 Ω</td><td>±1%</td><td>0603</td><td>4</td><td>VOA 输出隔离</td></tr>
+  <tr><td>R20 (TIA Rf)</td><td><strong>20 kΩ</strong></td><td>±0.1%</td><td>0603</td><td>1</td><td>TIA 反馈电阻 (Vishay 薄膜)</td></tr>
+  <tr><td>R22</td><td><strong>49.9 kΩ</strong></td><td>±0.1%</td><td>0603</td><td>1</td><td>二级增益反馈</td></tr>
+  <tr><td>R23</td><td><strong>10 kΩ</strong></td><td>±0.1%</td><td>0603</td><td>1</td><td>二级增益接地</td></tr>
+  <tr><td>R21</td><td>100 kΩ</td><td>±1%</td><td>0603</td><td>1</td><td>AC 耦合偏置</td></tr>
+  <tr><td>R24</td><td>100 Ω</td><td>±1%</td><td>0603</td><td>1</td><td>级间隔离</td></tr>
+  <tr><td>R25, R26</td><td><strong>10 kΩ</strong></td><td>±0.1%</td><td>0603</td><td>2</td><td>Sallen-Key 滤波器</td></tr>
+  <tr><td>R27</td><td>100 Ω</td><td>±1%</td><td>0603</td><td>1</td><td>ADC 驱动隔离</td></tr>
+  <tr><td>R19</td><td>10 kΩ</td><td>±5%</td><td>0603</td><td>1</td><td>PD 反偏偏置</td></tr>
+</table>
+
+<h3>8.3 无源器件 — 电容</h3>
+<table class="bom-table">
+  <tr><th>位号</th><th>容值</th><th>材质</th><th>耐压</th><th>封装</th><th>数量</th><th>用途</th></tr>
+  <tr><td>C1, C2, C8</td><td>10 µF</td><td>X7R</td><td>16 V</td><td>0603</td><td>3</td><td>电源输入储能</td></tr>
+  <tr><td>C3, C7, C12, C15, C18, C21, C23, C25, C29</td><td>100 nF</td><td>X5R</td><td>16 V</td><td>0603</td><td>9</td><td>IC 电源去耦</td></tr>
+  <tr><td>C4, C5</td><td>10 µF / 0.1 µF</td><td>X7R/X5R</td><td>10 V/16 V</td><td>0603</td><td>2</td><td>数字电源去耦</td></tr>
+  <tr><td>C6</td><td>100 nF</td><td>X5R</td><td>16 V</td><td>0603</td><td>1</td><td>数字电源去耦</td></tr>
+  <tr><td>C9</td><td><strong>100 nF</strong></td><td>NP0/C0G</td><td>50 V</td><td>0603</td><td>1</td><td>VREF 去耦 (必需 NP0)</td></tr>
+  <tr><td>C10, C13, C16, C19</td><td>1 nF</td><td>NP0/C0G</td><td>50 V</td><td>0603</td><td>4</td><td>DAC 输出滤波</td></tr>
+  <tr><td>C11, C14, C17, C20</td><td>100 nF</td><td>X7R</td><td>50 V</td><td>0603</td><td>4</td><td>VOA 输出滤波</td></tr>
+  <tr><td>C22</td><td><strong>10 pF</strong></td><td>NP0/C0G</td><td>50 V</td><td>0603</td><td>1</td><td>TIA 反馈补偿</td></tr>
+  <tr><td>C24</td><td>100 nF</td><td>X5R</td><td>16 V</td><td>0603</td><td>1</td><td>级间 AC 耦合</td></tr>
+  <tr><td>C26, C27</td><td><strong>10 nF</strong></td><td>NP0/C0G</td><td>50 V</td><td>0603</td><td>2</td><td>Sallen-Key 滤波 (必需 NP0)</td></tr>
+  <tr><td>C28</td><td>100 pF</td><td>NP0/C0G</td><td>50 V</td><td>0603</td><td>1</td><td>ADC 输入采样电容</td></tr>
+</table>
+
+<h3>8.4 铁氧体磁珠</h3>
+<table class="bom-table">
+  <tr><th>位号</th><th>型号</th><th>阻抗</th><th>DCR</th><th>额定电流</th><th>数量</th><th>用途</th></tr>
+  <tr><td>FB1</td><td><strong>BLM18PG121SN1</strong></td><td>120 Ω @ 100 MHz</td><td>0.15 Ω</td><td>300 mA</td><td>1</td><td>+5VA 模拟电源</td></tr>
+  <tr><td>FB2</td><td><strong>BLM18AG221SN1</strong></td><td>30 Ω @ 100 MHz</td><td>0.05 Ω</td><td>500 mA</td><td>1</td><td>+3.3VD 数字电源</td></tr>
+</table>
+
+<!-- ============================================ -->
+<!--  SECTION 9: PCB LAYOUT                      -->
+<!-- ============================================ -->
+<h2>9. PCB 布局要点</h2>
+
+<table>
+  <tr><th>规则</th><th>要求</th><th>依据</th></tr>
+  <tr><td class="part-ref">分区</td>
+    <td>模拟区（+5VA）与数字区（+3.3VD/GND）物理分离，分割间距 ≥ 5 mm</td>
+    <td>Lesson 0004</td></tr>
+  <tr><td class="part-ref">地平面</td>
+    <td>模拟区域不铺铜，关键节点下方镂空（TIA 输入、反馈网络）</td>
+    <td>Lesson 0004</td></tr>
+  <tr><td class="part-ref">去耦电容</td>
+    <td>每颗 IC 的 100nF 去耦电容距电源引脚 &lt;3 mm，过孔紧邻电容焊盘</td>
+    <td>Lesson 0008</td></tr>
+  <tr><td class="part-ref">DAC 输出</td>
+    <td>VOUT_A~D 走线远离 SCLK（间隔 ≥ 3 倍线宽），避免数字噪声耦合</td>
+    <td>Lesson 0011</td></tr>
+  <tr><td class="part-ref">TIA 输入</td>
+    <td>PD→TIA(-IN) 走线最短（&lt;5 mm），周围加保护环（Guard Ring）</td>
+    <td>Lesson 0004</td></tr>
+  <tr><td class="part-ref">VREF 走线</td>
+    <td>VREF 和 VREFGND 走线宽 0.5 mm，星形连接至 GND</td>
+    <td>本节</td></tr>
+  <tr><td class="part-ref">SPI 总线</td>
+    <td>SCLK/MOSI/MISO 等长走线，CS 独立走线不共用。总长度 &lt;10 cm</td>
+    <td>Lesson 0011</td></tr>
+  <tr><td class="part-ref">高压区</td>
+    <td>+120V 区域与低压区保持 ≥ 2.0 mm 间距，开槽增强隔离</td>
+    <td>本节</td></tr>
+  <tr><td class="part-ref">FB1 位置</td>
+    <td>磁珠靠近电源输入连接器，电容侧朝向 IC</td>
+    <td>Lesson 0008</td></tr>
+  <tr><td class="part-ref">VOA 输出</td>
+    <td>四个 VOA 控制输出 J1~J4 排列在 PCB 边缘，彼此间隔 ≥ 2.54 mm</td>
+    <td>本节</td></tr>
+</table>
+
+<!-- ============================================ -->
+<!--  SECTION 10: TEST & DEBUG                   -->
+<!-- ============================================ -->
+<h2>10. 调试步骤</h2>
+
+<h3>10.1 上电前检查</h3>
+<ol>
+  <li>万用表测量所有电源轨对地阻抗：+5VA、+3.3VD 不应 &lt; 100 Ω</li>
+  <li>目检极性电容（无）和 IC 方向</li>
+  <li>检查 SPI 上拉电阻 R1~R5 是否焊接</li>
+</ol>
+
+<h3>10.2 上电调试</h3>
+<ol>
+  <li>依次接通 +5V、+3.3V，测各 IC 电源引脚电压</li>
+  <li>示波器检查 DAC8568 VREF 引脚：应为 2.5 V ± 0.5 mV，纹波 &lt; 100 µV<sub>pp</sub></li>
+  <li>SPI 通信：发送 0x10 0000（通道 A 输出 0）→ 测 U1-1 应为 0 V；发 0x10 8000（半量程）→ 测 U1-1 应为 1.25 V</li>
+  <li>检查 OPA2705 缓冲器输出：DAC 输出 1.25 V → U3A-1 应为 1.25 V ± 1 mV</li>
+  <li>检查 TIA 输出：遮住 PD → U2-6 应 &lt; 5 mV；光照 → 输出电压随光强线性变化</li>
+  <li>检查 Sallen-Key 滤波器：用信号发生器在 U5A 注入 100 Hz/1 V<sub>pp</sub> → U5B 输出 ≈ 1 V<sub>pp</sub>；注入 10 kHz → 输出衰减 &gt; 15 dB</li>
+</ol>
+
+<!-- ============================================ -->
+<!--  SECTION 11: QUIZ                           -->
+<!-- ============================================ -->
+<h2>11. 设计自测</h2>
+
+<div class="quiz-question">
+  <p><strong>问题 1</strong>：TIA 反馈电容 C22 选择 10 pF 的理由是什么？如果改为 100 pF 会怎样？</p>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    A. 10 pF 补偿 PD 结电容，保证相位裕度；100 pF 会过度限制带宽
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    B. 10 pF 是标准值；100 pF 也可以正常工作
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    C. 10 pF 决定增益精度；100 pF 会增加噪声
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    D. 10 pF 决定共模抑制比；100 pF 会降低 CMRR
+  </div>
+  <div id="q1" class="quiz-answer">
+    <strong>答案：A</strong><br>
+    第 6.1 节的计算显示：C22=10pF 时 Cf/Cin=10/14，噪声增益峰值 1.4，相位裕度 >70°。如果改为 100pF，反馈极点 f_z = 1/(2π×20k×100p) ≈ 80 kHz——TIA 闭环带宽从 7.5 MHz 降至约 1.6 MHz（见 GBW × Cf/(Cin+Cf) 公式：18M × 100/(14+100) ≈ 1.58 MHz）。对于 DC 光功率监测来说仍然够用，但脉冲响应会变慢。关键问题是：<strong>C22 的取值来自于 Lesson 0003 的稳定性公式，不是随意选择的。</strong>
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>问题 2</strong>：如果在 VOA 驱动链中去掉 R10 (100Ω) + C11 (100nF) 输出滤波器，可能发生什么问题？</p>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    A. VOA 控制环路可能振荡（DAC glitch 直接驱动 VOA）
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    B. 没有任何问题，可以去掉
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    C. DAC 输出噪声直接耦合到 VOA，衰减值抖动
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    D. 以上 A 和 C 都对
+  </div>
+  <div id="q2" class="quiz-answer">
+    <strong>答案：D</strong><br>
+    DAC 在代码切换时会产生毛刺（glitch energy），典型值约 1~5 nV·s。如果不经滤波直接送给 VOA，这些毛刺会表现为控制电压的瞬时跳变，在 VOA 输出端产生光功率尖峰。更严重的是，如果这个尖峰被反馈链路（PD→TIA→ADC→MCU→DAC）检测到，可能引起 PID 控制器误动作甚至环路振荡。R10+C11 构成了 16 kHz 低通，平滑了这些瞬态。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>问题 3</strong>：为什么 VREF 去耦电容 C9 选用 NP0/C0G 材质而不是 X7R？</p>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    A. NP0 价格更便宜
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    B. NP0 容值不随 DC 偏置电压变化，X7R 在 2.5V 偏置下容值可能下降 50%
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    C. NP0 耐压更高
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    D. NP0 封装更小
+  </div>
+  <div id="q3" class="quiz-answer">
+    <strong>答案：B</strong><br>
+    X7R 陶瓷电容具有显著的 DC 偏置特性——在额定电压的 50% 偏置下（100nF/50V 的 2.5V 偏置），容值可能降至标称值的 50~70%。这意味着你焊上去的"100nF"在实际电路中只有 50~70 nF，滤波转折频率上移 30~50%。NP0/C0G 的容值在 DC 偏置下几乎不变（变化 &lt; 0.1%），且温度系数也是 Class 1 中最稳定的（±30 ppm/°C）。VREF 上的去耦精度直接影响 DAC 输出电压精度。Lesson 0004 中强调过 NP0 用于精密模拟电路的原因。
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 12: SUMMARY                        -->
+<!-- ============================================ -->
+<h2>12. 小结</h2>
+
+<ul>
+  <li><strong>完整四通道设计</strong>：DAC8568(×1) + OPA2705(×3) + OPA381(×1) 组成 4 通道独立衰减 + 1 路功率监测</li>
+  <li><strong>45 颗无源器件</strong>全部指定了位号、值、精度、封装和材质</li>
+  <li><strong>每个电阻电容的选择都有工程理由</strong>——不是"惯例"，而是基于计算</li>
+  <li><strong>三个关键设计决策</strong>：
+    <ol>
+      <li>TIA 补偿 (C22=10pF) — 由 Lesson 0003 稳定性公式驱动</li>
+      <li>VOA 输出滤波 (R10+C11, fc=16kHz) — 匹配 VOA 响应 + 抑制 DAC glitch</li>
+      <li>VREF 去耦 (C9=NP0) — 防止 DC 偏置导致有效容值下降</li>
+    </ol>
+  </li>
+  <li><strong>调试步骤</strong>从万用表测阻抗到完整功能验证，共 6 步</li>
+</ul>
+
+<h2>13. 延伸资源</h2>
+<ul>
+  <li><a href="../lessons/0003-tia-stability-analysis.html">Lesson 0003: TIA 稳定性分析</a> — 回顾 TIA 补偿公式</li>
+  <li><a href="../lessons/0004-tia-pcb-layout.html">Lesson 0004: TIA PCB Layout</a> — 保护环、地平面切割</li>
+  <li><a href="../lessons/0008-ferrite-beads.html">Lesson 0008: 铁氧体磁珠</a> — π 型滤波器设计</li>
+  <li><a href="../lessons/0009-opa2705.html">Lesson 0009: OPA2705</a> — 运放参数回顾</li>
+  <li><a href="../lessons/0010-dac8568.html">Lesson 0010: DAC8568</a> — SPI 编程回顾</li>
+  <li><a href="../lessons/0011-spi-protocol.html">Lesson 0011: SPI 协议</a> — 时序和调试</li>
+</ul>
+
+<p style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.9rem;">
+  这份设计覆盖了你从 Lesson 0001 到 0011 学过的所有核心知识。如果你准备在 PCB 上实现它，我们可以进一步讨论层叠结构、具体布线策略、或者用 LTspice 仿真验证某一段电路。任何不清楚的细节，随时问我。
+</p>
+
+<script>
+function revealAnswer(id) {
+  var el = document.getElementById(id);
+  if (el) el.style.display = 'block';
+}
+</script>
+
+</body>
+</html>

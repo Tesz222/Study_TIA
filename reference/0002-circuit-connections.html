@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reference: 四通道 VOA 控制电路 — 详细连接说明</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .conn-block {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+    }
+    .conn-block h3 { margin-top: 0.2rem; margin-bottom: 0.5rem; }
+    .conn-block .path {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--accent-dark);
+      background: var(--accent-light);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+    }
+    .conn-block .val {
+      font-weight: 600;
+      color: var(--accent-dark);
+    }
+    .conn-block p { margin: 0.3rem 0; font-size: 0.92rem; }
+    .conn-block .note {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-style: italic;
+    }
+    h2 { margin-top: 2.5rem; }
+  </style>
+</head>
+<body>
+
+<h1>四通道 VOA 控制电路 — 详细连接说明</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  配套 Lesson 0012 · 文字版连接描述
+</p>
+
+<blockquote>
+  <strong>说明</strong>
+  <p>这份文档用纯文字描述每条信号路径，告诉你"哪颗芯片的哪个引脚，通过什么值的电阻/电容，连到哪颗芯片的哪个引脚"。这是 Lesson 0012 中电路图的逐句翻译。</p>
+</blockquote>
+
+<!-- ============================================ -->
+<!-- POWER                                        -->
+<!-- ============================================ -->
+<h2>一、电源连接</h2>
+
+<div class="conn-block">
+  <h3>1.1 +5VA 模拟电源路径</h3>
+  <p><strong>输入</strong>：外部 +5V 电源进入 PCB，首先到达铁氧体磁珠 FB1 的输入端（引脚 1）。</p>
+  <p><strong>FB1</strong>：型号 <span class="val">BLM18PG121SN1</span>，0603 封装，阻抗 <span class="val">120 Ω @ 100 MHz</span>，DCR = <span class="val">0.15 Ω</span>，额定电流 <span class="val">300 mA</span>。</p>
+  <p><strong>C1 (10 µF/16V X7R)</strong>：一端接 FB1 的输入端（与外部电源同一侧），另一端接 GND。</p>
+  <p><strong>C2 (10 µF/16V X7R)</strong>：与 C1 并联，同样一端接 FB1 输入端，另一端接 GND。C1+C2 构成输入储能。</p>
+  <p><strong>FB1 输出端（引脚 2）</strong>：输出滤波后的 +5VA 电源轨。后面接：</p>
+  <p>—— <strong>C3 (100 nF/16V X5R)</strong>：一端接 FB1 输出端，另一端接 GND。提供高频去耦。</p>
+  <p>—— 然后 +5VA 分别去到以下 IC 的电源引脚：</p>
+  <ul>
+    <li><span class="path">DAC8568 (U1) 引脚 16 (V<sub>DD</sub>)</span>：直接接 +5VA</li>
+    <li><span class="path">OPA381 (U2) 引脚 7 (V+)</span>：直接接 +5VA</li>
+    <li><span class="path">OPA2705 #1 (U3) 引脚 8 (V+)</span>：直接接 +5VA</li>
+    <li><span class="path">OPA2705 #2 (U4) 引脚 8 (V+)</span>：直接接 +5VA</li>
+    <li><span class="path">OPA2705 #3 (U5) 引脚 8 (V+)</span>：直接接 +5VA</li>
+  </ul>
+  <p class="note">每个 IC 的 V+ 引脚紧邻处各有一颗 100 nF 去耦电容到 GND（C7、C12、C15、C18、C21、C23、C25、C29）。</p>
+</div>
+
+<div class="conn-block">
+  <h3>1.2 +3.3VD 数字电源路径</h3>
+  <p><strong>FB2</strong>：型号 <span class="val">BLM18AG221SN1</span>，0603 封装，阻抗 <span class="val">30 Ω @ 100 MHz</span>，DCR = <span class="val">0.05 Ω</span>，额定电流 <span class="val">500 mA</span>。</p>
+  <p><strong>C4 (10 µF/10V X7R)</strong>：接 FB2 输入端到 GND。</p>
+  <p><strong>C5 (0.1 µF/16V X5R)</strong>：与 C4 并联，接 FB2 输入端到 GND。</p>
+  <p><strong>FB2 输出端</strong>：输出 +3.3VD 电源轨。</p>
+  <p><strong>C6 (100 nF/16V X5R)</strong>：接 FB2 输出端到 GND。</p>
+  <p class="note">+3.3VD 只供应 MCU 的数字电源和 SPI 上拉电阻 R1/R4/R5 的上拉端。不进入模拟区域。</p>
+</div>
+
+<div class="conn-block">
+  <h3>1.3 GND 连接</h3>
+  <p>所有 GND 符号最终在 PCB 的模拟地平面（AGND）上星形汇集。</p>
+  <p><strong>DAC8568 V<sub>REF</sub>GND (U1-4)</strong>：单独走线（宽 0.5 mm），在 U1 下方单点连接到 AGND。这条走线不与其他 GND 共用。</p>
+  <p><strong>其余所有 GND</strong>：各 IC 的 GND 引脚直接打孔到 AGND 平面。</p>
+  <p class="note">模拟地和数字地不在 PCB 上分割——使用统一地平面，但物理分区（模拟器件在左，数字器件在右）。</p>
+</div>
+
+<!-- ============================================ -->
+<!-- DAC8568                                      -->
+<!-- ============================================ -->
+<h2>二、DAC8568 (U1) 连接</h2>
+
+<div class="conn-block">
+  <h3>2.1 电源和基准</h3>
+  <p><span class="path">U1-16 (V<sub>DD</sub>)</span> → 接 +5VA（FB1 滤波后的模拟电源）。</p>
+  <p><span class="path">U1-5 (GND)</span> → 接 AGND。</p>
+  <p><span class="path">U1-3 (V<sub>REF</sub>)</span> → 接 <strong>C9 (100 nF/50V NP0/C0G)</strong> 的一端。C9 的另一端接 <span class="path">U1-4 (V<sub>REF</sub>GND)</span>。使用内部基准时，V<sub>REF</sub> 引脚输出 2.5 V。C9 补偿基准缓冲器，必用 NP0 材质（防止 DC 偏置下容值下降）。</p>
+  <p><span class="path">U1-4 (V<sub>REF</sub>GND)</span> → 单独走线到 AGND 单点连接点。</p>
+</div>
+
+<div class="conn-block">
+  <h3>2.2 SPI 数字接口</h3>
+  <p><span class="path">U1-11 (SYNC/CS)</span> → 接 <strong>R1 (10 kΩ, ±5%)</strong> 的一端。R1 的另一端接 <span class="val">+3.3VD</span>（上拉至数字电源）。同时 U1-11 也接到 MCU 的 GPIO 引脚（CS_DAC）。</p>
+  <p class="note">CS 在空闲时必须为高电平。10 kΩ 上拉确保 MCU 未初始化时 CS 不浮空。</p>
+
+  <p><span class="path">U1-12 (SCLK)</span> → 串接 <strong>R2 (22 Ω, ±5%)</strong> 后，接到 MCU 的 SPI1_SCLK 引脚。</p>
+  <p class="note">R2 靠近 U1 放置，抑制 SCLK 信号反射和振铃。</p>
+
+  <p><span class="path">U1-13 (DIN)</span> → 串接 <strong>R3 (22 Ω, ±5%)</strong> 后，接到 MCU 的 SPI1_MOSI 引脚。</p>
+
+  <p><span class="path">U1-14 (LDAC)</span> → 接 <strong>R4 (10 kΩ, ±5%)</strong> 的一端。R4 的另一端接 <span class="val">GND</span>（下拉到地）。</p>
+  <p class="note">LDAC 永久低电平 = DAC 寄存器在每个 SPI 写操作完成后立即更新。如果不需要永久更新，可将 R4 改为接 MCU GPIO。</p>
+
+  <p><span class="path">U1-15 (CLR)</span> → 接 <strong>R5 (10 kΩ, ±5%)</strong> 的一端。R5 的另一端接 <span class="val">+3.3VD</span>（上拉，禁用异步清零）。</p>
+</div>
+
+<div class="conn-block">
+  <h3>2.3 DAC 输出通道（仅使用 A~D）</h3>
+
+  <p><span class="path">U1-1 (V<sub>OUT A</sub>)</span> → 串接 <strong>R6 (100 Ω, ±1%)</strong> → 接到 <span class="path">OPA2705 #1 的 U3A-3 (+IN)</span>。同时，U3A-3 到 GND 之间并联 <strong>C10 (1 nF/50V NP0)</strong>。</p>
+  <p class="note">R6 + C10 构成低通滤波器，转折频率 f_c = 1/(2π×100Ω×1nF) ≈ 1.6 MHz，滤除 DAC 输出毛刺。</p>
+
+  <p><span class="path">U1-2 (V<sub>OUT B</sub>)</span> → 串接 <strong>R7 (100 Ω, ±1%)</strong> → 接到 <span class="path">U3B-5 (+IN)</span>。U3B-5 到 GND 之间并联 <strong>C13 (1 nF/50V NP0)</strong>。</p>
+
+  <p><span class="path">U1-10 (V<sub>OUT C</sub>)</span> → 串接 <strong>R8 (100 Ω, ±1%)</strong> → 接到 <span class="path">U4A-3 (+IN)</span>。U4A-3 到 GND 之间并联 <strong>C16 (1 nF/50V NP0)</strong>。</p>
+
+  <p><span class="path">U1-9 (V<sub>OUT D</sub>)</span> → 串接 <strong>R9 (100 Ω, ±1%)</strong> → 接到 <span class="path">U4B-5 (+IN)</span>。U4B-5 到 GND 之间并联 <strong>C19 (1 nF/50V NP0)</strong>。</p>
+
+  <p><span class="path">U1-6 (V<sub>OUT E</sub>) ~ U1-9 (V<sub>OUT H</sub>) 未使用</span> → 悬空不接。软件中向这些通道写入 0x0000。</p>
+</div>
+
+<div class="conn-block">
+  <h3>2.4 DAC8568 去耦</h3>
+  <p><strong>C7 (100 nF/16V X5R)</strong>：一端接 <span class="path">U1-16 (V<sub>DD</sub>)</span>，另一端接 <span class="path">U1-5 (GND)</span>。放置在 U1-16 旁边，距离 &lt; 3 mm。</p>
+  <p><strong>C8 (10 µF/16V X7R)</strong>：一端接 <span class="path">U1-16 (V<sub>DD</sub>)</span>，另一端接 <span class="path">U1-5 (GND)</span>。稍远放置。</p>
+</div>
+
+<!-- ============================================ -->
+<!-- OPA2705 #1 (U3) - VOA1 & VOA2               -->
+<!-- ============================================ -->
+<h2>三、OPA2705 #1 (U3) — VOA #1 和 #2 缓冲器</h2>
+
+<div class="conn-block">
+  <h3>3.1 OPA2705 #1 引脚连接（SOIC-8 封装）</h3>
+  <p><span class="path">U3-8 (V+)</span> → 接 +5VA。<strong>C12 (100 nF/16V X5R)</strong> 一端接 U3-8，另一端接 GND，紧靠引脚放置。</p>
+  <p><span class="path">U3-4 (V-)</span> → 接 GND（单电源供电）。</p>
+</div>
+
+<div class="conn-block">
+  <h3>3.2 通道 A — VOA #1 缓冲器</h3>
+  <p><span class="path">U3-3 (+IN, 通道 A 同相输入)</span> → 接 R6 的另一端（来自 DAC8568 V<sub>OUT A</sub>）。参考 2.3 节。</p>
+  <p><span class="path">U3-2 (-IN, 通道 A 反相输入)</span> → 直接连接到 <span class="path">U3-1 (OUT A)</span>。这是单位增益反馈连接（缓冲器）。</p>
+  <p><span class="path">U3-1 (OUT A, 通道 A 输出)</span> → 接 <strong>R10 (100 Ω, ±1%)</strong> 的一端。R10 的另一端分两路：</p>
+  <ul>
+    <li>一路接 <strong>C11 (100 nF/50V X7R)</strong> 到 GND（形成 16 kHz 一阶低通，后级滤波）</li>
+    <li>另一路接到输出连接器 <span class="path">J1 (VOA_CTRL1)</span>，控制 VOA #1</li>
+  </ul>
+</div>
+
+<div class="conn-block">
+  <h3>3.3 通道 B — VOA #2 缓冲器</h3>
+  <p><span class="path">U3-5 (+IN, 通道 B 同相输入)</span> → 接 R7 的另一端（来自 DAC8568 V<sub>OUT B</sub>）。</p>
+  <p><span class="path">U3-6 (-IN, 通道 B 反相输入)</span> → 直接连接到 <span class="path">U3-7 (OUT B)</span>。单位增益缓冲器。</p>
+  <p><span class="path">U3-7 (OUT B)</span> → 接 <strong>R12 (100 Ω, ±1%)</strong> 的一端。R12 的另一端：</p>
+  <ul>
+    <li>接 <strong>C14 (100 nF/50V X7R)</strong> 到 GND</li>
+    <li>接 <span class="path">J2 (VOA_CTRL2)</span>，控制 VOA #2</li>
+  </ul>
+  <p><strong>C15 (100 nF/16V X5R)</strong>：一端接 U3-8(V+)，另一端接 GND（U3 的另一个通道的去耦，与 C12 共用电源引脚）。</p>
+</div>
+
+<!-- ============================================ -->
+<!-- OPA2705 #2 (U4) - VOA3 & VOA4               -->
+<!-- ============================================ -->
+<h2>四、OPA2705 #2 (U4) — VOA #3 和 #4 缓冲器</h2>
+
+<div class="conn-block">
+  <h3>4.1 通道 A — VOA #3 缓冲器</h3>
+  <p><span class="path">U4-8 (V+)</span> → 接 +5VA。<strong>C18 (100 nF/16V X5R)</strong> 接 U4-8 到 GND。</p>
+  <p><span class="path">U4-4 (V-)</span> → GND。</p>
+  <p><span class="path">U4-3 (+IN)</span> → 接 R8 的另一端（来自 DAC8568 V<sub>OUT C</sub>）。</p>
+  <p><span class="path">U4-2 (-IN)</span> → 接 <span class="path">U4-1 (OUT A)</span>。单位增益。</p>
+  <p><span class="path">U4-1 (OUT A)</span> → 接 <strong>R13 (100 Ω, ±1%)</strong> → 后分两路：</p>
+  <ul>
+    <li><strong>C17 (100 nF/50V X7R)</strong> 到 GND</li>
+    <li><span class="path">J3 (VOA_CTRL3)</span></li>
+  </ul>
+  <p><strong>C21 (100 nF/16V X5R)</strong>：U4-8 去耦，备用。</p>
+</div>
+
+<div class="conn-block">
+  <h3>4.2 通道 B — VOA #4 缓冲器</h3>
+  <p><span class="path">U4-5 (+IN)</span> → 接 R9 的另一端（来自 DAC8568 V<sub>OUT D</sub>）。</p>
+  <p><span class="path">U4-6 (-IN)</span> → 接 <span class="path">U4-7 (OUT B)</span>。单位增益。</p>
+  <p><span class="path">U4-7 (OUT B)</span> → 接 <strong>R14 (100 Ω, ±1%)</strong> → 后分两路：</p>
+  <ul>
+    <li><strong>C20 (100 nF/50V X7R)</strong> 到 GND</li>
+    <li><span class="path">J4 (VOA_CTRL4)</span></li>
+  </ul>
+</div>
+
+<!-- ============================================ -->
+<!-- OPA381 TIA (U2)                              -->
+<!-- ============================================ -->
+<h2>五、OPA381 TIA (U2) — 光功率监测</h2>
+
+<div class="conn-block">
+  <h3>5.1 OPA381 引脚连接（SOT-23-5 封装）</h3>
+  <p><span class="path">U2-7 (V+)</span> → 接 +5VA。<strong>C23 (100 nF/16V X5R)</strong> 一端接 U2-7，另一端接 GND，紧靠引脚。</p>
+  <p><span class="path">U2-4 (V-)</span> → 接 GND（单电源供电）。</p>
+</div>
+
+<div class="conn-block">
+  <h3>5.2 光电二极管与 TIA</h3>
+  <p>光电二极管（PD）在光伏模式（零偏）下工作：</p>
+  <p><span class="path">PD 阳极 (A)</span> → 接 GND（光伏模式，零偏压）。</p>
+  <p><span class="path">PD 阴极 (K)</span> → 接 <span class="path">U2-2 (-IN, 反相输入)</span>。走线尽可能短 (&lt;5 mm)，周围加保护环。</p>
+  <p><span class="path">U2-3 (+IN, 同相输入)</span> → 直接接 GND。</p>
+  <p><strong>R20 (20 kΩ, ±0.1%, 薄膜)</strong>：TIA 反馈电阻。一端接 <span class="path">U2-2 (-IN)</span>，另一端接 <span class="path">U2-6 (OUT)</span>。</p>
+  <p><strong>C22 (10 pF/50V NP0)</strong>：TIA 反馈补偿电容。与 R20 并联——一端接 U2-2，另一端接 U2-6。</p>
+  <p class="note">R20 和 C22 构成 TIA 的反馈网络。时间常数 τ = 20kΩ × 10pF = 200 ns，对应反馈零点 f_z ≈ 796 kHz。详见第 6.1 节的稳定性计算。</p>
+</div>
+
+<div class="conn-block">
+  <h3>5.3 TIA 输出</h3>
+  <p><span class="path">U2-6 (OUT)</span> → 输出 TIA 电压。V<sub>OUT</sub> = I<sub>PD</sub> × 20 kΩ。对于典型 PD（R=0.5 A/W）：</p>
+  <ul>
+    <li>100 µW 光照 → I<sub>PD</sub> = 50 µA → V<sub>OUT</sub> = 1.0 V</li>
+    <li>1 µW 光照 → I<sub>PD</sub> = 0.5 µA → V<sub>OUT</sub> = 10 mV</li>
+  </ul>
+  <p>U2-6 输出后经过 <strong>C24 (100 nF/16V X5R)</strong> AC 耦合电容，进入 OPA2705 #3 的 U5A-3 (+IN)。</p>
+</div>
+
+<!-- ============================================ -->
+<!-- OPA2705 #3 (U5) - 2nd stage + LPF           -->
+<!-- ============================================ -->
+<h2>六、OPA2705 #3 (U5) — 二级增益 + 抗混叠滤波</h2>
+
+<div class="conn-block">
+  <h3>6.1 U5A — 二级同相增益（G = 6）</h3>
+  <p><span class="path">U5-8 (V+)</span> → +5VA。<strong>C29 (100 nF/16V X5R)</strong> 接 U5-8 到 GND。</p>
+  <p><span class="path">U5-4 (V-)</span> → GND。</p>
+  <p><strong>C24 (100 nF/16V X5R)</strong>：一端接 U2-6 (TIA 输出)，另一端接 <span class="path">U5-3 (+IN, U5A 同相输入)</span>。</p>
+  <p><strong>R21 (100 kΩ, ±1%)</strong>：一端接 <span class="path">U5-3 (+IN)</span>，另一端接 GND。C24 + R21 构成高通：f_c = 1/(2π × 100k × 100n) ≈ 16 Hz，滤除 DC 分量。</p>
+  <p><strong>R23 (10 kΩ, ±0.1%)</strong>：一端接 <span class="path">U5-2 (-IN, U5A 反相输入)</span>，另一端接 GND（增益网络的接地端）。</p>
+  <p><strong>R22 (49.9 kΩ, ±0.1%)</strong>：一端接 <span class="path">U5-2 (-IN)</span>，另一端接 <span class="path">U5-1 (OUT A)</span>。</p>
+  <p class="note">增益 G = 1 + R22/R23 = 1 + 49.9k/10k = 5.99 ≈ 6。TIA 输出 0~1.0V 被放大到 0~6.0V（但被 +5VA 电源轨限制，实际最大输出约 4.98V）。</p>
+</div>
+
+<div class="conn-block">
+  <h3>6.2 U5B — 二阶 Sallen-Key 低通滤波器</h3>
+  <p><span class="path">U5-1 (OUT A)</span> → 通过 <strong>R24 (100 Ω, ±1%)</strong> 连接到 <span class="path">U5-5 (+IN, U5B 同相输入)</span> 的路径。</p>
+  <p class="note">实际上 R24 接的是滤波器网络。路径是：U5-1 → R24 → GND (AC 耦合的参考点？不对，让我重新描述)：</p>
+  <p>从 U5A 输出到 U5B 的滤波器网络连接：</p>
+  <p><span class="path">U5-1</span> → <strong>R24 (100Ω)</strong> → <strong>R25 (10 kΩ, 0.1%)</strong> 的一端。R25 的另一端接 <strong>R26 (10 kΩ, 0.1%)</strong> 的一端和 <strong>C26 (10 nF/50V NP0)</strong> 的一端。</p>
+  <p><strong>R26</strong> 的另一端接 <span class="path">U5-5 (+IN, U5B 同相输入)</span> 和 <strong>C27 (10 nF/50V NP0)</strong> 的一端。</p>
+  <p><strong>C26</strong> 的另一端接 GND。</p>
+  <p><strong>C27</strong> 的另一端接 GND。</p>
+  <p><span class="path">U5-6 (-IN, U5B 反相输入)</span> → 直接接 <span class="path">U5-7 (OUT B)</span>（单位增益 Sallen-Key）。</p>
+  <p><span class="path">U5-7 (OUT B)</span> → 接 <strong>R27 (100 Ω, ±1%)</strong> 的一端。R27 的另一端分两路：</p>
+  <ul>
+    <li>接 <strong>C28 (100 pF/50V NP0)</strong> 到 GND（ADC 采样电容）</li>
+    <li>接 <span class="path">J5 (ADC_IN)</span> 至 ADC 输入端</li>
+  </ul>
+  <p class="note">滤波器转折频率 f_c = 1/(2π × 10k × 10n) = 1.59 kHz。R25=R26=10kΩ, C26=C27=10nF。Q = 0.5（临界阻尼）。详见第 7 节的计算。</p>
+</div>
+
+<!-- ============================================ -->
+<!-- SPI SUMMARY                                  -->
+<!-- ============================================ -->
+<h2>七、SPI 总线连接汇总</h2>
+
+<div class="conn-block">
+  <h3>7.1 MCU 到 DAC8568</h3>
+  <table>
+    <tr><th>MCU 引脚</th><th>中间元件</th><th>目标</th></tr>
+    <tr><td>SPI1_SCLK</td><td>R2 (22Ω) 串联</td><td>U1-12 (SCLK)</td></tr>
+    <tr><td>SPI1_MOSI</td><td>R3 (22Ω) 串联</td><td>U1-13 (DIN)</td></tr>
+    <tr><td>GPIO_CS_DAC</td><td>R1 (10kΩ) 上拉到 +3.3VD</td><td>U1-11 (SYNC)</td></tr>
+    <tr><td>GPIO_CS_ADC</td><td>10kΩ 上拉到 +3.3VD</td><td>ADC 的 CS 引脚</td></tr>
+  </table>
+  <p class="note">DAC8568 的 MISO (U1 没有 MISO 引脚——它是只写器件)。如果需要读取 DAC 状态，需要其他方式。</p>
+</div>
+
+<!-- ============================================ -->
+<!-- BOM SUMMARY                                  -->
+<!-- ============================================ -->
+<h2>八、所有阻容值速查表</h2>
+
+<div class="conn-block">
+  <h3>8.1 电阻（23 颗）</h3>
+  <table>
+    <tr><th>阻值</th><th>精度</th><th>封装</th><th>位号</th><th>数量</th></tr>
+    <tr><td>10 kΩ</td><td>±5%</td><td>0603</td><td>R1, R4, R5</td><td>3</td></tr>
+    <tr><td>22 Ω</td><td>±5%</td><td>0603</td><td>R2, R3</td><td>2</td></tr>
+    <tr><td>100 Ω</td><td>±1%</td><td>0603</td><td>R6~R10, R12~R14, R24, R27</td><td>12</td></tr>
+    <tr><td><strong>20 kΩ</strong></td><td>±0.1%</td><td>0603</td><td>R20</td><td>1</td></tr>
+    <tr><td><strong>49.9 kΩ</strong></td><td>±0.1%</td><td>0603</td><td>R22</td><td>1</td></tr>
+    <tr><td>100 kΩ</td><td>±1%</td><td>0603</td><td>R21</td><td>1</td></tr>
+    <tr><td><strong>10 kΩ (精密)</strong></td><td>±0.1%</td><td>0603</td><td>R23, R25, R26</td><td>3</td></tr>
+  </table>
+</div>
+
+<div class="conn-block">
+  <h3>8.2 电容（28 颗）</h3>
+  <table>
+    <tr><th>容值</th><th>材质</th><th>耐压</th><th>位号</th><th>数量</th></tr>
+    <tr><td>10 µF</td><td>X7R</td><td>16 V</td><td>C1, C2, C8</td><td>3</td></tr>
+    <tr><td>10 µF</td><td>X7R</td><td>10 V</td><td>C4</td><td>1</td></tr>
+    <tr><td>100 nF</td><td>X5R</td><td>16 V</td><td>C3, C6, C7, C12, C15, C18, C21, C23, C24, C25, C29</td><td>11</td></tr>
+    <tr><td>0.1 µF (100nF)</td><td>X5R</td><td>16 V</td><td>C5</td><td>1</td></tr>
+    <tr><td>100 nF</td><td>X7R</td><td>50 V</td><td>C11, C14, C17, C20</td><td>4</td></tr>
+    <tr><td><strong>100 nF</strong></td><td><strong>NP0</strong></td><td><strong>50 V</strong></td><td><strong>C9</strong></td><td><strong>1</strong></td></tr>
+    <tr><td><strong>10 pF</strong></td><td><strong>NP0</strong></td><td><strong>50 V</strong></td><td><strong>C22</strong></td><td><strong>1</strong></td></tr>
+    <tr><td>100 pF</td><td>NP0</td><td>50 V</td><td>C28</td><td>1</td></tr>
+    <tr><td><strong>10 nF</strong></td><td><strong>NP0</strong></td><td><strong>50 V</strong></td><td><strong>C26, C27</strong></td><td><strong>2</strong></td></tr>
+    <tr><td>1 nF</td><td>NP0</td><td>50 V</td><td>C10, C13, C16, C19</td><td>4</td></tr>
+  </table>
+</div>
+
+<div class="conn-block">
+  <h3>8.3 铁氧体磁珠（2 颗）</h3>
+  <table>
+    <tr><th>位号</th><th>型号</th><th>阻抗</th><th>DCR</th><th>I<sub>rated</sub></th><th>封装</th></tr>
+    <tr><td>FB1</td><td>BLM18PG121SN1</td><td>120 Ω @ 100 MHz</td><td>0.15 Ω</td><td>300 mA</td><td>0603</td></tr>
+    <tr><td>FB2</td><td>BLM18AG221SN1</td><td>30 Ω @ 100 MHz</td><td>0.05 Ω</td><td>500 mA</td><td>0603</td></tr>
+  </table>
+</div>
+
+<!-- ============================================ -->
+<!-- SIGNAL FLOW                                  -->
+<!-- ============================================ -->
+<h2>九、完整信号流向描述</h2>
+
+<div class="conn-block">
+  <h3>9.1 控制路径（MCU → VOA）</h3>
+  <ol>
+    <li>MCU 通过 SPI 向 DAC8568 发送 24 位指令。数据从 MCU 的 MOSI 引脚流出，经过 R3 (22Ω) 到达 U1-13 (DIN)。时钟从 MCU 的 SCLK 引脚流出，经过 R2 (22Ω) 到达 U1-12 (SCLK)。CS 由 MCU GPIO 控制，R1 (10kΩ) 上拉到 +3.3VD。</li>
+    <li>DAC8568 接收到指令后，在指定输出通道（A~D）产生 0~2.5V 模拟电压。该电压从 U1-1/2/10/9 输出，经过 R6~R9 (100Ω) 隔离电阻。</li>
+    <li>电压到达 OPA2705 缓冲器（U3A/U3B/U4A/U4B）的同相输入端。运放接成单位增益，输出等于输入电压，但提供了低输出阻抗驱动能力。</li>
+    <li>缓冲器输出经过 R10/R12/R13/R14 (100Ω) + C11/C14/C17/C20 (100nF) RC 滤波器（16 kHz 转折频率）。</li>
+    <li>滤波后的电压到达 VOA 控制输入连接器 J1~J4，控制 VOA 的衰减量。</li>
+  </ol>
+</div>
+
+<div class="conn-block">
+  <h3>9.2 监测路径（PD → MCU）</h3>
+  <ol>
+    <li>光电二极管产生光电流 I<sub>PD</sub>，流入 OPA381 (U2-2) 的反相输入端。U2-3 (+IN) 接 GND。</li>
+    <li>TIA 将电流转换为电压：V<sub>OUT</sub> = I<sub>PD</sub> × R20 (20kΩ)。反馈电容 C22 (10pF) 保证稳定性。</li>
+    <li>U2-6 (OUT) 输出经过 C24 (100nF) AC 耦合到 U5A-3 (+IN)。R21 (100kΩ) 将 +IN 偏置到 GND。这构成 16 Hz 高通，滤除 DC 分量。</li>
+    <li>U5A 放大信号 G = 1 + R22/R23 = 1 + 49.9k/10k = 6 倍。输出电压从 U5-1 输出。</li>
+    <li>信号进入 Sallen-Key 低通滤波器：R25 (10k) → R26 (10k) → U5B-5 (+IN)，C26 (10n) 和 C27 (10n) 分别到 GND。</li>
+    <li>滤波后的信号从 U5B-7 输出，经过 R27 (100Ω) + C28 (100pF) 到 ADC 输入 J5。ADC 完成数字化后通过 SPI 发送给 MCU。</li>
+  </ol>
+</div>
+
+<div class="conn-block">
+  <h3>9.3 MCU 的闭环控制</h3>
+  <ol>
+    <li>MCU 从 ADC 读取当前监测光功率（数字量）。</li>
+    <li>将测量值与用户设定的目标功率值比较，计算误差。</li>
+    <li>运行 PID 算法，计算新的 DAC 输出代码。</li>
+    <li>通过 SPI 将新代码写入 DAC8568，调整 VOA 衰减量。</li>
+    <li>循环回到第 1 步，更新速率典型值 10~100 Hz。</li>
+  </ol>
+</div>
+
+<!-- ============================================ -->
+<!-- END                                          -->
+<!-- ============================================ -->
+<p style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.9rem;">
+  这份文档配合 Lesson 0012 的电路图使用：数字是章节号对应关系。有哪条路径还不清楚？随时问。
+</p>
+
+</body>
+</html>
