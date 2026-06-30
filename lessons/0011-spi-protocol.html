@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0011: SPI 协议 — 从时序图到固件实现</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .mode-table td:nth-child(1) { font-family: var(--mono); font-weight: 600; }
+    .wave-diagram {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 1.2rem 0;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.4;
+      overflow-x: auto;
+    }
+    .wave-diagram .high { color: var(--accent-dark); }
+    .wave-diagram .low  { color: var(--muted); }
+    .wave-diagram .label { color: var(--text-secondary); font-family: var(--sans); font-size: 0.8rem; }
+    .compare-table th:first-child { min-width: 80px; }
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      line-height: 1.5;
+      overflow-x: auto;
+    }
+    .code-block .comment { color: var(--muted); font-style: italic; }
+  </style>
+</head>
+<body>
+
+<h1>SPI 协议 — 从时序图到固件实现</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  光电检测信号链 · Lesson 0011
+  <span style="color: var(--muted); font-size: 0.82rem;">｜衔接：ADC (L05) · DAC8568 (L10)</span>
+</p>
+
+<blockquote>
+  <strong>关键洞察</strong>
+  <p>SPI 看起来简单——就 4 根线，主设备发时钟，全双工同步传输。但实际工程中 >80% 的 SPI 故障出在同一个地方：<strong>主从设备的时钟极性/相位配置没配对</strong>。一节课搞懂 CPOL/CPHA，你就避开了 SPI 开发中最常见的坑。剩下的就是时序余量检查和 PCB 布局了。</p>
+</blockquote>
+
+<!-- ============================================ -->
+<!--  SECTION 1: OVERVIEW                         -->
+<!-- ============================================ -->
+<h2>1. SPI 是什么</h2>
+
+<p><strong>SPI（Serial Peripheral Interface）</strong> 是由 Motorola 在 1980 年代提出的<strong>同步、全双工、主从式串行通信总线</strong>。它在嵌入式系统中是连接 MCU 与 ADC、DAC、传感器、存储器的<strong>头号选择</strong>。</p>
+
+<table class="compare-table">
+  <tr><th>特性</th><th>SPI</th><th>I²C</th><th>UART</th></tr>
+  <tr><td>线数</td><td>4 + N×CS</td><td>2</td><td>2</td></tr>
+  <tr><td>传输方式</td><td>同步（有专用时钟线）</td><td>同步（时钟嵌入在数据中）</td><td>异步</td></tr>
+  <tr><td>方向</td><td>全双工</td><td>半双工</td><td>全双工</td></tr>
+  <tr><td>速度</td><td>典型 10~50 MHz，可达 100+ MHz</td><td>标准 100 kHz / 400 kHz / 1 MHz</td><td>典型 115200 bps ~ 几 Mbps</td></tr>
+  <tr><td>寻址</td><td>片选（硬件寻址）</td><td>7/10 位地址（软件寻址）</td><td>无</td></tr>
+  <tr><td>多设备</td><td>每设备一根 CS，或菊花链</td><td>总线仲裁，地址区分</td><td>点对点</td></tr>
+  <tr><td>协议复杂度</td><td>低</td><td>中</td><td>低</td></tr>
+  <tr><td>在信号链中</td><td><strong>ADC / DAC 的标准接口</strong></td><td>温湿度传感器、EEPROM</td><td>调试终端、GPS 模块</td></tr>
+</table>
+
+<div class="callout callout-info">
+  <strong>🔗 与你已学的连接</strong>
+  <p>Lesson 0005 的 ADS1256（Sigma-Delta ADC）和 Lesson 0010 的 DAC8568（精密 DAC）都使用 SPI 接口。在光测试仪表中，SPI 是你 MCU 和信号链芯片之间最主要的通信通道。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 2: 4 WIRES                          -->
+<!-- ============================================ -->
+<h2>2. 四线信号</h2>
+
+<div class="wave-diagram">
+<pre>
+  ┌──────┐            ┌──────┐
+  │ Master│            │Slave │
+  │      │──── SCLK ──▶│      │  Serial Clock（时钟）
+  │  MCU │──── MOSI ──▶│  ADC │  Master Out, Slave In
+  │      │◀── MISO ────│  DAC │  Master In, Slave Out
+  │      │──── CS  ──▶│      │  Chip Select（片选，低有效）
+  └──────┘            └──────┘
+
+  标准 4 线 SPI 连接（单从设备）
+</pre>
+</div>
+
+<p>SPI 的核心概念：</p>
+<ul>
+  <li><strong>SCLK（Serial Clock）</strong>：由主设备产生，决定数据传输速率。每个时钟周期传输 1 bit</li>
+  <li><strong>MOSI（Master Out, Slave In）</strong>：主设备发送数据到从设备</li>
+  <li><strong>MISO（Master In, Slave Out）</strong>：从设备发送数据到主设备。多设备共享此线，<strong>未选中设备必须三态（高阻）</strong></li>
+  <li><strong>CS（Chip Select，也称 SS、SYNC）</strong>：低电平时选中该从设备。每个从设备独占一根 CS 线</li>
+</ul>
+
+<div class="callout callout-warning">
+  <strong>⚠ 术语注意</strong>
+  <p>不同芯片厂商对 CS 的命名不同：TI 叫 <strong>CS</strong> 或 <strong>SYNC</strong>（DAC8568 中就是 SYNC），ADI 常用 <strong>CSB</strong>，NXP 用 <strong>SS</strong>。功能完全一样——低有效片选。<br>
+  另外，MOSI/MISO 有时也叫 <strong>SDI/SDO</strong>（Serial Data In/Out）或 <strong>DI/DO</strong>。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 3: THE 4 MODES                     -->
+<!-- ============================================ -->
+<h2>3. SPI 的四个模式 — 核心中的核心</h2>
+
+<p>SPI 协议的精髓在于两个参数的排列组合——<strong>CPOL（时钟极性）</strong> 和 <strong>CPHA（时钟相位）</strong>。这两个位定义了数据在时钟的哪个边沿被采样和移出：</p>
+
+<div class="wave-diagram">
+<pre>
+<span class="label">Mode 0 (CPOL=0, CPHA=0):</span>
+<span class="high">SCLK ──┐___┌─┐_┌─┐_┌─┐_┌─┐_┌─┐_┌─┐_┌─┐_┌──</span>
+<span class="low"> CS  ──┘                                 └──</span>
+<span class="low">MOSI ──┘  采样  采样  采样  采样  采样  采样</span>
+<span class="low">     空闲时 SCLK=低，上升沿采样（常用）</span>
+
+<span class="label">Mode 1 (CPOL=0, CPHA=1):</span>
+<span class="high">SCLK ──┐___┌─┐_┌─┐_┌─┐_┌─┐_┌─┐_┌─┐_┌─┐_┌──</span>
+<span class="low"> CS  ──┘                                 └──</span>
+<span class="low">     空闲时 SCLK=低，下降沿采样</span>
+
+<span class="label">Mode 2 (CPOL=1, CPHA=0):</span>
+<span class="high">SCLK ──┐‾‾‾└─┘‾└─┘‾└─┘‾└─┘‾└─┘‾└─┘‾└─┘‾└──</span>
+<span class="low"> CS  ──┘                                 └──</span>
+<span class="low">     空闲时 SCLK=高，下降沿采样</span>
+
+<span class="label">Mode 3 (CPOL=1, CPHA=1):</span>
+<span class="high">SCLK ──┐‾‾‾└─┘‾└─┘‾└─┘‾└─┘‾└─┘‾└─┘‾└─┘‾└──</span>
+<span class="low"> CS  ──┘                                 └──</span>
+<span class="low">     空闲时 SCLK=高，上升沿采样</span>
+</pre>
+</div>
+
+<p><strong>一句话记住</strong>：</p>
+<ul>
+  <li><strong>CPOL</strong> = 时钟空闲时的电平（0=低，1=高）</li>
+  <li><strong>CPHA</strong> = 在哪个边沿采样（0=第一个边沿，1=第二个边沿）</li>
+</ul>
+
+<h3>3.1 常见器件默认模式</h3>
+
+<table class="mode-table">
+  <tr><th>模式</th><th>CPOL</th><th>CPHA</th><th>采样边沿</th><th>移出边沿</th><th>常见器件</th></tr>
+  <tr><td>Mode 0</td><td>0</td><td>0</td><td>上升沿</td><td>下降沿</td><td><strong>大多数 ADC/DAC</strong>（含 ADS1256、DAC8568）、Flash 存储器</td></tr>
+  <tr><td>Mode 1</td><td>0</td><td>1</td><td>下降沿</td><td>上升沿</td><td>某些传感器（如部分温度传感器）</td></tr>
+  <tr><td>Mode 2</td><td>1</td><td>0</td><td>下降沿</td><td>上升沿</td><td>某些 RF 收发器</td></tr>
+  <tr><td>Mode 3</td><td>1</td><td>1</td><td>上升沿</td><td>下降沿</td><td>某些 EEPROM，NAND Flash</td></tr>
+</table>
+
+<div class="callout callout-warning">
+  <strong>⚠ 最常见的 SPI 故障</strong>
+  <p>MCU 的 SPI 外设默认初始化往往是 <strong>Mode 0</strong>。从设备数据手册中通常会给出时序图，图中明确标出"数据在 SCLK 上升沿被采样"——如果 MCU 配置成了下降沿采样，每个 bit 都错位采样，结果数据全是乱的。<strong>调试 SPI 的第一步：用示波器看 SCLK 和 MOSI，确认边沿对齐正确。</strong></p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 4: TIMING                           -->
+<!-- ============================================ -->
+<h2>4. 时序参数</h2>
+
+<p>从设备数据手册中通常给出以下时序参数。读懂它们是成功通信的前提：</p>
+
+<table>
+  <tr><th>参数</th><th>符号</th><th>含义</th><th>DAC8568 典型值</th></tr>
+  <tr><td>SCLK 频率</td><td>f<sub>SCLK</sub></td><td>最高时钟速率</td><td>50 MHz</td></tr>
+  <tr><td>SCLK 低电平时间</td><td>t<sub>SCLKL</sub></td><td>时钟低电平最小宽度</td><td>10 ns</td></tr>
+  <tr><td>SCLK 高电平时间</td><td>t<sub>SCLKH</sub></td><td>时钟高电平最小宽度</td><td>10 ns</td></tr>
+  <tr><td>CS 建立时间</td><td>t<sub>CSS</sub></td><td>CS 拉低后，到第一个 SCLK 边沿的最小时间</td><td>20 ns</td></tr>
+  <tr><td>CS 保持时间</td><td>t<sub>CSH</sub></td><td>最后一个 SCLK 边沿后，CS 需保持低电平的最小时间</td><td>10 ns</td></tr>
+  <tr><td>数据建立时间</td><td>t<sub>SU</sub></td><td>数据必须在采样边沿之前稳定的最小提前量</td><td>5 ns</td></tr>
+  <tr><td>数据保持时间</td><td>t<sub>H</sub></td><td>数据必须在采样边沿之后保持稳定的最小时间</td><td>5 ns</td></tr>
+
+</table>
+
+<p><strong>工程直觉</strong>：如果你的 MCU 运行在 80 MHz，SPI 外设最大时钟可设为 80/2 = 40 MHz。DAC8568 的最高 50 MHz 不是限制——但 PCB 走线长度会限制实际可用频率。经验法则：在 FR4 上，每 10 cm 走线引入约 0.5 ns 的传播延迟。40 MHz 时钟（周期 25 ns）下，走线长度超过 20 cm 就需要考虑信号完整性了。</p>
+
+<!-- ============================================ -->
+<!--  SECTION 5: MULTI-SLAVE                     -->
+<!-- ============================================ -->
+<h2>5. 多设备连接</h2>
+
+<h3>5.1 独立片选（最常用）</h3>
+
+<div class="wave-diagram">
+<pre>
+  ┌──────────┐
+  │   MCU    │─── SCLK ────┬─── ADC (CS1)
+  │          │─── MOSI ────┤
+  │          │◀── MISO ────┤
+  │          │─── GPIO1 ───┘
+  │          │─── GPIO2 ─────── DAC (CS2)
+  │          │─── GPIO3 ─────── 传感器 (CS3)
+  └──────────┘
+
+  每设备独占一根 CS → 可独立控制，互不干扰
+</pre>
+</div>
+
+<ul>
+  <li><strong>优点</strong>：每个设备独立控制，不限制数据帧长度，可以混用不同 SPI 模式的设备</li>
+  <li><strong>缺点</strong>：每增加一个设备多用一根 MCU GPIO</li>
+  <li><strong>在你的仪表中</strong>：ADC（ADS1256）独占一根 CS，DAC8568 独占另一根 CS——标准做法</li>
+</ul>
+
+<h3>5.2 菊花链</h3>
+
+<p>部分器件支持菊花链（Daisy-chain）连接：数据从 MOSI 流入第一颗，经过内部移位寄存器后从器件特定的 DOUT 引脚流入下一颗的 DIN，共用一根 CS。</p>
+
+<ul>
+  <li>节省 GPIO，但要求所有器件支持菊花链模式</li>
+  <li>数据帧长度 = 单帧长度 × 级联数量</li>
+  <li>DAC8568 <strong>不支持</strong>菊花链——但同系列的 DAC7568 支持</li>
+</ul>
+
+<h3>5.3 MISO 三态要求</h3>
+
+<p>所有从设备的 MISO 输出必须为<strong>漏极开路或三态</strong>。未选中的设备 MISO 必须进入高阻态，否则多个设备的输出会在 MISO 线上冲突——这是初学者最常犯的硬件错误。</p>
+
+<!-- ============================================ -->
+<!--  SECTION 6: PRACTICAL IMPLEMENTATION        -->
+<!-- ============================================ -->
+<h2>6. 固件实现 — 以 DAC8568 为例</h2>
+
+<p>回顾 Lesson 0010 中的 DAC8568 SPI 编程，我们补充时序层面的细节：</p>
+
+<div class="code-block">
+<span class="comment">// 1. SPI 外设初始化（以 STM32 HAL 为例）</span>
+SPI_HandleTypeDef hspi1;
+hspi1.Instance = SPI1;
+hspi1.Init.Mode = SPI_MODE_MASTER;         <span class="comment">// 主模式</span>
+hspi1.Init.Direction = SPI_DIRECTION_2LINES; <span class="comment">// 全双工（MOSI + MISO）</span>
+hspi1.Init.DataSize = SPI_DATASIZE_8BIT;    <span class="comment">// 8 位一帧（注意：DAC8568 需要 24 位）</span>
+hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;  <span class="comment">// CPOL = 0</span>
+hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;      <span class="comment">// CPHA = 0 → Mode 0</span>
+hspi1.Init.NSS = SPI_NSS_SOFT;              <span class="comment">// 软件控制 CS</span>
+hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8; <span class="comment">// 80MHz/8 = 10MHz</span>
+HAL_SPI_Init(&hspi1);
+</div>
+
+<div class="code-block">
+<span class="comment">// 2. 发送 24 位指令帧到 DAC8568</span>
+<span class="comment">// DAC8568 需要 24 位连续时钟，8 位 SPI 外设要发 3 次</span>
+uint8_t tx_buf[3];
+uint32_t cmd = 0x800000 | (channel << 19) | dac_code;
+<span class="comment">// 命令=10 (写并更新), 地址=channel, data=dac_code</span>
+
+tx_buf[0] = (cmd >> 16) & 0xFF;  <span class="comment">// Bit 23-16: 命令+地址+保留</span>
+tx_buf[1] = (cmd >> 8)  & 0xFF;  <span class="comment">// Bit 15-8:  数据高 8 位</span>
+tx_buf[2] = cmd & 0xFF;          <span class="comment">// Bit 7-0:   数据低 8 位</span>
+
+HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_RESET); <span class="comment">// CS 拉低</span>
+HAL_SPI_Transmit(&hspi1, tx_buf, 3, 100);  <span class="comment">// 连续发送 3 字节（24 位）</span>
+HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_SET);   <span class="comment">// CS 拉高</span>
+</div>
+
+<div class="callout callout-warning">
+  <strong>⚠ 24 位帧的陷阱</strong>
+  <p>DAC8568 要求 24 位时钟连续、CS 在整个传输过程中保持低电平。如果你逐字节拉高 CS（很多初学者的做法），从设备会认为每一字节是一个独立的命令帧——数据会被解析成三个无效指令。<strong>务必在传输前拉低 CS、传输完 3 字节后再拉高 CS。</strong></p>
+</div>
+
+<h3>6.2 用示波器调试 SPI</h3>
+
+<p>当 SPI 通信不工作时，按以下顺序排查：</p>
+<ol>
+  <li><strong>看 SCLK</strong>：有连续的时钟脉冲吗？频率对吗？</li>
+  <li><strong>看 CS</strong>：传输期间持续低电平？有无中途抖动？</li>
+  <li><strong>看 MOSI 数据边沿对齐</strong>：数据在 SCLK 采样边沿时是否稳定？（对照模式表确认）</li>
+  <li><strong>看 MISO</strong>：从设备有响应吗？还是一直为低或高阻？</li>
+  <li><strong>检查电气</strong>：电压电平是否兼容（3.3V MCU → 5V 器件需要电平转换？）</li>
+</ol>
+
+<!-- ============================================ -->
+<!--  SECTION 7: PCB LAYOUT                      -->
+<!-- ============================================ -->
+<h2>7. PCB 布局要点</h2>
+
+<p>复习 Lesson 0004 的 PCB 布局知识，结合 SPI：</p>
+
+<table>
+  <tr><th>信号</th><th>布局要求</th><th>理由</th></tr>
+  <tr><td>SCLK</td><td><strong>最短走线</strong>，少打过孔，远离模拟信号</td><td>SCLK 是高速开关信号，容性耦合到模拟节点会引入噪声</td></tr>
+  <tr><td>MOSI / MISO</td><td>与 SCLK 等长（高速时），避免 90° 拐角</td><td>不等长导致数据与时钟的偏移（Skew）</td></tr>
+  <tr><td>CS</td><td>加 10 kΩ 上拉电阻到 V<sub>DD</sub></td><td>防止 MCU 未初始化时 CS 浮空，误触发从设备</td></tr>
+  <tr><td>MISO</td><td>如果不用，可悬空（从设备端设三态）</td><td>半双工 SPI 时可以省掉 MISO 走线</td></tr>
+  <tr><td>SPI 总线</td><td>与其他数字信号间隔 ≥ 3 倍线宽</td><td>减少串扰</td></tr>
+  <tr><td>SPI 走线</td><td>不要跨越分割的地平面</td><td>返回路径不连续 → EMI 问题</td></tr>
+</table>
+
+<div class="callout callout-info">
+  <strong>🔗 与你已学的连接</strong>
+  <p>Lesson 0004 中有一条规则："数字信号（如 SPI）与模拟输入区域之间至少保持 5 mm 间距"。这在混合信号 PCB 中尤其重要——10 MHz 的 SCLK 如果紧贴着 TIA 的反馈电阻走线，容性耦合进来的时钟噪声会直接出现在 TIA 输出上。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 8: QUIZ                             -->
+<!-- ============================================ -->
+<h2>8. 练习与自测</h2>
+
+<div class="quiz-question">
+  <p><strong>问题 1</strong>：你在数据手册中看到一个 ADC 的时序图：CS 拉低后 SCLK 从低电平开始，数据在 SCLK 的第一个边沿（上升沿）被采样。这对应哪个 SPI 模式？</p>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    A. Mode 0 (CPOL=0, CPHA=0)
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    B. Mode 1 (CPOL=0, CPHA=1)
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    C. Mode 2 (CPOL=1, CPHA=0)
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    D. Mode 3 (CPOL=1, CPHA=1)
+  </div>
+  <div id="q1" class="quiz-answer">
+    <strong>答案：A</strong><br>
+    SCLK 空闲低电平 → CPOL=0。在第一个边沿（上升沿）采样 → CPHA=0。这是最常用的 Mode 0，也是大多数 ADC 和 DAC（包括 ADS1256 和 DAC8568）的默认模式。如果你的 MCU 外设配置正确，第一件事就是确认 CPOL/CPHA 匹配 Mode 0。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>问题 2</strong>：你的 PCB 上有两个 SPI 从设备：ADC（Mode 0）和温度传感器（Mode 3）。MCU 只有一组 SPI 外设。以下哪种方案正确？</p>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    A. 将两个设备都配置为 Mode 0，传感器会正常工作
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    B. 在每次片选切换前，重新配置 SPI 外设的 CPOL/CPHA
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    C. 用 GPIO 模拟 SPI 接口给温度传感器，硬件 SPI 给 ADC
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    D. 两个方案 B 和 C 都可以
+  </div>
+  <div id="q2" class="quiz-answer">
+    <strong>答案：D</strong><br>
+    两种做法都可以。方案 B（重新配置外设）效率更高——在片选切换之间，重新写入 SPI 控制寄存器的 CPOL/CPHA 位，然后切换 CS。方案 C（GPIO 模拟）更灵活，适合低速传感器。实际工程中还有一个选择：换一个支持多组 SPI 外设的 MCU，将不同模式的设备分配到不同 SPI 总线。在光测试仪表中，通常 ADC 和 DAC 都在 Mode 0 下工作，很少遇到混合模式的问题。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>问题 3</strong>：你调试 SPI 时发现 MISO 线上始终是低电平（0 V），但示波器确认 SCLK 和 CS 时序正确。以下哪种原因最可能？</p>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    A. 从设备的 MISO 引脚损坏
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    B. 从设备未被正确使能（CS 时序或电平不对）
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    C. SCLK 频率太高
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    D. MISO 线上有上拉电阻
+  </div>
+  <div id="q3" class="quiz-answer">
+    <strong>答案：B</strong><br>
+    MISO 持续低电平最常见的原因是从设备没有使能，输出处于高阻态，而 MISO 线上的弱下拉（或没有上拉）让它读到 0。检查 CS 波形：它是否确实到了从设备的使能阈值？是否有噪声毛刺导致 CS 在传输中途短暂拉高？CS 是否在第一个 SCLK 边沿前已稳定拉低（满足 t<sub>CSS</sub>）？A 选项虽然可能，但概率远低于 B——芯片出厂损坏率极低。SCLK 频率太高通常不会导致 MISO 全低，而是数据乱码。
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 9: SUMMARY                         -->
+<!-- ============================================ -->
+<h2>9. 小结</h2>
+
+<ul>
+  <li><strong>SPI = 同步 + 全双工 + 主从</strong>——ADC 和 DAC 的标准接口，在你的信号链中无处不在</li>
+  <li><strong>4 根线</strong>：SCLK（时钟）、MOSI（主发）、MISO（从发）、CS（片选）</li>
+  <li><strong>4 个模式</strong>由 CPOL（时钟空闲电平）和 CPHA（采样边沿）定义——>80% 的 SPI 故障源于此</li>
+  <li><strong>Mode 0</strong>是默认模式——ADS1256（L05）和 DAC8568（L10）都在此模式下工作</li>
+  <li><strong>多设备</strong>用独立 CS 连接，MISO 三态输出，不能冲突</li>
+  <li><strong>调试顺序</strong>：看 SCLK → 看 CS → 看 MOSI 边沿对齐 → 看 MISO → 查电平兼容性</li>
+  <li><strong>PCB 上</strong>：SCLK 最短、远离模拟信号、CS 加上拉、不走分割地平面</li>
+</ul>
+
+<h2>10. 延伸资源</h2>
+
+<ul>
+  <li><a href="https://www.ti.com/lit/an/sbaa319/sbaa319.pdf">TI: SPI 通信常见问题指南 (SBAA319)</a> — 官方故障排查清单</li>
+  <li><a href="../lessons/0010-dac8568.html">Lesson 0010: DAC8568</a> — SPI 编程的具体实例</li>
+  <li><a href="../lessons/0005-sigma-delta-adc.html">Lesson 0005: Sigma-Delta ADC</a> — ADS1256 的 SPI 读数据流程</li>
+  <li><a href="../lessons/0004-tia-pcb-layout.html">Lesson 0004: TIA PCB Layout</a> — 重温数字信号与模拟区域的隔离要求</li>
+</ul>
+
+<p style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.9rem;">
+  SPI 是嵌入式的"敲门砖"协议——简单但陷阱不少。学通了它，你就能顺畅地操作 ADC 读取测量数据、控制 DAC 输出电压、配置各种传感器。可以接着深入了解的：用逻辑分析仪实际调试 SPI 的步骤，或者 I²C 与 SPI 的对比实战。
+</p>
+
+<script>
+function revealAnswer(id) {
+  var el = document.getElementById(id);
+  if (el) el.style.display = 'block';
+}
+</script>
+
+</body>
+</html>

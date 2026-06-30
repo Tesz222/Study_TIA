@@ -1,0 +1,7 @@
+# SPI 协议 — 从时序图到固件实现
+
+Completed Lesson 0011 on SPI protocol. Covered: SPI vs I²C vs UART comparison table (speed, wire count, duplex, addressing), 4-wire signal description (SCLK, MOSI, MISO, CS) with naming conventions across manufacturers, the four SPI modes defined by CPOL and CPHA with waveform diagrams and common device mapping (Mode 0 dominant for ADC/DAC), timing parameters (f_SCLK, t_CSS, t_CSH, t_SU, t_H) with DAC8568 example values, multi-slave topologies (independent CS vs daisy-chain), MISO tri-state requirement, practical firmware implementation with STM32 HAL code for DAC8568 24-bit frame (+ common trap: inter-byte CS glitch), oscilloscope debugging checklist (5-step process), PCB layout guidelines for SPI signals with cross-reference to Lesson 0004. Three quiz questions on mode identification, multi-slave mixed-mode handling, and MISO fault diagnosis.
+
+**Status**: active
+**Evidence**: Completed Lesson 0011 with three quiz questions on SPI mode identification, mixed-mode multi-slave strategies, and MISO debugging.
+**Implications**: The user now has a systematic understanding of SPI protocol from physical layer (electrical/timing) to data link layer (modes/framing) to application layer (MCU firmware). Combined with previous device-specific lessons (ADS1256 L05, DAC8568 L10), this provides complete practical knowledge for SPI-based communication in optical test instrument design.

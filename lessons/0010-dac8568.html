@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0010: DAC8568 — 八通道精密 DAC 与光测试仪表中的控制链路</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .link-cite {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-left: 0.3rem;
+    }
+    .link-cite a { color: var(--muted); text-decoration: underline; }
+    .arch-diagram {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin: 1.2rem 0;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+    .arch-diagram .core { color: var(--accent-dark); font-weight: 600; }
+    .spec-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .spec-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.6rem 0.8rem;
+    }
+    .spec-item .label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .spec-item .value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent-dark);
+    }
+    .spec-item .note {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .pin-table td:first-child {
+      font-family: var(--mono);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    @media (max-width: 600px) {
+      .spec-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>DAC8568 — 八通道精密 DAC 与光测试仪表中的控制链路</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  光电检测信号链 · Lesson 0010
+  <span class="link-cite">｜数据手册：<a href="https://www.ti.com/lit/gpn/dac8568">TI DAC8568</a></span>
+</p>
+
+<blockquote>
+  <strong>关键洞察</strong>
+  <p>如果 ADC 是信号链的"眼睛"（读取测量结果），那么 DAC 就是信号链的"手"（执行控制动作）。DAC8568——<strong>16 位、8 通道、内置 2.5V 精密基准</strong>——正好对应你在 Lesson 0005（ADC）和 Lesson 0007（VOA）之间缺失的<strong>控制链路</strong>。它的一颗芯片可以同时控制 VOA 衰减、激光器偏置、光开关驱动——这正是多通道光测试仪表需要的。</p>
+</blockquote>
+
+<!-- ============================================ -->
+<!--  SECTION 1: DEVICE OVERVIEW                  -->
+<!-- ============================================ -->
+<h2>1. 芯片速览</h2>
+
+<p><strong>DAC8568</strong> 是 TI 推出的 <strong>16 位精度、8 通道、电压输出、内置基准的精密 DAC</strong>。它属于 TI 的 "DACx5608" 系列中的 16 位版本（同系列还有 12 位 DAC7568、14 位 DAC8168）。</p>
+
+<div class="spec-grid">
+  <div class="spec-item">
+    <div class="label">分辨率</div>
+    <div class="value">16 位</div>
+    <div class="note">65,536 级，LSB = V<sub>REF</sub> / 65536</div>
+  </div>
+  <div class="spec-item">
+    <div class="label">通道数</div>
+    <div class="value">8</div>
+    <div class="note">独立缓冲电压输出</div>
+  </div>
+  <div class="spec-item">
+    <div class="label">内部基准</div>
+    <div class="value">2.5 V ± 0.02%</div>
+    <div class="note">温漂 5 ppm/°C typ / 8 ppm/°C max</div>
+  </div>
+  <div class="spec-item">
+    <div class="label">INL</div>
+    <div class="value">±4 LSB 最大</div>
+    <div class="note">±0.006% FSR</div>
+  </div>
+  <div class="spec-item">
+    <div class="label">建立时间</div>
+    <div class="value">10 µs</div>
+    <div class="note">至 ±0.003% FSR</div>
+  </div>
+  <div class="spec-item">
+    <div class="label">数字接口</div>
+    <div class="value">SPI</div>
+    <div class="note">最高 50 MHz，与 1.8 V/3.3 V/5 V 逻辑兼容</div>
+  </div>
+  <div class="spec-item">
+    <div class="label">电源</div>
+    <div class="value">2.7 ~ 5.5 V</div>
+    <div class="note">I<sub>DD</sub> = 3.5 mA @ 5 V (所有通道)</div>
+  </div>
+  <div class="spec-item">
+    <div class="label">输出摆幅</div>
+    <div class="value">轨到轨</div>
+    <div class="note">V<sub>OUT</sub> = 0 V ~ V<sub>REF</sub> × 增益</div>
+  </div>
+  <div class="spec-item">
+    <div class="label">上电状态</div>
+    <div class="value">0 V (零标)</div>
+    <div class="note">通过 R<sub>PD</sub> 下拉到 GND，可配置</div>
+  </div>
+  <div class="spec-item">
+    <div class="label">封装</div>
+    <div class="value">TSSOP-16</div>
+    <div class="note">4.4 × 5.0 mm，16 脚</div>
+  </div>
+</div>
+
+<div class="callout callout-info">
+  <strong>🔗 家族对比</strong>
+  <p>DACx5608 系列内部架构完全相同，仅在分辨率上区别：</p>
+  <table>
+    <tr><th>型号</th><th>分辨率</th><th>LSB (V<sub>REF</sub>=2.5V)</th><th>用途</th></tr>
+    <tr><td>DAC7568</td><td>12 位</td><td>610 µV</td><td>粗调、低成本多通道</td></tr>
+    <tr><td>DAC8168</td><td>14 位</td><td>153 µV</td><td>中等精度</td></tr>
+    <tr><td><strong>DAC8568</strong></td><td><strong>16 位</strong></td><td><strong>38 µV</strong></td><td>精密测试仪表首选</td></tr>
+  </table>
+  <p style="margin-top: 0.4rem;">在光测试仪表中，VOA 控制通常需要 ≥14 位分辨率，因此 DAC8568 是最自然的选择。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 2: INTERNAL ARCHITECTURE           -->
+<!-- =============================================== -->
+<h2>2. 内部架构</h2>
+
+<div class="arch-diagram">
+<pre>
+  ┌─────────────────────── DAC8568 ──────────────────────────┐
+  │                                                           │
+  │  SPI ──→ 移位寄存器 ──→ 输入寄存器 ──→ DAC 寄存器 ──→ │
+  │  接口          │            │  (8×)           │           │
+  │               │            │                  │           │
+  │               ▼            ▼                  ▼           │
+  │           ┌─────────┐  ┌─────────┐      ┌─────────┐      │
+  │           │  DAC A  │  │  DAC B  │ ...  │  DAC H  │      │
+  │           │ (R-2R)  │  │ (R-2R)  │      │ (R-2R)  │      │
+  │           └────┬────┘  └────┬────┘      └────┬────┘      │
+  │                │            │                  │          │
+  │                ▼            ▼                  ▼          │
+  │          ┌──────────┐ ┌──────────┐        ┌──────────┐   │
+  │          │ 输出缓冲   │ │ 输出缓冲   │ ...   │ 输出缓冲   │   │
+  │          │ (轨到轨)  │ │ (轨到轨)  │        │ (轨到轨)  │   │
+  │          └────┬────┘ └────┬────┘        └────┬────┘   │
+  │               │            │                  │          │
+  │        V<sub>OUT A</sub>    V<sub>OUT B</sub>          V<sub>OUT H</sub>   │
+  │                                                           │
+  │  ┌──────────────────────────────────────────────────┐    │
+  │  │ 内部基准 V<sub>REF</sub> = 2.5 V (5 ppm/°C)              │    │
+  │  │ 或外部基准 (V<sub>REF</sub> 引脚输入)                       │    │
+  │  └──────────────────────────────────────────────────┘    │
+  └───────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<h3>2.1 核心技术亮点</h3>
+
+<ul>
+  <li><strong>R-2R 梯形电阻网络</strong>：DAC8568 使用 R-2R 架构而非 PWM 或 Sigma-Delta 型，<strong>单调性有保证</strong>（16 位均单调），且无需输出滤波——这在你控制 VOA 时很重要，因为任何输出纹波都会直接调制到光功率上</li>
+  <li><strong>双缓冲结构</strong>（输入寄存器 → DAC 寄存器）：所有通道可以同时更新（LDAC 功能），确保多通道输出同步变化——适用于 WDM 通道同时均衡的场景</li>
+  <li><strong>内部基准 2.5V ±0.02%</strong>：节省一颗外部参考芯片（如 REF5050），但需要权衡——内部基准的温漂（5 ppm/°C typ）是否满足系统精度要求</li>
+</ul>
+
+<h3>2.2 引脚布局（TSSOP-16）</h3>
+
+<table class="pin-table">
+  <tr><th>引脚</th><th>名称</th><th>功能</th></tr>
+  <tr><td>1</td><td>V<sub>OUT A</sub></td><td>通道 A 模拟输出</td></tr>
+  <tr><td>2</td><td>V<sub>OUT B</sub></td><td>通道 B 模拟输出</td></tr>
+  <tr><td>3</td><td>V<sub>REF</sub></td><td>基准输入/输出。用内部基准时接 100 nF 去耦到 GND</td></tr>
+  <tr><td>4</td><td>V<sub>REF</sub>GND</td><td>基准地。敏感节点，建议独立走线回电源地</td></tr>
+  <tr><td>5</td><td>GND</td><td>地</td></tr>
+  <tr><td colspan="3">⋯ 中间引脚略 ⋯</td></tr>
+  <tr><td>11</td><td>SYNC</td><td>SPI 片选（低有效）。在 SYNC 上升沿锁存数据</td></tr>
+  <tr><td>12</td><td>SCLK</td><td>SPI 时钟，最高 50 MHz</td></tr>
+  <tr><td>13</td><td>DIN</td><td>SPI 数据输入，MSB 先行</td></tr>
+  <tr><td>14</td><td>LDAC</td><td>同步加载。低电平将所有通道同时更新到新值</td></tr>
+  <tr><td>15</td><td>CLR</td><td>异步清零。将所有 DAC 寄存器复位到零标</td></tr>
+  <tr><td>16</td><td>V<sub>DD</sub></td><td>电源 2.7~5.5 V</td></tr>
+</table>
+
+<!-- ============================================ -->
+<!--  SECTION 3: APPLICATION IN SIGNAL CHAIN     -->
+<!-- =============================================== -->
+<h2>3. 在光测试仪表中的位置</h2>
+
+<p>DAC8568 完成你信号链中的"控制输出"角色：</p>
+
+<div class="arch-diagram">
+<pre>
+  ┌──────────────── 完整的测试仪表信号链 ─────────────────┐
+  │                                                       │
+  │  <strong>接收链路</strong>（已学）                                 │
+  │  光 → PD → TIA → [二级增益] → [抗混叠] → ADC → MCU   │
+  │              (OPA381)  (OPA2705)  (OPA2705) (ADS1256) │
+  │                                                       │
+  │  <strong>控制链路</strong>（本节）                                 │
+  │  MCU → <span class="core">DAC8568</span> → [OPA2705 缓冲] → VOA 驱动 → 光路 │
+  │        (16位/8通道)    (可选)       (高压运放)         │
+  │                                                       │
+  │  <strong>控制算法</strong>：MCU 内部 PID 环路                          │
+  │  设定值 ←→ 测量值 (TIA-ADC) → 误差 → DAC 输出         │
+  └───────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<h3>3.1 VOA 驱动（核心场景）</h3>
+<p>回顾 Lesson 0007：MEMS VOA 需要 0~120 V 控制电压。DAC8568 输出 0~2.5 V（内部基准）或 0~5 V（外部基准），然后通过高压放大器（如 OPA454 或分立方案）升压到 VOA 所需的 0~120 V 范围。</p>
+<p>DAC8568 在此处的关键优势：</p>
+<ul>
+  <li><strong>16 位分辨率</strong>：2.5 V 基准下 LSB = 38 µV，经升压放大到 120 V 范围后，等效分辨率 ≈ 0.0018 dB（VOA 输出端）</li>
+  <li><strong>单调性保证</strong>：确保衰减量随代码单调增加，不会出现"代码增大输出减小"的非单调问题</li>
+  <li><strong>8 通道</strong>：可同时控制多个 VOA（WDM 多通道）或控制 VOA + 激光器偏置 + 光开关</li>
+</ul>
+
+<h3>3.2 ADC 参考电压提供</h3>
+<p>虽然内部基准只有 2.5 V（而 Lesson 0005 的 ADS1256 可能需要 5 V 参考），但 DAC8568 可以接收<strong>外部基准</strong>。你可以用一个高精度参考（如 REF5050）提供给 DAC8568 的 V<sub>REF</sub> 引脚，DAC8568 内部的缓冲器同时为 AD 侧供电。</p>
+
+<h3>3.3 校准电压源</h3>
+<p>在仪表自校准流程中，DAC8568 的每个通道可以输出已知精确电压，用于：</p>
+<ul>
+  <li>校准 ADC 的零点和满量程</li>
+  <li>产生 TIA 的 DC 补偿电压（抵消运放失调）</li>
+  <li>设置比较器的阈值</li>
+</ul>
+
+<!-- ============================================ -->
+<!--  SECTION 4: SPI INTERFACE                   -->
+<!-- =============================================== -->
+<h2>4. SPI 编程</h2>
+
+<p>DAC8568 使用标准的 4 线 SPI（SYNC、SCLK、DIN、LDAC），<strong>24 位指令帧</strong>格式：</p>
+
+<pre>
+  Bit 23-22   Bit 21-19   Bit 18-16   Bit 15-0
+  ┌─────────┬──────────┬──────────┬─────────────────┐
+  │ 命令     │ 地址      │ 保留      │ 数据 (16 位 DAC)  │
+  │ (2位)    │ (3位)    │ (3位)    │                   │
+  └─────────┴──────────┴──────────┴─────────────────┘
+
+  命令编码:
+    00 = 写输入寄存器 (只更新选中通道)
+    01 = 更新 DAC 寄存器 (采用新数据)
+    10 = 写输入 + 更新所有 DAC (写并同时更新)
+    11 = 写控制寄存器 (配置内部基准、LDAC 等)
+
+  地址编码:
+    000 = 通道 A   100 = 通道 E
+    001 = 通道 B   101 = 通道 F
+    010 = 通道 C   110 = 通道 G
+    011 = 通道 D   111 = 所有通道 (广播)
+</pre>
+
+<div class="callout callout-warning">
+  <strong>⚠ 常见陷阱</strong>
+  <p>SPI 时序的常见错误：SYNC 必须在 24 个时钟周期内保持低电平。如果在传输中途拉高 SYNC，数据被丢弃。<br>
+  此外，DAC8568 的 DIN 在 SCLK 下降沿采样——如果你的 MCU 在上升沿输出数据，需要配置 SPI 极性/相位（CPOL=0, CPHA=1）。</p>
+</div>
+
+<h3>4.1 编程示例（伪代码）</h3>
+
+<pre>// 初始化: 使能内部基准
+SPI_Send(0b_11_111_000_0000000000000001);
+// 命令=11 (写控制), 地址=111 (广播), data=0x0001 (bit0=1 使能内部基准)
+
+// 设置通道 A 输出为 1.25 V (50% 满量程)
+uint16_t code = (uint16_t)(1.25 / 2.5 * 65536);  // = 32768
+SPI_Send(0b_10_000_000_0000000000000000 | code);
+// 命令=10 (写并更新), 地址=000 (通道 A), data=code
+
+// 同时更新所有通道到新值
+// 先将各通道数据缓存到输入寄存器
+SPI_Send(0b_00_000_000_0000000000000000 | chanA_code);  // 写通道 A 输入
+SPI_Send(0b_00_001_000_0000000000000000 | chanB_code);  // 写通道 B 输入
+// ...
+// 然后拉低 LDAC 引脚 100 ns → 所有通道同时更新</pre>
+
+<!-- ============================================ -->
+<!--  SECTION 5: PRECISION & REFERENCE          -->
+<!-- =============================================== -->
+<h2>5. 精度分析与基准配置</h2>
+
+<h3>5.1 误差预算</h3>
+
+<p>在你的光测试仪表应用中，DAC8568 的总误差来源：</p>
+
+<table>
+  <tr><th>误差来源</th><th>典型值</th><th>对 VOA 控制的影响</th></tr>
+  <tr><td>INL</td><td>±4 LSB = ±0.006% FSR</td><td>VOA 衰减量的绝对精度误差。可在系统校准时补偿</td></tr>
+  <tr><td>内部基准初始精度</td><td>±0.02% (2.5 V ± 0.5 mV)</td><td>满量程偏差。同样可校准</td></tr>
+  <tr><td>内部基准温漂</td><td>5 ppm/°C typ</td><td>温度变化时的漂移。如果仪表在 25±5°C 环境下使用，贡献 25 ppm ≈ 0.0025%</td></tr>
+  <tr><td>增益误差</td><td>±0.05% FSR typ</td><td>输出放大器的增益偏差</td></tr>
+  <tr><td>失调误差</td><td>±2 mV typ</td><td>输出缓冲器零标偏移</td></tr>
+</table>
+
+<p><strong>工程直觉</strong>：如果你追求 0.1 dB 的 VOA 控制精度（这是测试仪表的典型要求），对应的电压精度约为 0.12%——DAC8568 的 INL（0.006%）远优于这个要求，但基准温漂可能在某些场景下成为限制因素。如果仪表需要在宽温度范围（如 0~50°C）下工作，考虑使用外部基准。</p>
+
+<h3>5.2 内部 vs 外部基准</h3>
+
+<table>
+  <tr><th>对比项</th><th>内部基准（默认）</th><th>外部基准（如 REF5050）</th></tr>
+  <tr><td>电压</td><td>2.5 V</td><td>可灵活选择（如需 5 V 满量程）</td></tr>
+  <tr><td>初始精度</td><td>±0.02%</td><td>±0.05%（REF5050）</td></tr>
+  <tr><td>温漂</td><td>5 ppm/°C typ</td><td>3 ppm/°C typ（REF5050）</td></tr>
+  <tr><td>成本</td><td>包含在 DAC 内</td><td>额外 $2~5</td></tr>
+  <tr><td>占板面积</td><td>0</td><td>MSOP-8 或更小</td></tr>
+  <tr><td>推荐场景</td><td>常温便携仪表</td><td>宽温精密测试设备</td></tr>
+</table>
+
+<!-- ============================================ -->
+<!--  SECTION 6: DESIGN CAVEATS                  -->
+<!-- =============================================== -->
+<h2>6. 使用注意事项</h2>
+
+<h3>6.1 电源和基准去耦</h3>
+<p>将 Lesson 0008 的磁珠知识应用到这里：</p>
+<ul>
+  <li>V<sub>DD</sub>（引脚 16）：π 型滤波器（磁珠 100 Ω + 10 µF + 100 nF）</li>
+  <li>V<sub>REF</sub>（引脚 3）：100 nF 到 V<sub>REF</sub>GND，走线宽且短</li>
+  <li>V<sub>REF</sub>GND 与 GND 在 IC 下方单点连接——这两个地平面之间的噪声耦合会直接出现在 DAC 输出上</li>
+</ul>
+
+<h3>6.2 输出缓冲器稳定性</h3>
+<p>DAC8568 的内置输出缓冲器驱动容性负载时可能振荡。如果驱动远距离走线或大电容（>100 pF），建议串 50~100 Ω 隔离电阻（与 Lesson 0008 中 OPA2705 的处理相同）。</p>
+
+<h3>6.3 上电状态</h3>
+<p>DAC8568 上电时所有输出强制为 0 V（通过内部下拉电阻到 GND）。这在你设计 VOA 驱动时很重要：如果你希望上电时 VOA 衰减量为最大（安全状态），需要确保 DAC 输出 0 V 对应 VOA 的最大衰减配置。反之，如果 0 V 对应 0 dB，上电瞬间光功率会全通——在某些场景下可能损坏光接收机。</p>
+
+<div class="callout callout-warning">
+  <strong>⚠ 安全设计关键</strong>
+  <p><strong>上电状态风险</strong>：如果 DAC8568 输出 0 V → VOA 驱动 0 V → VOA 衰减 0 dB（光全通），上电瞬间接收端可能收到满功率光信号。<br>
+  <strong>解决方案</strong>：在 VOA 驱动电路设计中，确保驱动电压的默认状态对应最大衰减（而非最小）。可以在 DAC 输出端加分压偏置，或在高压级设置默认偏置。这点在 Lesson 0007 中已有提及，这里是具体实现。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 7: QUIZ                             -->
+<!-- =============================================== -->
+<h2>7. 练习与自测</h2>
+
+<div class="quiz-question">
+  <p><strong>问题 1</strong>：DAC8568 使用内部基准（2.5 V）时，输出电压范围是 0~2.5 V。你需要 0~5 V 输出来驱动 VOA 控制电路。以下哪项正确？</p>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    A. 不能实现，DAC8568 的最大输出受 V<sub>DD</sub> 限制
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    B. 将 V<sub>DD</sub> 提高到 5.5 V，DAC8568 内部有 2× 增益放大器
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    C. 在 V<sub>REF</sub> 引脚输入 5 V 外部基准（如 REF5050），V<sub>DD</sub> 供电 5.5 V
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    D. 使用内部基准 + 后级 OPA2705 做 2× 放大
+  </div>
+  <div id="q1" class="quiz-answer">
+    <strong>答案：C 和 D 都可实现，但 C 是更优方案</strong><br>
+    DAC8568 的 V<sub>REF</sub> 引脚可以接受外部基准电压（输入范围 0.5 V 到 V<sub>DD</sub>/2，以数据手册为准）。将 V<sub>REF</sub> 接到 5 V 外部基准，V<sub>DD</sub> = 5.5 V，输出范围即为 0~5 V——不需要额外放大级。方案 D（后级放大）虽然可行，但会引入额外噪声和失调。（注意：外部基准的电压范围有上限，具体值以数据手册为准。）</div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>问题 2</strong>：你使用 DAC8568 的 8 个通道控制 8 个 VOA 通道。你需要所有通道<strong>同时</strong>切换到新衰减值。如何实现？</p>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    A. 依次向每个通道发送"写并更新"指令
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    B. 先向每个通道发送"写输入寄存器"指令，然后拉低 LDAC 引脚
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    C. 使用广播地址 0b111 一次更新所有通道
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    D. 将 CLR 引脚拉高再拉低
+  </div>
+  <div id="q2" class="quiz-answer">
+    <strong>答案：B</strong><br>
+    DAC8568 的双缓冲结构正是为此设计的。步骤：1) 向每个通道发送"写输入寄存器"命令（命令=00），将新数据缓存到输入寄存器，输出维持不变。2) 所有 8 个通道的数据都缓存完毕后，将 LDAC 引脚拉低至少 100 ns。所有 DAC 寄存器同时从各自的输入寄存器加载新数据，输出同步变化。A 选项的"写并更新"会导致通道逐个更新，不同步。C 的广播地址会使所有通道输出相同值，不适合不同通道不同衰减的场景。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>问题 3</strong>：DAC8568 的 INL = ±4 LSB（最大）。以下哪种说法正确？</p>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    A. 每个代码的电压误差不超过 ±4 LSB
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    B. DAC 的实际传输曲线与理想直线之间的最大偏差为 ±4 LSB
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    C. INL 导致输出噪声增加 4 LSB
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    D. INL 表示 DAC 的温度稳定度为 ±4 LSB
+  </div>
+  <div id="q3" class="quiz-answer">
+    <strong>答案：B</strong><br>
+    INL（积分非线性）定义为实际传输曲线与端点拟合直线之间的最大偏差，单位 LSB。DAC8568 的 ±4 LSB 在 2.5 V 满量程下对应 ±153 µV。在 VOA 控制中，这个误差可以通过系统校准来补偿——在最终光功率输出端测量并记录偏差，然后反向修正 DAC 代码。这是一种典型的仪表校准流程。
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 8: SUMMARY                         -->
+<!-- =============================================== -->
+<h2>8. 小结</h2>
+
+<ul>
+  <li><strong>DAC8568 = 16 位 × 8 通道 × 内置基准</strong>——光测试仪表控制链路的默认选择</li>
+  <li><strong>与 VOA（Lesson 0007）直接配套</strong>：DAC8568 输出控制电压 → 驱动 VOA → 改变光功率</li>
+  <li><strong>与 ADC（Lesson 0005）对称呼应</strong>：ADC 读测量，DAC 写控制，构成完整闭环</li>
+  <li><strong>内部基准够用</strong>：5 ppm/°C 温漂在常温仪表中已足够，宽温场景换外部基准</li>
+  <li><strong>双缓冲 + LDAC</strong>：多通道同步更新的工程实现</li>
+  <li><strong>安全注意</strong>：上电 0 V 输出可能对应 VOA 最小衰减，需在系统级设计中防范</li>
+</ul>
+
+<h2>9. 延伸资源</h2>
+
+<ul>
+  <li><a href="https://www.ti.com/lit/gpn/dac8568">TI DAC8568 数据手册</a> — 已打开，含完整电气特性、时序图和布局建议</li>
+  <li><a href="../lessons/0005-sigma-delta-adc.html">Lesson 0005: Sigma-Delta ADC</a> — 与本节 DAC 对照学习，理解 AD/DA 对称性</li>
+  <li><a href="../lessons/0007-voa-fundamentals.html">Lesson 0007: VOA 基础</a> — DAC8568 的核心下游器件</li>
+  <li><a href="../lessons/0008-ferrite-beads.html">Lesson 0008: 铁氧体磁珠</a> — DAC8568 电源去耦设计参考</li>
+  <li><a href="../lessons/0009-opa2705.html">Lesson 0009: OPA2705</a> — DAC 输出缓冲的配套运放</li>
+</ul>
+
+<p style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.9rem;">
+  DAC8568 完成了你信号链的"控制输出"拼图。从 Lesson 0001 的光电二极管开始，一路学到现在的 DAC，你已经拥有了完整光测试信号链的认知框架——接收端（PD→TIA→ADC）和控制端（DAC→VOA）。如有任何不清楚的知识点，或者想深入 SPI 时序、误差预算或者布局细节，随时问我。
+</p>
+
+<script>
+function revealAnswer(id) {
+  var el = document.getElementById(id);
+  if (el) el.style.display = 'block';
+}
+</script>
+
+</body>
+</html>
