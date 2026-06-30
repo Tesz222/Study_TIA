@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>附录：Cadence 17.4 产品选型指南</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .key-point { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .product-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.8rem; margin: 0.4rem 0; }
+    .product-card h4 { margin: 0 0 0.3rem 0; color: #1e40af; }
+    .product-card p { margin: 0.2rem 0; font-size: 0.9rem; }
+    .pick-box { background: #f0fdf4; border: 2px solid #16a34a; border-radius: 10px; padding: 1rem; margin: 1rem 0; }
+    .pick-box h3 { color: #166534; margin-top: 0; }
+    .dont-pick { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; padding: 0.5rem 0.8rem; margin: 0.3rem 0; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<h1>Cadence 17.4 产品选型指南</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  Appendix · 解决"该选哪个？"的问题
+</p>
+
+<blockquote>
+  <strong>问题</strong>：每次打开 Cadence 17.4，弹出 <strong>Product Choices</strong> 窗口，几十个选项不知道选哪个。<br>
+  <strong>答案</strong>：选错了也能用，但功能可能受限（比如没有 CIS、没有 PSpice、没有 Allegro 高级功能）。本文告诉你每个选项干什么，以及<strong>你应该选哪个</strong>。
+</blockquote>
+
+<h2>0. 理解 Cadence 的产品体系</h2>
+
+<p>Cadence 把同样的软件内核，按<strong>功能层级</strong>切分成不同的产品套餐。从低到高大致是：</p>
+
+<pre style="font-size:0.85rem;">
+OrCAD Capture        → 基础原理图（入门级）
+OrCAD Capture CIS    → 原理图 + 元件库管理（CIS = Component Information System）
+Allegro Design Entry → Allegro 版的原理图（功能更多但界面一样）
+
+OrCAD PCB Designer         → 基础 PCB 布局（入门级）
+OrCAD PCB Designer Pro     → 中端 PCB 布局
+Allegro PCB Designer        → Allegro 版 PCB 布局（功能最全）
+Allegro PCB Designer Pro   → 高速/高级功能
+Allegro PCB Designer XL    → 最高级，含团队协作
+</pre>
+
+<p>简单来说：<strong>OrCAD = 小公司/个人用的精简版；Allegro = 大公司/专业用的完全版</strong>。操作界面几乎一样，但 Allegro 版本开放了更多高级功能。</p>
+
+<div class="key-point">
+  <strong>两个维度的理解</strong><br><br>
+  <strong>维度 1：OrCAD vs Allegro</strong><br>
+  - OrCAD 系列：低门槛，功能精简，价格低廉<br>
+  - Allegro 系列：全功能，支持复杂 PCB（高密、高速、射频），价格高<br><br>
+  <strong>维度 2：有无 CIS</strong><br>
+  - 无 CIS：手动管理元器件库，适合小项目<br>
+  - 有 CIS：连接公司数据库管理元器件，适合企业级、多人协作<br><br>
+  <strong>维度 3：有无 PSpice</strong><br>
+  - 无 PSpice：只能画原理图，不能仿真<br>
+  - 有 PSpice：可以在原理图中仿真模拟电路
+</div>
+
+<h2>1. 每次开机弹出的 Product Choices 是什么意思？</h2>
+
+<p>当你在开始菜单中点击 <strong>OrCAD Capture CIS</strong> 或 <strong>Allegro PCB Designer</strong> 时，实际上你启动的是一个统一的 License Manager，它让你选择用哪个<strong>产品套餐（Suite）</strong>来启动当前工具。</p>
+
+<p>你可以把它理解为：</p>
+<ul>
+  <li>"我要启动 OrCAD Capture 这个程序"</li>
+  <li>"但是……我想让它以 OrCAD Capture 的模式运行？还是以 Allegro Design Entry 的模式运行？"</li>
+  <li>"是否要同时加载 CIS 功能（元器件数据库管理）？"</li>
+  <li>"是否要同时加载 PSpice 功能（仿真）？"</li>
+</ul>
+
+<p>选不同的选项，<strong>同一个程序启用的功能集不同</strong>。</p>
+
+<h2>2. 选项分类详解</h2>
+
+<h3>2.1 按是否有 CIS（是否管理元器件数据库）</h3>
+
+<table>
+  <tr><th>选项名中带有</th><th>含义</th><th>谁需要</th></tr>
+  <tr><td><code>CIS</code></td><td>Component Information System<br>元器件信息管理系统</td><td>公司有统一元器件库，需要用数据库管理器件（封装、料号、供应商）</td></tr>
+  <tr><td>无 CIS</td><td>纯粹画原理图</td><td>个人使用、小团队、不需要管理数据库</td></tr>
+</table>
+
+<div class="dont-pick">
+  <strong>不建议</strong>：如果你的公司不需要数据库管理，不要选 "and CIS" 的版本——加载更慢，而且会多出一堆"配置 CIS 数据库"的提示。
+</div>
+
+<h3>2.2 按是否有 PSpice（是否做仿真）</h3>
+
+<table>
+  <tr><th>选项名中带有</th><th>含义</th><th>谁需要</th></tr>
+  <tr><td><code>PSpice</code></td><td>模拟电路仿真功能</td><td>画完原理图后需要仿真验证的人</td></tr>
+  <tr><td>无 PSpice</td><td>纯粹画原理图</td><td>不需要仿真，只负责设计</td></tr>
+</table>
+
+<h3>2.3 按 OrCAD vs Allegro（功能级别）</h3>
+
+<table>
+  <tr><th>系列</th><th>原理图工具名</th><th>对应的 PCB 工具名</th><th>区别</th></tr>
+  <tr><td><strong>OrCAD</strong></td><td>OrCAD Capture</td><td>OrCAD PCB Designer</td><td>基础功能，适合 &le; 4 层板、中低速</td></tr>
+  <tr><td><strong>OrCAD Pro</strong></td><td>OrCAD Capture Pro</td><td>OrCAD PCB Designer Professional</td><td>中等功能，支持更多层、更高速度</td></tr>
+  <tr><td><strong>Allegro</strong></td><td>Allegro Design Entry</td><td>Allegro PCB Designer</td><td>全功能，高速/射频/高密</td></tr>
+</table>
+
+<h2>3. 逐条分析你的选项列表</h2>
+
+<p>针对你列出的选项，逐条分析：</p>
+
+<div class="product-card">
+  <h4>1. OrCAD Capture</h4>
+  <p><strong>含义</strong>：最基本的原理图编辑。无 CIS，无 PSpice。</p>
+  <p><strong>适合</strong>：个人画简单原理图。启动最快。</p>
+  <p><strong>注意</strong>：生成的网表只能导入 OrCAD PCB Designer，不能导入 Allegro PCB Designer（除非你另买 License）。</p>
+</div>
+
+<div class="product-card">
+  <h4>2. OrCAD Unison PCB</h4>
+  <p><strong>含义</strong>：OrCAD Capture + OrCAD PCB Designer 的组合套餐。一次启动，同时拥有原理图和 PCB 布局功能。</p>
+  <p><strong>适合</strong>：如果公司买了 Unison 套装，你就选这个，不用分别启动。</p>
+</div>
+
+<div class="product-card">
+  <h4>3. OrCAD PSpice Designer</h4>
+  <p><strong>含义</strong>：原理图 + PSpice 仿真。无 CIS。</p>
+  <p><strong>适合</strong>：需要仿真模拟电路（运放、电源、滤波器）但不需元器件数据库管理。</p>
+</div>
+
+<div class="product-card">
+  <h4>4. OrCAD Unison Ultra</h4>
+  <p><strong>含义</strong>：OrCAD 最高级套餐，含 Capture + PCB + PSpice + 高级分析。</p>
+  <p><strong>适合</strong>：对仿真和 PCB 都有需求的公司。</p>
+</div>
+
+<div class="product-card">
+  <h4>5. OrCAD PSpice TI</h4>
+  <p><strong>含义</strong>：TI 定制的 PSpice 版本，只能仿真 TI 的器件。</p>
+  <p><strong>适合</strong>：<strong>只在用 TI 芯片做仿真时选这个</strong>。平时画原理图不要选它。</p>
+</div>
+
+<div class="product-card">
+  <h4>6. OrCAD PCB Designer Professional</h4>
+  <p><strong>含义</strong>：OrCAD 中端 PCB 布局工具。</p>
+  <p><strong>适合</strong>：做 PCB 布局时用。比基础版支持更多层、更复杂板卡。</p>
+</div>
+
+<div class="product-card">
+  <h4>7. OrCAD PCB Designer Professional w/PSpice</h4>
+  <p><strong>含义</strong>：同上，加上了 PSpice 仿真。</p>
+</div>
+
+<div class="product-card">
+  <h4>8. OrCAD PSpice Designer Plus</h4>
+  <p><strong>含义</strong>：PSpice 高级版本，含高级分析（蒙特卡洛、灵敏度分析等）。</p>
+</div>
+
+<div class="product-card">
+  <h4>9. Capture and CIS</h4>
+  <p><strong>含义</strong>：Capture 加上元器件数据库管理功能。</p>
+  <p><strong>适合</strong>：公司有统一的元器件库（通常用 Access 数据库或 SQL 数据库管理）。</p>
+</div>
+
+<div class="product-card">
+  <h4>10~14: ... and CIS</h4>
+  <p><strong>含义</strong>：前面各版本加上 CIS 功能。CIS 只是附加功能，其他和对应版本一样。</p>
+</div>
+
+<div class="product-card">
+  <h4>15. OrCAD Capture CIS</h4>
+  <p><strong>含义</strong>：<strong>这是最常用的原理图选项</strong>：Capture + CIS（元件库管理）的组合。</p>
+</div>
+
+<div class="product-card">
+  <h4>16. Allegro Design Entry CIS</h4>
+  <p><strong>含义</strong>：Allegro 版的 Capture，带有 CIS。注意这是<strong>原理图工具</strong>，不是 PCB 工具。</p>
+  <p><strong>适合</strong>：公司买的 Allegro 套装，用 Allegro 版的原理图。</p>
+</div>
+
+<div class="product-card">
+  <h4>17. Allegro PCB Design CIS L</h4>
+  <p><strong>含义</strong>：Allegro PCB 布局工具的入门版（L = Lite），带有 CIS。</p>
+</div>
+
+<div class="product-card">
+  <h4>18. Allegro PCB Librarian XL</h4>
+  <p><strong>含义</strong>：Allegro 封装库管理工具。不是画原理图也不是画 PCB 的——是用来创建和管理 PCB 封装的。</p>
+</div>
+
+<div class="product-card">
+  <h4>19. OrCAD PCB Designer Standard and CIS</h4>
+  <p><strong>含义</strong>：OrCAD PCB 标准版，带 CIS。</p>
+  <p><strong>适合</strong>：有元器件库管理需求的 PCB 设计。</p>
+</div>
+
+<h2>4. 你应该选哪个？</h2>
+
+<div class="pick-box">
+  <h3>场景一：画原理图</h3>
+  <p><strong>选：OrCAD Capture CIS</strong>（第 15 项）</p>
+  <p>理由：Capture 带 CIS 是最通用的原理图选择。如果你的公司不需要元器件数据库，可以退一步选 <strong>OrCAD Capture</strong>（第 1 项），启动更快。</p>
+
+  <div class="key-point">
+    注意：<strong>选 OrCAD Capture 还是 Allegro Design Entry？</strong><br><br>
+    如果你的公司买的是 <strong>Allegro 套装</strong>（你同时也要用 Allegro PCB 做布局），选 <strong>Allegro Design Entry CIS</strong>（第 16 项）<br><br>
+    如果你的公司买的是 <strong>OrCAD 套装</strong>（你用 OrCAD PCB 做布局），选 <strong>OrCAD Capture CIS</strong>（第 15 项）<br><br>
+    你不知道公司买的是哪个？问同事。如果问不到：<strong>先选 OrCAD Capture CIS</strong>。如果后面发现功能不够、或者跑不出网表换 Allegro，再选 Allegro Design Entry CIS。
+  </div>
+</div>
+
+<div class="pick-box">
+  <h3>场景二：画原理图 + 做仿真</h3>
+  <p><strong>选：OrCAD PSpice Designer</strong>（第 3 项）或对应带 CIS 的版本</p>
+  <p>如果你需要在画完原理图后用 PSpice 做瞬态仿真、AC 分析、DC 扫描，选中带 PSpice 的选项。</p>
+</div>
+
+<div class="pick-box">
+  <h3>场景三：做 PCB 布局</h3>
+  <p><strong>选：OrCAD PCB Designer Professional</strong>（第 6 项）或 <strong>Allegro PCB Designer</strong>（对应项）</p>
+  <p>做 PCB 布局时，在开始菜单中打开 <strong>OrCAD PCB Designer</strong> 或 <strong>Allegro PCB Designer</strong>（不是 Capture），同样会弹出 Product Choices。从中选择 PCB 相关的版本。</p>
+
+  <div class="key-point">
+    <strong>重要：OrCAD 和 Allegro 的 PCB 工具不能混搭</strong><br><br>
+    OrCAD Capture 生成的网表 → 只能导入 <strong>OrCAD PCB Designer</strong><br>
+    Allegro Design Entry 生成的网表 → 只能导入 <strong>Allegro PCB Designer</strong><br><br>
+    不能串：用 OrCAD Capture 画原理图，然后导入 Allegro PCB Designer —— <strong>文件格式不兼容</strong>。<br><br>
+    但：<strong>Allegro Design Entry 生成的网表可以导入 OrCAD PCB Designer</strong>（向下兼容）。<br><br>
+    所以如果公司同时有 OrCAD 和 Allegro 的 License，<strong>统一用 Allegro Design Entry 画原理图是最稳妥的</strong>——生成的网表两个 PCB 工具都能吃。
+  </div>
+</div>
+
+<div class="pick-box">
+  <h3>场景四：管理封装库</h3>
+  <p><strong>选：Allegro PCB Librarian XL</strong>（第 18 项）</p>
+  <p>创建和编辑 PCB 封装（.dra 文件）的工具。不是画板子的，是建库的。</p>
+</div>
+
+<h2>5. 总结：一张图说清楚</h2>
+
+<pre style="font-size:0.85rem; line-height:1.8;">
+你做什么？         │ 产品选择                                        │ 对应的 PCB 工具
+───────────────────┼─────────────────────────────────────────────────┼────────────────────────────
+画原理图（个人）    │ OrCAD Capture （第 1 项）                       │ OrCAD PCB Designer
+画原理图（公司）    │ OrCAD Capture CIS （第 15 项）                  │ OrCAD PCB Designer
+画原理图（Allegro） │ Allegro Design Entry CIS （第 16 项）           │ Allegro PCB Designer
+画原理图+仿真       │ OrCAD PSpice Designer （第 3 项）              │ OrCAD PCB Designer
+做 PCB 布局         │ 不要从 Capture 启动！从开始菜单 → OrCAD PCB    │ （就是它在问）
+                    │ Designer Professional （第 6 项）               │
+做 Allegro 布局     │ 开始菜单 → Allegro PCB Designer →              │ （就是它在问）
+                    │ Allegro PCB Designer （需要另选）               │
+管理封装库          │ Allegro PCB Librarian XL （第 18 项）            │ （不是画板子的）
+</pre>
+
+<h2>6. 关于 "Allegro 怎么选你没写"</h2>
+
+<p>Allegro 和 OrCAD 的 Product Choices 逻辑<strong>完全一样</strong>。你在教材中看到我写"OrCAD Capture 里怎么画原理图"，但这些操作在 Allegro Design Entry 里<strong>界面完全一样、快捷键完全一样</strong>。</p>
+
+<p>唯一的区别是启动时的选择：</p>
+
+<ul>
+  <li><strong>画原理图</strong>：开始菜单 → <strong>Allegro Design Entry CIS</strong>（或 Allegro Design Entry） → Product Choices 选 <strong>Allegro Design Entry CIS</strong></li>
+  <li><strong>画 PCB</strong>：开始菜单 → <strong>Allegro PCB Designer</strong> → Product Choices 选 <strong>Allegro PCB Designer</strong> 或对应版本</li>
+  <li><strong>建封装</strong>：开始菜单 → <strong>Allegro PCB Librarian</strong> → Product Choices 选 <strong>Allegro PCB Librarian XL</strong></li>
+</ul>
+
+<p>界面和快捷键——我在实操课里写的所有 <code>P</code> <code>W</code> <code>I</code> <code>M</code> <code>R</code> <code>V</code>——<strong>在 OrCAD 和 Allegro 中完全一样</strong>，因为底层是同一个程序。</p>
+
+<h2>7. 快速决策树（1 分钟判断）</h2>
+
+<pre style="font-size:0.9rem;">
+你公司买的是 OrCAD 还是 Allegro？
+   │
+   ├─ 不知道 → 问同事。等回复时先选 OrCAD Capture CIS
+   │
+   ├─ OrCAD →
+   │     ├─ 画原理图 → OrCAD Capture CIS
+   │     ├─ 做仿真   → OrCAD PSpice Designer
+   │     └─ 画 PCB   → OrCAD PCB Designer Professional
+   │
+   └─ Allegro →
+         ├─ 画原理图 → Allegro Design Entry CIS
+         ├─ 画 PCB   → Allegro PCB Designer
+         └─ 建封装   → Allegro PCB Librarian XL
+</pre>
+
+<blockquote>
+  <strong>一句话总结</strong><br><br>
+  还在纠结的时候 → <strong>选 OrCAD Capture CIS 画原理图</strong>，<strong>选 OrCAD PCB Designer Professional 画 PCB</strong>。<br>
+  这两个选项覆盖了 90% 的模拟硬件工程师日常需求。<br><br>
+  等你发现功能不够用（比如要做高速信号、要团队协作），自然会知道该升级到哪个 Allegro 版本。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Appendix · Study_TIA 教学工坊 · 2026
+</p>
+
+</body>
+</html>

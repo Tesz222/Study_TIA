@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0005: Sigma-Delta ADC — 高精度光功率计的核心</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .key-point { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .key-point strong { color: #166534; }
+    .step-list li { margin: 0.6rem 0; }
+    .math-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; }
+    .comp-table td:first-child { font-weight: 600; white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+<h1>&Sigma;-&Delta; ADC — 高精度光功率计的核心</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  Lesson 0005 · 数据转换器深化 · 预计用时 40 分钟
+</p>
+
+<blockquote>
+  <strong>本节目标</strong>
+  理解 Sigma-Delta  ADC 的工作原理（过采样 + 噪声整形 + 数字滤波），掌握其与 SAR ADC 的区别，学会在光功率计设计中合理选择 ADC 架构和配置参数。
+</blockquote>
+
+<h2>0. 为什么光功率计需要 Sigma-Delta ADC？</h2>
+
+<p>回顾一下光功率计的信号链需求：</p>
+
+<table>
+  <tr><th>需求</th><th>数值</th><th>ADC 含义</th></tr>
+  <tr><td>动态范围</td><td>60~80 dB</td><td>需要至少 16-bit 以上分辨率</td></tr>
+  <tr><td>测量精度</td><td>&plusmn;0.1~0.2 dB</td><td>约 &plusmn;1~2% 的线性度要求</td></tr>
+  <tr><td>信号带宽</td><td>DC ~ 10 kHz（通常）</td><td>不需要很高的采样率</td></tr>
+  <tr><td>线性度</td><td>极高</td><td>ADC 的 INL/DNL 直接影响精度</td></tr>
+</table>
+
+<p>这些需求指向一个关键结论：<strong>光功率计需要一个高分辨率（16~24 bit）、低采样率、高线性度的 ADC</strong>。这正是 Sigma-Delta ADC 的优势区间。</p>
+
+<div class="key-point">
+  <strong>两种 ADC 的定位</strong><br><br>
+  <strong>SAR ADC</strong>（逐次逼近型）：8~16 bit，MSPS 级采样率，中等精度<br>
+  — 适合：通信接收机、高速数据采集、PLC 模拟量输入<br><br>
+  <strong>&Sigma;-&Delta; ADC</strong>（Sigma-Delta 型）：16~32 bit，kSPS 级采样率，极高精度<br>
+  — 适合：光功率计、称重传感器、温度测量、音频
+</div>
+
+<h2>1. SAR ADC 的局限性</h2>
+
+<p>在进入 Sigma-Delta 之前，先理解 SAR ADC 为什么不适合高精度测量。</p>
+
+<h3>1.1 SAR ADC 的工作原理回顾</h3>
+
+<p>SAR ADC 通过"二分法搜索"逐位逼近输入电压。N-bit 的 SAR ADC 需要 N 个时钟周期完成一次转换。</p>
+
+<p><strong>SAR ADC 的精度限制</strong>：</p>
+<ul>
+  <li>内部 DAC 的电容匹配精度限制了线性度——16-bit SAR 需要电容匹配精度 &le; 1 LSB / 2<sup>16</sup> = 0.0015%</li>
+  <li>比较器的噪声和失调</li>
+  <li>要实现高于 16-bit 的有效分辨率，SAR ADC 的模拟前端设计极其困难</li>
+</ul>
+
+<p>简单说：<strong>SAR ADC 的高精度靠的是模拟电路的精密匹配，成本和难度随着位数指数增长</strong>。</p>
+
+<h2>2. Sigma-Delta ADC 的核心思想</h2>
+
+<p>Sigma-Delta 采用完全不同的策略：<strong>用速度换精度</strong>。它用很低的模拟精度 + 大量的数字处理，达到很高的整体精度。</p>
+
+<h3>2.1 核心三要素</h3>
+
+<div class="key-point">
+  <strong>Sigma-Delta ADC 的三大法宝</strong><br><br>
+  <strong>1. 过采样（Oversampling）</strong>：以远高于奈奎斯特频率的速率采样，将量化噪声分散到更宽的频带<br>
+  <strong>2. 噪声整形（Noise Shaping）</strong>：通过反馈环路将低频段的噪声推到高频段，使低频段信噪比大幅提升<br>
+  <strong>3. 数字滤波与抽取（Decimation）</strong>：滤除高频噪声，将高采样率的数据降回目标采样率
+</div>
+
+<h3>2.2 过采样</h3>
+
+<p>先理解最基本的概念——过采样比（OSR, Oversampling Ratio）：</p>
+
+<div class="math-box">
+  OSR = f<sub>s</sub> / (2 &times; f<sub>B</sub>)
+  <br><br>
+  其中：<br>
+  f<sub>s</sub> = Sigma-Delta 调制器的实际采样率<br>
+  f<sub>B</sub> = 目标信号带宽
+</div>
+
+<p>简单过采样（不使用噪声整形）每提升 4 倍 OSR，SNR 提升 6 dB（相当于增加 1 bit 分辨率）。</p>
+
+<p>但 Sigma-Delta 的厉害之处在于——<strong>它不仅仅是过采样</strong>。</p>
+
+<h2>3. 噪声整形（Noise Shaping）——Sigma-Delta 的灵魂</h2>
+
+<h3>3.1 一阶 Sigma-Delta 调制器</h3>
+
+<div class="figure">
+  <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;">
+    <!-- Integrator -->
+    <rect x="130" y="65" width="100" height="50" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="180" y="95" fill="#1e40af" font-size="12" font-family="sans-serif" text-anchor="middle">积分器</text>
+    <!-- 1-bit quantizer -->
+    <rect x="300" y="65" width="80" height="50" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="340" y="93" fill="#92400e" font-size="10" font-family="sans-serif" text-anchor="middle">1-bit</text>
+    <text x="340" y="107" fill="#92400e" font-size="10" font-family="sans-serif" text-anchor="middle">量化器</text>
+    <!-- Input -->
+    <line x1="10" y1="90" x2="130" y2="90" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="40" y="80" fill="#1a1a2e" font-size="11" font-family="sans-serif">V<tspan dy="3" font-size="8">in</tspan></text>
+    <!-- Summing node before integrator -->
+    <circle cx="110" cy="90" r="12" fill="white" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="110" y="95" fill="#1a1a2e" font-size="10" font-family="sans-serif" text-anchor="middle">&Sigma;</text>
+    <!-- Integrator to quantizer -->
+    <line x1="230" y1="90" x2="300" y2="90" stroke="#1a1a2e" stroke-width="2"/>
+    <!-- Quantizer output (1-bit stream) -->
+    <line x1="380" y1="90" x2="480" y2="90" stroke="#16a34a" stroke-width="2"/>
+    <text x="430" y="80" fill="#16a34a" font-size="10" font-family="sans-serif" text-anchor="middle">1-bit 位流</text>
+    <!-- DAC feedback -->
+    <path d="M430,115 L430,155 L110,155 L110,102" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <rect x="390" y="145" width="50" height="20" rx="3" fill="white" stroke="#dc2626" stroke-width="1.5"/>
+    <text x="415" y="159" fill="#dc2626" font-size="9" font-family="sans-serif" text-anchor="middle">1-bit DAC</text>
+    <text x="200" y="168" fill="#dc2626" font-size="9" font-family="sans-serif">反馈回路</text>
+    <!-- Labels -->
+    <text x="150" y="133" fill="#555" font-size="9" font-family="sans-serif">对误差积分</text>
+    <text x="310" y="133" fill="#555" font-size="9" font-family="sans-serif">比较器：输出 +1 或 -1</text>
+  </svg>
+  <figcaption>图1：一阶 Sigma-Delta 调制器结构</figcaption>
+</div>
+
+<p>工作流程：</p>
+<ol class="step-list">
+  <li>输入信号 V<sub>in</sub> 与反馈信号相减，得到<strong>误差信号</strong></li>
+  <li>积分器对误差信号<strong>累积求和</strong></li>
+  <li>1-bit 量化器（比较器）判断积分器输出是正还是负，输出 1-bit 位流（+1 或 -1）</li>
+  <li>1-bit DAC 将数字位流转换回模拟信号，反馈到输入端</li>
+  <li>重复这个过程——<strong>反馈环路不断调整，使积分器的平均输入趋近于零</strong></li>
+</ol>
+
+<p>最终输出是一个<strong>1-bit 位流</strong>，其中"1"的密度（占空比）正比于输入电压。</p>
+
+<h3>3.2 噪声整形的效果</h3>
+
+<p>关键结果：Sigma-Delta 调制器将量化噪声的频谱从平坦分布变成了<strong>高通形状</strong>。</p>
+
+<div class="figure">
+  <svg viewBox="0 0 620 230" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;">
+    <line x1="50" y1="200" x2="580" y2="200" stroke="#1a1a2e" stroke-width="2"/>
+    <line x1="50" y1="30" x2="50" y2="200" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="320" y="223" fill="#1a1a2e" font-size="12" font-family="sans-serif" text-anchor="middle">频率</text>
+    <text x="25" y="115" fill="#1a1a2e" font-size="11" font-family="sans-serif" text-anchor="middle" transform="rotate(-90,25,115)">噪声幅度</text>
+    <!-- Flat noise (quantization noise without shaping) -->
+    <line x1="80" y1="140" x2="550" y2="140" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,3"/>
+    <text x="480" y="133" fill="#94a3b8" font-size="9" font-family="sans-serif">无整形（普通 ADC）</text>
+    <!-- Shaped noise -->
+    <path d="M80,140 Q150,140 200,130 Q280,100 350,60 Q450,35 550,35" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+    <text x="400" y="50" fill="#2563eb" font-size="9" font-family="sans-serif">噪声整形后</text>
+    <!-- Signal band -->
+    <rect x="50" y="30" width="130" height="170" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="4,2"/>
+    <text x="115" y="25" fill="#16a34a" font-size="9" font-family="sans-serif" text-anchor="middle">信号频带 f<tspan dy="3" font-size="7">B</tspan></text>
+    <!-- Filter -->
+    <path d="M180,30 L180,170" stroke="#dc2626" stroke-width="2" stroke-dasharray="4,2"/>
+    <text x="165" y="175" fill="#dc2626" font-size="8" font-family="sans-serif">数字滤波器</text>
+    <text x="165" y="185" fill="#dc2626" font-size="8" font-family="sans-serif">截止频率</text>
+    <!-- Annotation -->
+    <text x="250" y="175" fill="#555" font-size="9" font-family="sans-serif">噪声被推到高频段，</text>
+    <text x="250" y="188" fill="#555" font-size="9" font-family="sans-serif">然后被数字滤波器滤除</text>
+  </svg>
+  <figcaption>图2：噪声整形效果——低频噪声被压低，高频噪声被推高</figcaption>
+</div>
+
+<div class="key-point">
+  <strong>关键认知</strong><br><br>
+  对于一阶 Sigma-Delta 调制器：<br><br>
+  每提升 2 倍 OSR，SNR 提升 9 dB（相当于 1.5 bit）<br><br>
+  对比：<br>
+  - 普通过采样（无整形）：每 2 倍 OSR 提升 3 dB（0.5 bit）<br>
+  - 一阶 &Sigma;-&Delta;：每 2 倍 OSR 提升 9 dB（1.5 bit）<br>
+  - 二阶 &Sigma;-&Delta;：每 2 倍 OSR 提升 15 dB（2.5 bit）<br><br>
+  这就是噪声整形的威力——<strong>不是简单过采样，而是把噪声推到你不在乎的地方</strong>。
+</div>
+
+<h2>4. Sigma-Delta ADC 的关键参数</h2>
+
+<h3>4.1 ENOB（有效位数）</h3>
+
+<p>Sigma-Delta ADC 的分辨率不能只看位数。一个 24-bit Sigma-Delta ADC 实际能达到的有效位数（ENOB）取决于 OSR 和调制器阶数：</p>
+
+<div class="math-box">
+  ENOB = log2(OSR<sup>(L+0.5)</sup>) + C
+  <br><br>
+  其中：<br>
+  L = 调制器阶数（1, 2, 3...）<br>
+  OSR = 过采样比<br>
+  C = 与量化器位数相关的常数
+</div>
+
+<p><strong>通俗理解</strong>：24-bit 是"原始分辨率"，实际能达到 20~22 bit ENOB 已经非常好了。</p>
+
+<h3>4.2 关键参数速查</h3>
+
+<table>
+  <tr><th>参数</th><th>含义</th><th>典型值（光功率计用）</th></tr>
+  <tr><td>有效分辨率 (ENOB)</td><td>实际能达到的位数</td><td>18~22 bit</td></tr>
+  <tr><td>无噪声分辨率</td><td>峰峰值噪声折合的分辨率</td><td>16~20 bit</td></tr>
+  <tr><td>输出数据速率 (ODR)</td><td>最终输出数据的更新率</td><td>10~1000 SPS</td></tr>
+  <tr><td>INL（积分非线性）</td><td>实际传输曲线与理想直线的偏差</td><td>&le; &plusmn;10 ppm of FSR</td></tr>
+  <tr><td>THD（总谐波失真）</td><td>非线性导致的谐波分量</td><td>&le; -110 dB</td></tr>
+</table>
+
+<h3>4.3 常用 Sigma-Delta ADC 型号</h3>
+
+<table>
+  <tr><th>型号</th><th>分辨率</th><th>ENOB</th><th>ODR 范围</th><th>INL</th><th>适用场景</th></tr>
+  <tr><td><strong>ADS1256</strong></td><td>24-bit</td><td>~21.7 bit @ 30 SPS</td><td>10 ~ 30k SPS</td><td>&plusmn;0.001%</td><td>通用高精度测量</td></tr>
+  <tr><td><strong>ADS1261</strong></td><td>24-bit</td><td>~22.5 bit @ 20 SPS</td><td>2.5 ~ 38k SPS</td><td>&plusmn;0.0003%</td><td>高精度工业测量</td></tr>
+  <tr><td><strong>AD7175-2</strong></td><td>24-bit</td><td>~20.5 bit @ 50 kSPS</td><td>1.25 ~ 250k SPS</td><td>&plusmn;0.0004%</td><td>高速高精度</td></tr>
+  <tr><td><strong>LTC2500-32</strong></td><td>32-bit</td><td>~22.5 bit @ 1k SPS</td><td>1 ~ 1M SPS</td><td>&plusmn;0.0001%</td><td>超高精度测量</td></tr>
+  <tr><td><strong>MCP3561</strong></td><td>24-bit</td><td>~20.5 bit @ 100 SPS</td><td>6.25 ~ 153k SPS</td><td>&plusmn;0.0005%</td><td>低成本高精度</td></tr>
+</table>
+
+<h2>5. 光功率计中的 Sigma-Delta ADC 应用实例</h2>
+
+<h3>5.1 完整信号链</h3>
+
+<pre>光电二极管 &#8594; TIA（含增益切换）&#8594; 抗混叠滤波器 &#8594; &Sigma;-&Delta; ADC &#8594; MCU（数字滤波+校准）</pre>
+
+<h3>5.2 设计要点</h3>
+
+<p><strong>要点 1：TIA 输出与 ADC 之间的驱动</strong></p>
+<ul>
+  <li>Sigma-Delta ADC 的输入通常需要低阻抗驱动</li>
+  <li>TIA 输出可以直接驱动 ADC，但可能需要一个 RC 抗混叠滤波器</li>
+  <li>抗混叠滤波器的截止频率应设置在 &Sigma;-&Delta; 调制器采样率的一半以下</li>
+</ul>
+
+<p><strong>要点 2：参考电压</strong></p>
+<ul>
+  <li>Sigma-Delta ADC 的精度高度依赖参考电压 V<sub>REF</sub> 的稳定性</li>
+  <li>使用高精度参考源（如 ADR4550，温漂 &le; 2 ppm/&deg;C）</li>
+  <li>参考源的噪声会直接叠加到测量结果中，必须加去耦电容（10 uF + 0.1 uF）</li>
+</ul>
+
+<p><strong>要点 3：采样率与噪声的权衡</strong></p>
+
+<div class="math-box">
+  Sigma-Delta ADC 的 ENOB 随输出数据速率（ODR）升高而降低。<br><br>
+  对于 ADS1256：<br>
+  - ODR = 10 SPS 时，ENOB &asymp; 21.7 bit（可用！）<br>
+  - ODR = 1000 SPS 时，ENOB &asymp; 18.5 bit<br>
+  - ODR = 30k SPS 时，ENOB &asymp; 14.2 bit<br><br>
+  在光功率计中，通常选择 10~50 SPS 以获得最高精度。
+</div>
+
+<p><strong>要点 4：数字滤波器类型</strong></p>
+<ul>
+  <li><strong>Sinc 滤波器</strong>：Sigma-Delta ADC 内部常用的数字滤波器</li>
+  <li>Sinc<sup>3</sup> 滤波器（三阶）：在低频段平坦，对工频干扰（50/60 Hz）有很好的抑制</li>
+  <li>大多数 Sigma-Delta ADC 的数据手册会给出不同滤波器设置下的有效分辨率表</li>
+</ul>
+
+<h2>6. Sigma-Delta vs SAR：光功率计中的选择</h2>
+
+<table class="comp-table">
+  <tr><th>维度</th><th>SAR ADC（如 AD7980）</th><th>&Sigma;-&Delta; ADC（如 ADS1256）</th></tr>
+  <tr><td>分辨率</td><td>16~18 bit</td><td>24 bit（ENOB ~20+）</td></tr>
+  <tr><td>采样率</td><td>MSPS 级</td><td>kSPS 级（高精度下 10~100 SPS）</td></tr>
+  <tr><td>线性度（INL）</td><td>&plusmn;1~4 LSB</td><td>&plusmn;0.5~2 LSB（24-bit 下）</td></tr>
+  <tr><td>噪声</td><td>中等</td><td>极低（过采样 + 噪声整形）</td></tr>
+  <tr><td>功耗</td><td>低（mW 级）</td><td>中等（数 mW）</td></tr>
+  <tr><td>延迟</td><td>1 个转换周期</td><td>多个采样周期（数字滤波器延迟）</td></tr>
+  <tr><td>光功率计适用性</td><td>中档仪表可用</td><td><strong>高精度仪表首选</strong></td></tr>
+</table>
+
+<div class="key-point">
+  <strong>选择建议</strong><br><br>
+  <strong>选 &Sigma;-&Delta;</strong> 当：需要 &ge; 18 bit 有效分辨率、信号带宽 &le; 100 kHz、对线性度要求极高<br>
+  <strong>选 SAR</strong> 当：需要 &le; 16 bit、采样率 &ge; MSPS、需要低延迟<br><br>
+  在光功率计的场景下：信号变化缓慢（&le; kHz）、需要 &ge; 20 bit 有效分辨率、需要极低 INL——<strong>Sigma-Delta 是最佳选择</strong>。
+</div>
+
+<h2>7. 设计实例：光功率计 ADC 参数选型</h2>
+
+<div class="spec-flow">
+  <p><strong>设计条件</strong></p>
+  <ul>
+    <li>光功率计测量范围：+5 ~ -60 dBm</li>
+    <li>TIA 输出范围：0 ~ 3.0 V（适配 ADC 输入范围）</li>
+    <li>目标精度：&plusmn;0.1 dB（约 &plusmn;2.3% 线性误差）</li>
+    <li>测量更新率：10 次/秒（100 ms 一次读数）</li>
+  </ul>
+</div>
+
+<p><strong>Step 1：计算所需的 ADC 分辨率</strong></p>
+<p>80 dB 动态范围对应电压比 10<sup>4</sup>:1。为了让最小信号仍有合理的分辨率：</p>
+<pre>-60 dBm 信号经 TIA 转换后约 3.0 mV（假设满量程 3.0 V 对应 +5 dBm）
+
+最小信号 3.0 mV 需要至少用 LSB 的多少分之一来精确表示？
+如果要求测量误差 &le; &plusmn;0.1 dB ≈ &plusmn;2.3%：
+在最小信号处的允许误差 = 3.0 mV &times; 2.3% = 69 uV
+
+ADC 的 LSB 应该远小于 69 uV 才能保证这个精度。
+选择 24-bit ADC，VREF = 3.3 V：
+LSB = 3.3 / 2^24 = 3.3 / 16,777,216 ≈ 0.2 uV
+
+有效分辨率(ENOB)需要至少 69 / 0.2 ≈ 345 个 LSB，约 8.4 bit margin，足够。</pre>
+
+<p><strong>Step 2：选择 ADC 型号</strong></p>
+<p>ADS1256（24-bit，ENOB &asymp; 21.7 @ 30 SPS，INL &le; &plusmn;0.001%）</p>
+<ul>
+  <li>设置 ODR = 30 SPS（满足 10 次/秒的更新率，有余量做数字平均）</li>
+  <li>V<sub>REF</sub> = 2.5 V（使用 ADR4550 参考源）</li>
+  <li>输入范围：0 ~ 2.5 V（差分模式）</li>
+  <li>TIA 输出范围调整到 0 ~ 2.5 V</li>
+</ul>
+
+<p><strong>Step 3：数字后处理</strong></p>
+<ul>
+  <li>MCU 读取 24-bit 数据后，做 4 次平均（降低 6 dB 噪声）</li>
+  <li>输出更新率：30 / 4 = 7.5 次/秒 > 10 次/秒——需要提高 ODR 到 50 SPS</li>
+  <li>50 SPS 下 ENOB &asymp; 21.2 bit，4 次平均后 ENOB &asymp; 22.2 bit，仍然非常好</li>
+  <li>将 ADC 数字码通过校准表转换为 dBm 值输出</li>
+</ul>
+
+<h2>8. 动手练习</h2>
+
+<div class="quiz-question">
+  <p><strong>练习 1：计算过采样 SNR 提升</strong></p>
+  <p>一个一阶 Sigma-Delta 调制器的 OSR = 64。相比不进行过采样的普通量化器，SNR 提升了多少 dB？</p>
+  <div class="quiz-answer">
+    <strong>计算</strong>：<br><br>
+    一阶 Sigma-Delta：每 2 倍 OSR 提升 9 dB<br>
+    OSR 从 1 到 64 = 64 倍 = 2<sup>6</sup><br>
+    所以 SNR 提升 = 6 &times; 9 = <strong>54 dB</strong><br><br>
+    作为对比，普通过采样（无整形）只能提升：<br>
+    每 2 倍 OSR 提升 3 dB = 6 &times; 3 = <strong>18 dB</strong><br><br>
+    这就是噪声整形的价值——<strong>多出了 36 dB</strong>（相当于 6 bit 额外的分辨率）。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>练习 2：ADC 选型</strong></p>
+  <p>你正在设计一台光功率计，需要测量 -55 dBm 到 +3 dBm 的范围，更新率 20 次/秒，精度 &plusmn;0.15 dB。请在 ADS1256 和 AD7175-2 之间选择一个合适的 ADC，说明理由。</p>
+  <div class="quiz-answer">
+    <strong>分析</strong>：<br><br>
+    <strong>ADS1256</strong>：<br>
+    - 30 SPS 下 ENOB &asymp; 21.7 bit，50 SPS 下约 21.2 bit<br>
+    - INL = &plusmn;0.001% = &plusmn;10 ppm，对应 24-bit LSB 的约 170 LSB<br>
+    - 输出数据率可设置为 50 SPS，满足 20 次/秒更新率<br><br>
+    <strong>AD7175-2</strong>：<br>
+    - 50 kSPS 下 ENOB &asymp; 20.5 bit，但在低 ODR 下 ENOB 更高<br>
+    - INL = &plusmn;0.0004% = &plusmn;4 ppm，线性度更好<br>
+    - 但价格更高，功耗更大<br><br>
+    <strong>推荐</strong>：<strong>ADS1256</strong> 足够满足需求。50 SPS 下 ENOB &asymp; 21.2 bit，INL &plusmn;10 ppm &asymp; &plusmn;0.001%，对应到 80 dB 动态范围上的误差远小于 &plusmn;0.15 dB 的要求。如果 AD7175-2 的成本增加可以接受且未来需要更高采样率，也可选。
+  </div>
+</div>
+
+<h2>9. 推荐资源</h2>
+
+<ul>
+  <li><strong>ADI 教程</strong>：MT-022 — <em>Sigma-Delta ADC Architecture</em></li>
+  <li><strong>ADI 教程</strong>：MT-023 — <em>Sigma-Delta ADC Noise Analysis</em></li>
+  <li><strong>TI 应用笔记</strong>：<a href="https://www.ti.com/lit/an/sbaa483/sbaa483.pdf" target="_blank">SBAA483: Sigma-Delta ADC 设计指南</a></li>
+  <li><strong>TI 应用笔记</strong>：<a href="https://www.ti.com/lit/an/sbaa201/sbaa201.pdf" target="_blank">SBAA201: 过采样与 Sigma-Delta ADC 原理</a></li>
+  <li><strong>参考书</strong>：<em>Analog-to-Digital Conversion</em> — Marcel Pelgrom（第 16 章：Sigma-Delta ADC）</li>
+  <li><strong>器件 datasheet</strong>：<a href="https://www.ti.com/product/ADS1256" target="_blank">ADS1256</a>、<a href="https://www.analog.com/en/products/ad7175-2.html" target="_blank">AD7175-2</a></li>
+</ul>
+
+<blockquote>
+  <strong>课程总结</strong><br><br>
+  Sigma-Delta ADC 通过<strong>过采样 + 噪声整形 + 数字滤波</strong>三大技术，用速度换精度，实现了远超 SAR ADC 的有效分辨率。<br><br>
+  在光功率计设计中，Sigma-Delta ADC 使 24-bit 分辨率、&plusmn;0.1 dB 精度、80 dB 动态范围的测量成为可能——这是 SAR ADC 很难达到的。<br><br>
+  <strong>代价</strong>：低输出数据率（限制测量带宽）、数字滤波器引入延迟（不适合实时控制）。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Lesson 0005 · Study_TIA 教学工坊 · 2026
+</p>
+
+<script>
+  document.querySelectorAll('.quiz-question').forEach(function(q) {
+    q.addEventListener('click', function() {
+      var answer = this.querySelector('.quiz-answer');
+      if (answer) answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+</script>
+
+</body>
+</html>

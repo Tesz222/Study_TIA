@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0004: TIA 低噪声 PCB 布局实战</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .key-point { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .key-point strong { color: #166534; }
+    .do-box { background: #f0fdf4; border-left: 4px solid #16a34a; padding: 0.8rem 1rem; margin: 0.6rem 0; border-radius: 0 6px 6px 0; }
+    .dont-box { background: #fef2f2; border-left: 4px solid #dc2626; padding: 0.8rem 1rem; margin: 0.6rem 0; border-radius: 0 6px 6px 0; }
+    .step-list li { margin: 0.6rem 0; }
+  </style>
+</head>
+<body>
+
+<h1>TIA 低噪声 PCB 布局实战</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  Lesson 0004 · PCB 设计实战 · 预计用时 35 分钟
+</p>
+
+<blockquote>
+  <strong>本节目标</strong>
+  将前三节的理论知识转化为 PCB 布局的工程实践——学会保护环设计、地平面处理、器件选型与摆放、走线规则，让你的 TIA 电路从"原理图能工作"变成"PCB 上真正好用"。
+</blockquote>
+
+<h2>0. 一个真实的故事：原理图仿真完美，PCB 上一塌糊涂</h2>
+
+<p>想象这个场景：</p>
+<ul>
+  <li>你在 LTspice 中仔细仿真了 TIA，相位裕度 65&deg;，噪声性能完美</li>
+  <li>打样回来的 PCB 焊好后，接上光电二极管——<strong>输出全是噪声，根本看不到信号</strong></li>
+  <li>或者更糟——<strong>电路自激振荡了</strong>，输出是稳定的正弦波</li>
+</ul>
+
+<p>这不是你的原理图有问题，而是 <strong>PCB 布局引入了原理图中没有考虑到的寄生参数</strong>。对于 TIA 这样的高阻抗、高增益电路，PCB 布局可能比原理图设计更重要。</p>
+
+<div class="key-point">
+  <strong>TIA PCB 布局的三大挑战</strong><br><br>
+  <strong>1. 极高输入阻抗</strong>：TIA 的输入节点（运放反相输入端）对地阻抗极高，任何漏电路径都会产生误差<br>
+  <strong>2. 极高增益灵敏度</strong>：GOhm 级 R<sub>f</sub> 意味着 pA 级的漏电流就会产生 mV 级的误差电压<br>
+  <strong>3. 高频敏感性</strong>：即使测量 DC 光信号，TIA 的带宽也可能达到 MHz 级，容易耦合高频噪声
+</div>
+
+<h2>1. 保护环（Guard Ring）设计</h2>
+
+<h3>1.1 为什么要保护环？</h3>
+
+<p>在 Lesson 0002 中我们提到，GOhm 级 TIA 设计中 PCB 漏电流是一个严重问题。让我们量化一下：</p>
+
+<p>标准 FR-4 PCB 的表面绝缘电阻（Surface Insulation Resistance, SIR）在典型条件下约为 10<sup>8</sup> ~ 10<sup>10</sup> &Omega;/sq（受湿度和污染影响）。</p>
+
+<p>如果高阻抗输入节点旁边有一条 3.3 V 的电源走线，间距 0.2 mm：</p>
+<pre>漏电流 &asymp; 3.3 V / 10<sup>9</sup> &Omega; = 3.3 pA
+
+如果 R<sub>f</sub> = 1 GOhm，这个漏电流产生的误差电压：
+V<sub>error</sub> = 3.3 pA &times; 1 GOhm = 3.3 mV
+
+而你的 -60 dBm 光信号经 TIA 转换后可能只有几十 mV——3.3 mV 的误差已经不可接受了！</pre>
+
+<h3>1.2 保护环的工作原理</h3>
+
+<p>保护环（Guard Ring）的核心思想：<strong>在输入节点周围环绕一圈与输入等电位的导体，吸收表面漏电流</strong>。</p>
+
+<div class="figure">
+  <svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;">
+    <!-- PCB substrate -->
+    <rect x="10" y="50" width="500" height="200" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+    <text x="260" y="270" fill="#94a3b8" font-size="10" font-family="sans-serif" text-anchor="middle">PCB 基板 (FR-4)</text>
+    <!-- Guard ring (outer ring) -->
+    <rect x="80" y="80" width="260" height="140" rx="8" fill="none" stroke="#16a34a" stroke-width="3" stroke-dasharray="6,3"/>
+    <text x="90" y="75" fill="#16a34a" font-size="9" font-family="sans-serif">Guard Ring（接等电位）</text>
+    <!-- Input pad (center) -->
+    <rect x="150" y="115" width="60" height="60" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="180" y="140" fill="#92400e" font-size="9" font-family="sans-serif" text-anchor="middle">输入</text>
+    <text x="180" y="155" fill="#92400e" font-size="9" font-family="sans-serif" text-anchor="middle">焊盘</text>
+    <!-- Leakage paths without guard ring -->
+    <line x1="120" y1="145" x2="150" y2="125" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3,3"/>
+    <text x="105" y="138" fill="#dc2626" font-size="8" font-family="sans-serif">漏电流</text>
+    <!-- Leakage to guard ring instead -->
+    <line x1="120" y1="155" x2="100" y2="165" stroke="#16a34a" stroke-width="1.5"/>
+    <text x="65" y="178" fill="#16a34a" font-size="8" font-family="sans-serif">漏电流被保护环吸收</text>
+    <!-- Op-amp -->
+    <rect x="320" y="115" width="80" height="60" rx="4" fill="white" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="360" y="140" fill="#1a1a2e" font-size="10" font-family="sans-serif" text-anchor="middle">运放</text>
+    <text x="360" y="155" fill="#1a1a2e" font-size="9" font-family="sans-serif" text-anchor="middle">(引脚1)</text>
+    <!-- Trace from input to op-amp -->
+    <line x1="210" y1="145" x2="320" y2="130" stroke="#1a1a2e" stroke-width="2"/>
+    <!-- Resistor Rf -->
+    <rect x="320" y="180" width="60" height="20" rx="3" fill="white" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="350" y="194" fill="#2563eb" font-size="9" font-family="sans-serif" text-anchor="middle">R<tspan dy="3" font-size="7">f</tspan></text>
+    <!-- Via to ground plane -->
+    <circle cx="360" cy="240" r="6" fill="white" stroke="#64748b" stroke-width="1.5"/>
+    <text x="360" y="243" fill="#64748b" font-size="7" font-family="sans-serif" text-anchor="middle">GND</text>
+    <line x1="360" y1="200" x2="360" y2="234" stroke="#64748b" stroke-width="1.5"/>
+  </svg>
+  <figcaption>图1：保护环（Guard Ring）布局示意——环形走线包围高阻抗输入节点，与输入等电位</figcaption>
+</div>
+
+<p>保护环的关键：<strong>环的电位必须与输入节点电位相同</strong>。对 TIA 而言，运放反相输入端在"虚短"下约等于地电位（同相端接地时）。所以保护环通常是<strong>直接接地</strong>的。</p>
+
+<h3>1.3 保护环 PCB 布局要点</h3>
+
+<div class="do-box">
+  <strong>正确做法</strong><br>
+  - 保护环应包围整个高阻抗输入区域，包括输入焊盘、反馈电阻的输入端、运放的反相输入引脚<br>
+  - 保护环走线宽度至少 0.3 mm（12 mil）以上<br>
+  - 在顶层和底层都放置保护环，通过过孔连接<br>
+  - 保护环与输入走线之间的间距至少 0.3 mm<br>
+  - 保护环上不要走任何其他信号
+</div>
+
+<div class="dont-box">
+  <strong>错误做法</strong><br>
+  - 保护环不连续、有缺口<br>
+  - 保护环与输入走线间距太近（产生额外寄生电容）<br>
+  - 忘记在底层也放置保护环（只有顶层保护环效果减半）<br>
+  - 保护环上走了数字信号或电源
+</div>
+
+<h2>2. 地平面处理</h2>
+
+<h3>2.1 地平面 vs 地填充</h3>
+
+<p>对于 TIA 电路，<strong>地平面（ground plane）</strong> 和 <strong>地填充（ground fill/copper pour）</strong> 是不同的概念：</p>
+<ul>
+  <li><strong>地平面</strong>：完整的一层铜，通常作为参考平面和回流路径</li>
+  <li><strong>地填充</strong>：顶层上不规则的地铜区域，通过过孔连接到地平面</li>
+</ul>
+
+<p>对于 TIA 电路的建议：使用 <strong>2 层板或 4 层板</strong>，其中一整层作为地平面。顶层（信号层）只在非关键区域做地铜填充。</p>
+
+<h3>2.2 关键要点：不要在输入节点下方放置地平面</h3>
+
+<p>这是 TIA PCB 布局中最容易犯的错误之一。</p>
+
+<div class="do-box">
+  <strong>正确做法</strong><br>
+  - 高阻抗输入焊盘下方的<strong>所有层</strong>都要掏空（清除地铜），减少对地寄生电容<br>
+  - 运放反相输入引脚下方的地也要掏空<br>
+  - 反馈电阻 R<sub>f</sub> 输入端的焊盘下方也要掏空<br><br>
+  掏空区域的直径至少为焊盘尺寸的 3~5 倍
+</div>
+
+<div class="dont-box">
+  <strong>错误做法</strong><br>
+  - 输入焊盘正下方就是地平面 = 产生额外 C<sub>parasitic</sub> = 降低带宽 + 恶化稳定性<br>
+  - 这种额外的寄生电容没有被你的 C<sub>in</sub> 计算考虑进去，导致实际 C<sub>f</sub> 不够
+</div>
+
+<p><strong>量化一下</strong>：一个 0603 焊盘（0.8 mm x 0.8 mm）在 FR-4（&epsilon;<sub>r</sub> &asymp; 4.5）上，距离地平面 0.2 mm（1.6 mm 板的顶层到地层的典型距离），寄生电容约：</p>
+<pre>C<sub>parasitic</sub> &asymp; &epsilon;<sub>0</sub> &times; &epsilon;<sub>r</sub> &times; A / d
+= 8.85E-12 &times; 4.5 &times; (0.8E-3 &times; 0.8E-3) / 0.2E-3
+&asymp; <strong>0.13 pF</strong>
+
+两个焊盘 + 走线 = 约 0.3~0.5 pF 的额外寄生电容！
+这和 Lesson 0003 中我们计算的 C<sub>f</sub> (0.68 pF) 是同一个数量级——<strong>不能忽略！</strong></pre>
+
+<h2>3. 器件选型与摆放</h2>
+
+<h3>3.1 关键器件选型</h3>
+
+<table>
+  <tr><th>器件</th><th>推荐</th><th>原因</th></tr>
+  <tr>
+    <td>R<sub>f</sub> 电阻</td>
+    <td>薄膜电阻，0603 或 0402 封装<br>精度 &ge; 0.1%，温漂 &le; 25 ppm/&deg;C</td>
+    <td>厚膜电阻噪声更大（excess noise），大封装寄生电容更大</td>
+  </tr>
+  <tr>
+    <td>C<sub>f</sub> 电容</td>
+    <td>NP0/C0G 陶瓷电容，0402 封装</td>
+    <td>NP0 温漂极小（&plusmn;30 ppm/&deg;C），电压系数几乎为零。<br>X7R 的电容值会随电压变化，引入非线性</td>
+  </tr>
+  <tr>
+    <td>运放</td>
+    <td>低偏置电流、低电压噪声、<br>足够 GBW</td>
+    <td>见下文详细对比</td>
+  </tr>
+  <tr>
+    <td>输入保护器件</td>
+    <td><strong>不接</strong>或使用低漏电流 TVS</td>
+    <td>标准 TVS 的漏电流 > 1 uA，对 pA 级信号是灾难</td>
+  </tr>
+</table>
+
+<h3>3.2 常用运放选型对比</h3>
+
+<table>
+  <tr><th>型号</th><th>I<sub>b</sub>（偏置电流）</th><th>V<sub>n</sub>（电压噪声）</th><th>GBW</th><th>适用场景</th></tr>
+  <tr><td><strong>OPA381</strong></td><td>3 pA</td><td>35 nV/&radic;Hz</td><td>18 MHz</td><td>通用光功率计 TIA，光电检测</td></tr>
+  <tr><td><strong>OPA657</strong></td><td>2 pA</td><td>7 nV/&radic;Hz</td><td>1.6 GHz</td><td>高速 TIA，光通信接收机</td></tr>
+  <tr><td><strong>ADA4530-1</strong></td><td>0.25 pA</td><td>60 nV/&radic;Hz</td><td>3.7 MHz</td><td>超高灵敏度、femtoampere 级测量</td></tr>
+  <tr><td><strong>LTC6268</strong></td><td>0.9 pA</td><td>4 nV/&radic;Hz</td><td>500 MHz</td><td>高速低噪声 TIA</td></tr>
+  <tr><td><strong>TLV9002</strong></td><td>5 pA</td><td>17 nV/&radic;Hz</td><td>1 MHz</td><td>低成本低速 TIA</td></tr>
+</table>
+
+<div class="key-point">
+  <strong>选型逻辑</strong><br><br>
+  回顾 Lesson 0002 的噪声分析——TIA 有三个噪声源，哪个占主导决定了选型重点：<br><br>
+  <strong>场景 1：R<sub>f</sub> &lt; 100 k&Omega;</strong><br>
+  &#8594; R<sub>f</sub> 热噪声主导。需要低 V<sub>n</sub> 运放（如 OPA657）<br><br>
+  <strong>场景 2：R<sub>f</sub> = 100 k ~ 10 M&Omega;</strong><br>
+  &#8594; 运放电压噪声开始显著。需要 V<sub>n</sub> 和 I<sub>b</sub> 平衡的运放（如 OPA381）<br><br>
+  <strong>场景 3：R<sub>f</sub> &gt; 10 M&Omega;</strong><br>
+  &#8594; 运放电压噪声 + I<sub>b</sub> 电流噪声都重要。优先考虑 I<sub>b</sub>（如 ADA4530-1）
+</div>
+
+<h3>3.3 布局摆放规则</h3>
+
+<div class="figure">
+  <svg viewBox="0 0 600 280" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;">
+    <rect x="10" y="10" width="580" height="260" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+    <!-- PD -->
+    <rect x="30" y="100" width="80" height="60" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="70" y="135" fill="#1e40af" font-size="11" font-family="sans-serif" text-anchor="middle" font-weight="600">PD</text>
+    <!-- Short trace - CRITICAL -->
+    <line x1="110" y1="130" x2="145" y2="130" stroke="#dc2626" stroke-width="3"/>
+    <text x="127" y="122" fill="#dc2626" font-size="8" font-family="sans-serif" text-anchor="middle">尽可能短！</text>
+    <!-- Op-amp -->
+    <rect x="150" y="70" width="120" height="120" rx="4" fill="white" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="210" y="125" fill="#1a1a2e" font-size="11" font-family="sans-serif" text-anchor="middle">运放</text>
+    <text x="210" y="140" fill="#1a1a2e" font-size="9" font-family="sans-serif" text-anchor="middle">(输入引脚)</text>
+    <!-- Rf + Cf -->
+    <rect x="275" y="100" width="55" height="60" rx="3" fill="white" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="302" y="125" fill="#2563eb" font-size="9" font-family="sans-serif" text-anchor="middle">R<tspan dy="3" font-size="7">f</tspan></text>
+    <text x="302" y="140" fill="#2563eb" font-size="9" font-family="sans-serif" text-anchor="middle">+ C<tspan dy="3" font-size="7">f</tspan></text>
+    <!-- Guard ring -->
+    <rect x="20" y="180" width="200" height="50" rx="6" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="4,2"/>
+    <text x="120" y="210" fill="#16a34a" font-size="9" font-family="sans-serif" text-anchor="middle">保护环区域（顶层掏空）</text>
+    <!-- Output -->
+    <line x1="330" y1="130" x2="450" y2="130" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="390" y="122" fill="#1a1a2e" font-size="10" font-family="sans-serif" text-anchor="middle">输出走线（远离输入）</text>
+    <!-- Keep-out zone -->
+    <rect x="340" y="30" width="220" height="60" rx="4" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3,3"/>
+    <text x="450" y="55" fill="#dc2626" font-size="9" font-family="sans-serif" text-anchor="middle">禁止放置数字信号/电源走线</text>
+    <!-- Labels -->
+    <text x="70" y="170" fill="#555" font-size="8" font-family="sans-serif" text-anchor="middle">PD 紧靠运放</text>
+    <text x="302" y="170" fill="#555" font-size="8" font-family="sans-serif" text-anchor="middle">R<tspan dy="3" font-size="6">f</tspan> 紧靠运放输出</text>
+  </svg>
+  <figcaption>图2：TIA PCB 布局的关键摆放规则——最短路径原则</figcaption>
+</div>
+
+<p>核心规则只有一条：<strong>高阻抗输入路径要尽可能短</strong>。</p>
+<ul>
+  <li>光电二极管 &#8594; 运放反相输入端：走线长度 &le; 3 mm</li>
+  <li>R<sub>f</sub> 和 C<sub>f</sub>：一端紧靠运放反相输入引脚，另一端紧靠运放输出引脚</li>
+  <li>运放 &#8594; ADC：走线可以长一些（低阻抗输出），但要远离输入路径</li>
+</ul>
+
+<h2>4. 走线规则</h2>
+
+<h3>4.1 输入走线</h3>
+
+<div class="do-box">
+  <strong>正确做法</strong><br>
+  - 输入走线宽度：0.2~0.3 mm（8~12 mil）<br>
+  - 走线周围留出足够的间隙（&ge; 0.3 mm）<br>
+  - 如果必须转弯，使用圆弧或 45&deg; 角，<strong>不要用 90&deg; 角</strong><br>
+  - 输入走线两侧铺地铜（但不要覆盖在走线上方/下方）
+</div>
+
+<h3>4.2 电源走线</h3>
+
+<ul>
+  <li>运放的电源引脚旁放置 <strong>0.1 uF + 10 uF</strong> 去耦电容</li>
+  <li>去耦电容尽量靠近运放电源引脚（&le; 2 mm）</li>
+  <li>电源走线从去耦电容之后进入运放，而不是先到运放再到电容</li>
+  <li>正负电源走线不要平行于输入走线</li>
+</ul>
+
+<h3>4.3 信号隔离</h3>
+
+<ul>
+  <li>数字信号（如 ADC 的 SPI / I2C）与模拟输入区域之间至少保持 5 mm 间距</li>
+  <li>如果使用 4 层板，数字信号走在底层或内层，模拟信号走顶层</li>
+  <li>不同层的走线不要平行重叠（减少层间串扰）</li>
+</ul>
+
+<h2>5. 完整 PCB 布局 Checklist</h2>
+
+<p>一个可供打印的参考清单：</p>
+
+<div class="spec-flow">
+  <p><strong>TIA PCB 布局检查清单</strong></p>
+  <ol class="step-list">
+    <li><input type="checkbox"> PD 到运放输入走线 &le; 3 mm</li>
+    <li><input type="checkbox"> R<sub>f</sub> 和 C<sub>f</sub> 紧靠运放，走线最短</li>
+    <li><input type="checkbox"> 输入焊盘下方所有层的地铜已掏空（3~5 倍焊盘直径）</li>
+    <li><input type="checkbox"> 保护环设计完成：顶层 + 底层，宽度 &ge; 0.3 mm，无缺口</li>
+    <li><input type="checkbox"> 保护环与输入走线间距 &ge; 0.3 mm</li>
+    <li><input type="checkbox"> 运放电源去耦电容 &le; 2 mm 远离电源引脚</li>
+    <li><input type="checkbox"> 运放输出走线远离输入区域（&ge; 5 mm 间距）</li>
+    <li><input type="checkbox"> 数字信号线远离模拟输入区域（&ge; 5 mm 间距）</li>
+    <li><input type="checkbox"> R<sub>f</sub> 使用薄膜电阻，C<sub>f</sub> 使用 NP0/C0G</li>
+    <li><input type="checkbox"> 顶层地铜填充通过过孔连接到地平面（&le; 5 mm 间距）</li>
+  </ol>
+</div>
+
+<h2>6. 动手练习</h2>
+
+<div class="quiz-question">
+  <p><strong>练习 1：分析 PCB 布局问题</strong></p>
+  <p>一个工程师设计了一块 TIA PCB，出现自激振荡。以下是 PCB 布局的关键特征，请指出哪些可能导致了问题：</p>
+  <ul style="margin-top:0.3rem;">
+    <li>A：PD 到运放输入走线长 15 mm</li>
+    <li>B：输入焊盘下方有一个完整的地平面</li>
+    <li>C：R<sub>f</sub> 使用了 0805 封装的厚膜电阻</li>
+    <li>D：运放去耦电容距离电源引脚 10 mm</li>
+    <li>E：R<sub>f</sub> = 100 k&Omega;，C<sub>f</sub> = 0.5 pF</li>
+  </ul>
+  <div class="quiz-answer">
+    <strong>分析</strong>：<br><br>
+    <strong>A：有问题</strong>——15 mm 的输入走线引入了额外的寄生电感和电容，改变了 C<sub>in</sub> 的值，使实际 C<sub>in</sub> 远大于设计值，导致 C<sub>f</sub> 不足。<br><br>
+    <strong>B：有问题</strong>——输入焊盘下方的地平面增加了寄生电容（可能增加 0.3~0.5 pF），使实际的 C<sub>in</sub> 比设计值大，C<sub>f</sub> 偏小。<br><br>
+    <strong>C：有问题</strong>——厚膜电阻的 excess noise 比薄膜电阻大 10~100 倍，不适合低噪声 TIA。0805 封装也偏大，增加了寄生电容。<br><br>
+    <strong>D：有问题</strong>——10 mm 的距离使去耦效果大打折扣，电源线上的噪声可能耦合到运放内部。<br><br>
+    <strong>E</strong>：仅从参数看合理，但如果实际的 C<sub>in</sub> 因布局问题偏大，这个 C<sub>f</sub> 就不够了。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>练习 2：选择合适的运放</strong></p>
+  <p>你正在设计一个光功率计前端的 TIA：</p>
+  <ul style="margin-top:0.3rem;">
+    <li>R<sub>f</sub> = 10 M&Omega;，目标带宽 100 kHz</li>
+    <li>PD：C<sub>J</sub> = 3 pF</li>
+    <li>需要测量低至 -50 dBm 的光信号</li>
+  </ul>
+  <p>从 OPA381、ADA4530-1、TLV9002 中选择最合适的运放，说明理由。</p>
+  <div class="quiz-answer">
+    <strong>分析</strong>：<br><br>
+    给定 R<sub>f</sub> = 10 M&Omega;，属于高 R<sub>f</sub> 场景：<br>
+    - <strong>首先排除 TLV9002</strong>——I<sub>b</sub> = 5 pA，在 10 M&Omega; 上产生 50 uV 的失调电压，且 GBW = 1 MHz 可能不够<br>
+    - <strong>OPA381</strong>：I<sub>b</sub> = 3 pA，GBW = 18 MHz，V<sub>n</sub> = 35 nV/&radic;Hz——通用选择，但高 R<sub>f</sub> 下 I<sub>b</sub> 引入的电流噪声开始显著<br>
+    - <strong>ADA4530-1</strong>：I<sub>b</sub> = 0.25 pA（比 OPA381 小 10 倍），V<sub>n</sub> = 60 nV/&radic;Hz（比 OPA381 大），GBW = 3.7 MHz<br><br>
+    计算一下等效输入噪声：<br>
+    在 10 M&Omega; 下，R<sub>f</sub> 热噪声 = 0.04 pA/&radic;Hz<br>
+    ADA4530-1 的 I<sub>b</sub> 散粒噪声 = 0.009 pA/&radic;Hz<br>
+    OPA381 的 I<sub>b</sub> 散粒噪声 = 0.03 pA/&radic;Hz<br><br>
+    <strong>结论</strong>：ADA4530-1 更适合。虽然 V<sub>n</sub> 更大，但在 10 M&Omega; 级高 R<sub>f</sub> 下，I<sub>b</sub> 噪声和 R<sub>f</sub> 热噪声占主导，ADA4530-1 的超低 I<sub>b</sub> 优势明显。
+  </div>
+</div>
+
+<h2>7. 推荐资源</h2>
+
+<ul>
+  <li><strong>ADI 应用笔记</strong>：MT-070 — <em>Guard Ring Design</em></li>
+  <li><strong>TI 应用笔记</strong>：<a href="https://www.ti.com/lit/an/sboa268/sboa268.pdf" target="_blank">SBOA268: Transimpedance Amplifier Design</a>（包含 PCB layout 章节）</li>
+  <li><strong>TI 应用笔记</strong>：<em>AN-1690: Operational Amplifier Layout</em></li>
+  <li><strong>参考书</strong>：<em>Photodiode Amplifiers: OP AMP Solutions</em> — Jerald Graeme（第 10 章：Layout）</li>
+  <li><strong>参考文档</strong>：<a href="../reference/0001-tia-cheatsheet.html">跨阻放大器速查表</a></li>
+</ul>
+
+<blockquote>
+  <strong>四节课学完，你现在的知识体系</strong><br><br>
+  <strong>Lesson 1</strong>：光电信号链基础（光电二极管 &#8594; TIA &#8594; ADC）<br>
+  <strong>Lesson 2</strong>：噪声分析与测试仪表前端设计<br>
+  <strong>Lesson 3</strong>：TIA 稳定性分析与 C<sub>f</sub> 补偿<br>
+  <strong>Lesson 4</strong>：低噪声 PCB 布局实战 &#8592; <strong>刚学完</strong><br><br>
+  你已经具备了从原理图设计到 PCB 实现的完整知识链。还剩下的两个方向（Sigma-Delta ADC、APD 偏压控制）如有需要随时可以继续。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Lesson 0004 · Study_TIA 教学工坊 · 2026
+</p>
+
+<script>
+  document.querySelectorAll('.quiz-question').forEach(function(q) {
+    q.addEventListener('click', function() {
+      var answer = this.querySelector('.quiz-answer');
+      if (answer) answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0006: APD 偏压控制与温度补偿</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .key-point { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .key-point strong { color: #166534; }
+    .step-list li { margin: 0.6rem 0; }
+    .math-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; }
+    .warning-box { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .warning-box strong { color: #dc2626; }
+  </style>
+</head>
+<body>
+
+<h1>APD 偏压控制与温度补偿</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  Lesson 0006 · APD 应用深化 · 预计用时 40 分钟
+</p>
+
+<blockquote>
+  <strong>本节目标</strong>
+  理解 APD 增益与偏压、温度的定量关系，掌握偏压控制电路的设计方法，学会实现温度补偿以保证 APD 增益稳定——这对高灵敏度 OTDR 和微弱光检测仪表至关重要。
+</blockquote>
+
+<h2>0. 为什么需要单独学 APD 偏压控制？</h2>
+
+<p>在 Lesson 0002 中，我们对比了 PIN 和 APD，提到 APD 需要高偏压和对温度敏感。但当时没有深入——因为这些特性本身就值得一节课。</p>
+
+<p>先感受一下问题的严重性：</p>
+
+<table>
+  <tr><th>器件</th><th>偏压</th><th>温度系数</th><th>25&deg;C 到 50&deg;C 增益变化</th></tr>
+  <tr><td>PIN 光电二极管</td><td>5~15 V</td><td>几乎无</td><td>可忽略</td></tr>
+  <tr><td>Si APD（短波长）</td><td>100~300 V</td><td>&asymp; -0.3 ~ -0.5 V/&deg;C</td><td>> 2 倍！</td></tr>
+  <tr><td>InGaAs APD（长波长）</td><td>30~70 V</td><td>&asymp; -0.1 ~ -0.2 V/&deg;C</td><td>1.5~3 倍</td></tr>
+</table>
+
+<p>如果你的 OTDR 在 25&deg;C 环境下标定好了，拿到 50&deg;C 的机房中，APD 增益可能变化了 2~3 倍——<strong>没有温度补偿的测量结果毫无意义</strong>。</p>
+
+<h2>1. APD 增益特性详解</h2>
+
+<h3>1.1 雪崩倍增因子 M</h3>
+
+<p>APD 的雪崩倍增因子 M 是偏压 V<sub>R</sub> 的函数，可以用经验公式近似：</p>
+
+<div class="math-box">
+  M = 1 / (1 - (V<sub>R</sub> / V<sub>BR</sub>)<sup>n</sup>)
+  <br><br>
+  其中：<br>
+  V<sub>R</sub> = 实际施加的反向偏压 (V)<br>
+  V<sub>BR</sub> = 击穿电压 (Breakdown Voltage) (V)<br>
+  n = 与 APD 结构和材料有关的指数（通常 2~6）<br><br>
+  当 V<sub>R</sub> 接近 V<sub>BR</sub> 时，M 急剧增大；V<sub>R</sub> = V<sub>BR</sub> 时，M &#8594; &infin;（雪崩击穿）。
+</div>
+
+<div class="figure">
+  <svg viewBox="0 0 600 240" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;">
+    <line x1="50" y1="210" x2="560" y2="210" stroke="#1a1a2e" stroke-width="2"/>
+    <line x1="50" y1="30" x2="50" y2="210" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="310" y="235" fill="#1a1a2e" font-size="12" font-family="sans-serif" text-anchor="middle">偏压 V<tspan dy="3" font-size="9">R</tspan></text>
+    <text x="25" y="120" fill="#1a1a2e" font-size="11" font-family="sans-serif" text-anchor="middle" transform="rotate(-90,25,120)">增益 M</text>
+    <!-- M curve -->
+    <path d="M80,200 Q100,195 200,185 Q300,170 380,140 Q420,110 440,80 Q460,55 480,42" fill="none" stroke="#2563eb" stroke-width="3"/>
+    <!-- Asymptote -->
+    <line x1="490" y1="30" x2="490" y2="210" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <text x="492" y="225" fill="#dc2626" font-size="9" font-family="sans-serif">V<tspan dy="3" font-size="7">BR</tspan>（击穿电压）</text>
+    <!-- Operating point annotation -->
+    <line x1="380" y1="140" x2="380" y2="210" stroke="#d97706" stroke-width="1.5" stroke-dasharray="3,3"/>
+    <text x="380" y="225" fill="#d97706" font-size="9" font-family="sans-serif">工作点</text>
+    <text x="300" y="130" fill="#555" font-size="9" font-family="sans-serif">增益随偏压非线性增长</text>
+    <!-- Temperature shift arrow -->
+    <path d="M490,140 L530,140" stroke="#dc2626" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="520" y="133" fill="#dc2626" font-size="9" font-family="sans-serif">温度升高，V<tspan dy="3" font-size="7">BR</tspan> 右移</text>
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M0,0 L10,5 L0,10" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+      </marker>
+    </defs>
+  </svg>
+  <figcaption>图1：APD 增益 M 与偏压 V<sub>R</sub> 的关系——靠近击穿电压时，增益急剧增大</figcaption>
+</div>
+
+<h3>1.2 温度的致命影响</h3>
+
+<p>APD 的击穿电压 V<sub>BR</sub> 随温度升高而<strong>增大</strong>（正温度系数）。这意味着：</p>
+<ul>
+  <li>温度升高 &#8594; V<sub>BR</sub> 增大 &#8594; 同样的偏压下 V<sub>R</sub>/V<sub>BR</sub> 的比值变小 &#8594; <strong>增益 M 下降</strong></li>
+  <li>温度变化 1&deg;C &#8594; V<sub>BR</sub> 变化 0.1~0.5 V（取决于 APD 材料和结构）</li>
+</ul>
+
+<p>定量看一下：</p>
+
+<div class="math-box">
+  以 InGaAs APD 为例：<br><br>
+  V<sub>BR</sub> = 50 V @ 25&deg;C（典型值）<br>
+  温度系数 = +0.15 V/&deg;C<br><br>
+  在 V<sub>R</sub> = 48 V 时（V<sub>R</sub>/V<sub>BR</sub> = 0.96）：<br><br>
+  @ 25&deg;C：M = 1 / (1 - 0.96<sup>3</sup>) &asymp; 1 / (1 - 0.885) &asymp; <strong>8.7</strong><br>
+  @ 50&deg;C：V<sub>BR</sub> = 50 + 0.15 &times; 25 = 53.75 V<br>
+  V<sub>R</sub>/V<sub>BR</sub> = 48 / 53.75 = 0.893<br>
+  M = 1 / (1 - 0.893<sup>3</sup>) &asymp; 1 / (1 - 0.712) &asymp; <strong>3.5</strong><br><br>
+  增益从 8.7 降到了 3.5——<strong>下降了 60%！</strong>
+</div>
+
+<p>这就是为什么 APD 必须在<strong>温度补偿</strong>下使用——你需要随温度变化调整偏压，保持 V<sub>R</sub> / V<sub>BR</sub> 的比值恒定，从而保持增益稳定。</p>
+
+<div class="key-point">
+  <strong>核心目标</strong><br><br>
+  温度补偿的实质：<strong>让 V<sub>R</sub> 跟踪 V<sub>BR</sub> 的变化</strong>。<br><br>
+  即：温度每升高 1&deg;C，偏压 V<sub>R</sub> 也升高约 &Delta;V<sub>BR</sub>/&deg;C，使 (V<sub>R</sub> / V<sub>BR</sub>) 比值保持不变。
+</div>
+
+<h2>2. 偏压控制方案</h2>
+
+<p>从简单到精确，有四种偏压控制方案。我们逐一分析。</p>
+
+<h3>2.1 方案一：固定偏压（最差，不可用）</h3>
+<p>用固定的高压电源给 APD 供电。温度变化时增益剧烈漂移。<br>
+<strong>结论</strong>：不能用于任何需要定量测量的场景。</p>
+
+<h3>2.2 方案二：温度查表补偿</h3>
+<p>这是工程中最常用的方案。原理：</p>
+<ol class="step-list">
+  <li>在 APD 旁边放置一个温度传感器（如 TMP117，精度 &plusmn;0.1&deg;C）</li>
+  <li>在出厂标定时，记录不同温度下达到目标增益所需的偏压，建立 V<sub>R</sub> vs T 的校准表</li>
+  <li>工作时，MCU 读取温度，查表获得所需的 V<sub>R</sub>，通过 DAC + 高压电路输出</li>
+</ol>
+
+<div class="spec-flow">
+  <p><strong>温度查表法工作流程</strong></p>
+  <pre>温度传感器 &#8594; MCU 读取温度 &#8594; 查表获取 V<sub>REF</sub> &#8594; DAC 输出 &#8594; 高压升压电路 &#8594; APD 偏压</pre>
+</div>
+
+<table>
+  <tr><th>温度 (&deg;C)</th><th>V<sub>BR</sub> (V)</th><th>目标 V<sub>R</sub> (M=10)</th></tr>
+  <tr><td>0</td><td>46.25</td><td>44.4</td></tr>
+  <tr><td>10</td><td>47.75</td><td>45.8</td></tr>
+  <tr><td>25</td><td>50.00</td><td>48.0</td></tr>
+  <tr><td>40</td><td>52.25</td><td>50.2</td></tr>
+  <tr><td>55</td><td>54.50</td><td>52.3</td></tr>
+  <tr><td>70</td><td>56.75</td><td>54.5</td></tr>
+</table>
+
+<p><strong>优点</strong>：实现简单，成本低，不需要模拟反馈回路<br>
+<strong>缺点</strong>：精度依赖校准点数，无法补偿器件老化</p>
+
+<h3>2.3 方案三：恒流偏置（模拟温度补偿）</h3>
+
+<p>利用 APD 自身的光电流作为反馈信号——通过控制偏压使 APD 的暗电流（或光电流）保持恒定。</p>
+
+<div class="figure">
+  <svg viewBox="0 0 580 200" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;">
+    <!-- APD -->
+    <rect x="30" y="70" width="70" height="50" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="65" y="100" fill="#1e40af" font-size="11" font-family="sans-serif" text-anchor="middle">APD</text>
+    <!-- HV supply -->
+    <rect x="30" y="10" width="70" height="40" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="65" y="35" fill="#92400e" font-size="9" font-family="sans-serif" text-anchor="middle">高压</text>
+    <!-- Control line -->
+    <line x1="65" y1="50" x2="65" y2="70" stroke="#1a1a2e" stroke-width="1.5"/>
+    <!-- APD output -->
+    <line x1="100" y1="95" x2="160" y2="95" stroke="#1a1a2e" stroke-width="2"/>
+    <!-- TIA -->
+    <polygon points="160,65 160,125 220,95" fill="white" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="190" y="100" fill="#1a1a2e" font-size="10" font-family="sans-serif" text-anchor="middle">TIA</text>
+    <!-- TIA output -->
+    <line x1="220" y1="95" x2="300" y2="95" stroke="#1a1a2e" stroke-width="2"/>
+    <!-- ADC / MCU -->
+    <rect x="300" y="70" width="60" height="50" rx="4" fill="#f3e8ff" stroke="#9333ea" stroke-width="2"/>
+    <text x="330" y="100" fill="#581c87" font-size="9" font-family="sans-serif" text-anchor="middle">ADC</text>
+    <!-- MCU feedback to HV -->
+    <path d="M330,120 L330,165 L65,165 L65,50" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="4,3"/>
+    <text x="200" y="180" fill="#d97706" font-size="9" font-family="sans-serif" text-anchor="middle">MCU/DAC 控制偏压</text>
+  </svg>
+  <figcaption>图2：MCU 读取 TIA 输出后调整高压偏压的闭环控制</figcaption>
+</div>
+
+<p><strong>控制逻辑</strong>：</p>
+<ul>
+  <li>APD 的暗电流 I<sub>dark</sub> 也随温度变化（温度每升高 10&deg;C，暗电流约翻倍）</li>
+  <li>但在固定偏压下，暗电流的增大部分来自增益 M 的增大（对 InGaAs APD 不完全是，但可近似）</li>
+  <li><strong>恒流偏置法</strong>：调节 V<sub>R</sub> 使 APD 输出的直流分量（暗电流 + 背景光）保持恒定</li>
+</ul>
+
+<p><strong>优点</strong>：自动补偿温度和老化<br>
+<strong>缺点</strong>：需要区分"信号电流"和"暗电流"，在弱光检测时困难；电路复杂</p>
+
+<h3>2.4 方案四：温度传感器 + DAC + 高压电源（推荐方案）</h3>
+
+<p>这是测试仪表中最常用的方案，结合了查表法的简单和闭环控制的高精度。</p>
+
+<div class="spec-flow">
+  <p><strong>推荐方案框图</strong></p>
+  <pre>温度传感器 (TMP117)
+         &#8595;  I2C
+MCU &#8594; 查表获取 V<sub>REF</sub> 值
+         &#8595;  SPI/I2C
+DAC (16-bit) &#8594; 0~3.3 V
+         &#8595;
+高压升压电路 &#8594; 0~70 V
+         &#8595;
+APD 阴极（阳极通过 TIA 接地）
+</pre>
+</div>
+
+<h2>3. 高压偏置电路设计</h2>
+
+<h3>3.1 升压方案对比</h3>
+
+<table>
+  <tr><th>方案</th><th>输出电压</th><th>纹波</th><th>效率</th><th>适用场景</th></tr>
+  <tr><td>Boost DC-DC + LDO</td><td>最高 &asymp; 几十 V</td><td>低</td><td>中等</td><td>InGaAs APD (30~70 V)</td></tr>
+  <tr><td>电荷泵（Charge Pump）</td><td>受限于级数</td><td>高</td><td>低</td><td>低功耗场景</td></tr>
+  <tr><td>反激变压器（Flyback）</td><td>最高几百 V</td><td>中等</td><td>高</td><td>Si APD (100~300 V)</td></tr>
+  <tr><td>专用高压偏压 IC（如 MAX5025）</td><td>可达 250 V</td><td>低</td><td>高</td><td><strong>推荐</strong></td></tr>
+</table>
+
+<h3>3.2 实用电路：MAX5025 方案</h3>
+
+<p>MAX5025 是一款专为 APD 偏压设计的 DC-DC 升压 IC：</p>
+<ul>
+  <li>输入电压：2.5~5.5 V</li>
+  <li>输出电压：最高 90 V（通过反馈电阻调节）</li>
+  <li>开关频率：500 kHz（小型外部电感电容）</li>
+  <li>关断功能：低功耗模式</li>
+  <li>反馈输入：接受 0~1.25 V 控制电压</li>
+</ul>
+
+<p>使用 MAX5025 的参考设计：</p>
+
+<pre>                    MAX5025
+                    +--------+
+V<sub>IN</sub> (3.3 V) &#8594;      |IN     LX|&#8594; 电感 22 uH &#8594; 二极管 &#8594; V<sub>OUT</sub> (up to 70 V)
+                        |        |                          &#8595; 电容 0.1 uF
+DAC (0~1.25 V) &#8594;      |FB     GND|                         &#8595;
+                    |       |                        电阻分压反馈
+                    +--------+                         到 FB 引脚
+
+输出调节：V<sub>OUT</sub> = V<sub>FB</sub> &times; (1 + R1/R2) + I<sub>FB</sub> &times; R1
+其中 V<sub>FB</sub> = 1.25 V（FB 引脚内部参考电压）
+</pre>
+
+<p><strong>与 DAC 的连接方式</strong>：</p>
+<ul>
+  <li>DAC 输出（0~V<sub>REF</sub>）通过一个串联电阻注入 FB 引脚</li>
+  <li>这样可以叠加 DAC 的控制电压，实现 V<sub>OUT</sub> 的数控调节</li>
+  <li>具体电阻值需要根据 V<sub>OUT</sub> 范围和 DAC 输出范围计算</li>
+</ul>
+
+<h3>3.3 高压电路的安全与可靠性</h3>
+
+<div class="warning-box">
+  <strong>APD 高压偏置的安全性注意事项</strong><br><br>
+  <strong>1. 安全放电</strong>：APD 的结电容（通常 0.1~2 pF）在高压下储能的能量很小，但高压走线对地分布电容可能储能有危险的电荷。关机后需通过泄放电阻放掉。<br><br>
+  <strong>2. PCB 爬电距离</strong>：70 V 的 PCB 走线间距至少 0.5 mm；200 V 至少 1.5 mm。污染环境下（高湿度）需要更大间距。<br><br>
+  <strong>3. 输入保护</strong>：APD 在强光下可能损坏（高光电流会导致局部过热）。应在电路中串联限流电阻（通常 10~100 k&Omega;）到 APD 阴极。<br><br>
+  <strong>4. 过压保护</strong>：使用齐纳二极管或 TVS 将 V<sub>OUT</sub> 限制在安全范围内，防止电源上电瞬间的过冲损坏 APD。
+</div>
+
+<h2>4. 完整的 APD 偏压控制设计实例</h2>
+
+<h3>4.1 设计规格</h3>
+
+<div class="spec-flow">
+  <p><strong>设计条件</strong></p>
+  <ul>
+    <li>APD：InGaAs APD（如 Hamamatsu G8931-20）</li>
+    <li>V<sub>BR</sub> = 50 V @ 25&deg;C，温度系数 +0.15 V/&deg;C</li>
+    <li>目标增益：M = 10</li>
+    <li>工作温度范围：0 ~ 60&deg;C</li>
+    <li>增益稳定性：&le; &plusmn;5% 全温范围</li>
+  </ul>
+</div>
+
+<h3>4.2 设计步骤</h3>
+
+<p><strong>Step 1：计算偏压范围</strong></p>
+<div class="math-box">
+  V<sub>BR</sub> 范围：<br>
+  @ 0&deg;C：V<sub>BR</sub> = 50 + 0.15 &times; (0-25) = <strong>46.25 V</strong><br>
+  @ 25&deg;C：V<sub>BR</sub> = <strong>50.0 V</strong><br>
+  @ 60&deg;C：V<sub>BR</sub> = 50 + 0.15 &times; (60-25) = <strong>55.25 V</strong><br><br>
+  为保持 M = 10，需保持 V<sub>R</sub>/V<sub>BR</sub> 恒定。<br>
+  选 V<sub>R</sub> @ 25&deg;C = 48.0 V（对应 V<sub>R</sub>/V<sub>BR</sub> = 0.96）：<br><br>
+  需要的偏压范围：44.4 V ~ 53.0 V
+</div>
+
+<p><strong>Step 2：选择电路方案</strong></p>
+<ul>
+  <li>温度传感器：TMP117（I2C，&plusmn;0.1&deg;C 精度，0.0078&deg;C 分辨率）</li>
+  <li>DAC：16-bit，V<sub>REF</sub> = 3.3 V（如 DAC8562，0.05% INL）</li>
+  <li>高压升压：MAX5025（输入 3.3 V，输出最高 90 V）</li>
+  <li>MCU：读取温度 &#8594; 查表计算 V<sub>REF</sub> &#8594; 写入 DAC &#8594; MAX5025 输出对应偏压</li>
+</ul>
+
+<p><strong>Step 3：校准流程</strong></p>
+<ol class="step-list">
+  <li>将 APD 置于温箱中，连接测试系统</li>
+  <li>在 0&deg;C, 25&deg;C, 60&deg;C 三个温度点</li>
+  <li>在每个温度点调整 V<sub>R</sub>，测量实际光电流，使 M = 10</li>
+  <li>记录三个温度点的 V<sub>R</sub>(T) 值</li>
+  <li>MCU 中存储这些点，运行时线性插值得到任意温度下的 V<sub>R</sub></li>
+</ol>
+
+<p><strong>Step 4：误差估算</strong></p>
+<div class="math-box">
+  TMP117 温度测量误差：&plusmn;0.1&deg;C<br>
+  对应的 V<sub>R</sub> 误差：0.1 &times; 0.15 = 0.015 V<br>
+  16-bit DAC 在 3.3 V 下的 LSB：3.3 / 65536 = 50 uV<br>
+  经过 MAX5025 放大（约 50 倍）：有效调节精度 &asymp; 50 uV &times; 50 = 2.5 mV<br><br>
+  总偏压误差 &asymp; &radic;(0.015<sup>2</sup> + 0.0025<sup>2</sup>) &asymp; 0.015 V<br>
+  折合到增益 M 的变化 &asymp; 0.015 V / 0.15 V/&deg;C &asymp; 0.1&deg;C 等效温度误差<br><br>
+  查表法整体增益稳定性 &le; &plusmn;2% （满足 &plusmn;5% 的要求）——方案可行。
+</div>
+
+<h2>5. 动手练习</h2>
+
+<div class="quiz-question">
+  <p><strong>练习 1：计算温度补偿后的增益稳定性</strong></p>
+  <p>一个 InGaAs APD，V<sub>BR</sub> = 40 V @ 25&deg;C，温度系数 +0.12 V/&deg;C，目标 M = 8。偏压控制采用查表法，温度传感器精度 &plusmn;0.25&deg;C，DAC 分辨率 12-bit，V<sub>REF</sub> = 2.5 V。工作温度范围 -10 ~ 50&deg;C。估算全温范围内的增益变化。</p>
+  <div class="quiz-answer">
+    <strong>分析</strong>：<br><br>
+    <strong>Step 1：计算 V<sub>BR</sub> 范围</strong><br>
+    @ -10&deg;C：V<sub>BR</sub> = 40 + 0.12 &times; (-10-25) = 40 - 4.2 = 35.8 V<br>
+    @ 50&deg;C：V<sub>BR</sub> = 40 + 0.12 &times; (50-25) = 40 + 3.0 = 43.0 V<br><br>
+    <strong>Step 2：选工作点</strong><br>
+    设 @25&deg;C 时 V<sub>R</sub> = 38.4 V（V<sub>R</sub>/V<sub>BR</sub> = 0.96）<br>
+    所需 V<sub>R</sub> 范围：34.4 ~ 41.3 V（跟踪 V<sub>BR</sub> 变化）<br><br>
+    <strong>Step 3：误差估算</strong><br>
+    温度误差：&plusmn;0.25&deg;C &#8594; V<sub>R</sub> 误差 = &plusmn;0.25 &times; 0.12 = &plusmn;0.03 V<br>
+    DAC 分辨率：12-bit, 2.5 V &#8594; LSB = 0.61 mV<br>
+    高压升压倍率约 16 倍（2.5 V &#8594; 40 V）&#8594; 有效调节步长 &asymp; 10 mV<br>
+    总 V<sub>R</sub> 误差 &asymp; &radic;(0.03<sup>2</sup> + 0.01<sup>2</sup>) &asymp; 0.032 V<br><br>
+    <strong>Step 4：等效增益变化</strong><br>
+    0.032 V 对应约 0.27&deg;C 的等效温度误差<br>
+    在 M = 8 附近，0.27&deg;C 的变化导致增益变化约 <strong>&plusmn;3%</strong><br>
+    满足大多数 OTDR 和光功率计的需求。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>练习 2：判断 APD 的工作状态</strong></p>
+  <p>你的 OTDR 使用 APD 做探测器，温度从 25&deg;C 升到 45&deg;C，发现输出信号幅度下降了 50%。偏压是固定的 48 V。请判断原因，并提出改进方案。</p>
+  <div class="quiz-answer">
+    <strong>分析</strong>：<br><br>
+    <strong>原因</strong>：偏压固定，温度升高后 V<sub>BR</sub> 增大，V<sub>R</sub>/V<sub>BR</sub> 比值下降，APD 增益 M 降低。典型现象。<br><br>
+    如果 M 下降了 50%，说明 V<sub>R</sub>/V<sub>BR</sub> 的变化已经显著影响了工作点。对于高增益 APD（工作在接近 V<sub>BR</sub> 的区域），这个效应更严重。<br><br>
+    <strong>改进方案</strong>：<br>
+    最简单的方案：使用温度查表法补偿。<br>
+    1. 在 APD 附近安装温度传感器（如 TMP117）<br>
+    2. 在数据手册上找到该 APD 的温度系数<br>
+    3. 每升高 1&deg;C，将偏压升高约 0.15 V<br>
+    4. 这样 V<sub>R</sub>/V<sub>BR</sub> 比值保持不变，增益稳定<br><br>
+    如果不知道精确的温度系数，可以在温箱中标定几个温度点，建立 V<sub>R</sub> vs T 校准表。
+  </div>
+</div>
+
+<h2>6. 推荐资源</h2>
+
+<ul>
+  <li><strong>Hamamatsu</strong>：<em>Characteristics and Use of Si APD</em>（光半导体手册，APD 章节）</li>
+  <li><strong>Hamamatsu</strong>：<a href="https://www.hamamatsu.com/resources/pdf/ssd/apd_techinfo_e.pdf" target="_blank">APD Technical Information</a></li>
+  <li><strong>ADI 应用笔记</strong>：<em>AN-376: APD Bias Circuit Using the MAX5025</em></li>
+  <li><strong>TI 应用笔记</strong>：<a href="https://www.ti.com/lit/an/sboa275/sboa275.pdf" target="_blank">SBOA275: High-Voltage APD Bias Controller</a></li>
+  <li><strong>器件 datasheet</strong>：<a href="https://www.maximintegrated.com/en/products/power/MAX5025.html" target="_blank">MAX5025</a>（APD 偏压专用升压 IC）</li>
+  <li><strong>器件 datasheet</strong>：<a href="https://www.ti.com/product/TMP117" target="_blank">TMP117</a>（高精度数字温度传感器）</li>
+</ul>
+
+<blockquote>
+  <strong>六节课总结</strong><br><br>
+  <strong>Lesson 1</strong>：光电信号链基础（光 &#8594; I &#8594; V &#8594; 数字）<br>
+  <strong>Lesson 2</strong>：测试仪表前端设计与噪声分析<br>
+  <strong>Lesson 3</strong>：TIA 稳定性分析与 C<sub>f</sub> 补偿<br>
+  <strong>Lesson 4</strong>：低噪声 PCB 布局实战<br>
+  <strong>Lesson 5</strong>：Sigma-Delta ADC 高精度测量<br>
+  <strong>Lesson 6</strong>：APD 偏压控制与温度补偿 &#8592; <strong>刚学完</strong><br><br>
+  你已经具备了从原理图设计、噪声优化、稳定性补偿、PCB 布局到高精度 ADC 选型和 APD 偏压控制的完整知识链。如果后续工作中遇到具体问题，随时可以回来讨论。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Lesson 0006 · Study_TIA 教学工坊 · 2026
+</p>
+
+<script>
+  document.querySelectorAll('.quiz-question').forEach(function(q) {
+    q.addEventListener('click', function() {
+      var answer = this.querySelector('.quiz-answer');
+      if (answer) answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+</script>
+
+</body>
+</html>

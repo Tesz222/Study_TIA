@@ -1,0 +1,527 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - generic:
+      - link "跳到主要内容" [ref=e2] [cursor=pointer]
+      - link "无障碍功能帮助" [ref=e3] [cursor=pointer]:
+        - /url: https://support.google.com/websearch/answer/181196?hl=zh-CN
+  - generic [ref=e8]:
+    - search [ref=e9]:
+      - generic [ref=e12]:
+        - link "前往 Google 首页" [ref=e13] [cursor=pointer]:
+          - /url: https://www.google.com/webhp?hl=zh-CN&ictx=0&sa=X&ved=0ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQpYkNCAw
+          - img "前往 Google 首页" [ref=e14]
+        - generic [ref=e15]:
+          - combobox "搜索" [ref=e18]: InGaAs PIN photodiode responsivity 1550nm typical A/W InGaAs PIN photodiode responsivity 1550nm typical A/W
+          - generic [ref=e19]:
+            - button "清除" [ref=e21] [cursor=pointer]:
+              - img [ref=e23]
+            - generic [ref=e26]:
+              - button "按语音搜索" [ref=e27] [cursor=pointer]:
+                - img [ref=e28]
+              - button "按图搜索" [ref=e30] [cursor=pointer]:
+                - img [ref=e31]
+        - button "搜索" [ref=e33] [cursor=pointer]:
+          - img [ref=e36]
+    - generic [ref=e38]:
+      - button "设置" [ref=e40] [cursor=pointer]:
+        - img [ref=e43]
+      - button "分享" [ref=e46] [cursor=pointer]:
+        - img [ref=e50]
+      - generic [ref=e52]:
+        - button "Google 应用" [ref=e54] [cursor=pointer]:
+          - img [ref=e55]
+        - link "登录" [ref=e59] [cursor=pointer]:
+          - /url: https://accounts.google.com/ServiceLogin?hl=zh-CN&passive=true&continue=https://www.google.com/search%3Fq%3DInGaAs%2BPIN%2Bphotodiode%2Bresponsivity%2B1550nm%2Btypical%2BA%252FW%26sei%3D0uI_aqn3Nbrg1e8Pu9-suQQ&ec=futura_srp_og_si_72236_p
+  - generic [ref=e61]:
+    - navigation [ref=e67]:
+      - generic [ref=e73]:
+        - list [ref=e74]:
+          - listitem [ref=e75]:
+            - link "AI 模式" [ref=e78] [cursor=pointer]:
+              - /url: /search?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sca_esv=650bb547ae878b5f&udm=50&fbs=ABfTbFUhNGvvPEUFOvrsPMHwBXgOm668fbRC_a7Vhb8DCgbMq8eqV8bT1VY7Sa-SsVne4NkpLkz0HZk_YZmMHm1pm89LCRSdMAYFTXeLTYtVyQTqQ245DBoLc2QDBQPIolU10zWxPISX1lwSgurSjfKY69UPOCXup1niYbDuBj5N5AFUFwEg80k8B0gm0S_f2s7rv3hSwUXGtusLUHOIUUT7VH2Mxq49HA&aep=1&ntc=1&sa=X&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ2J8OegQIEhAD
+              - generic [ref=e81]: AI 模式
+          - listitem [ref=e82]:
+            - link "全部" [disabled] [ref=e83]:
+              - generic [ref=e85]: 全部
+          - listitem [ref=e86]:
+            - link "图片" [ref=e87] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&udm=2&fbs=ABfTbFUhNGvvPEUFOvrsPMHwBXgOm668fbRC_a7Vhb8DCgbMq8eqV8bT1VY7Sa-SsVne4NkpLkz0HZk_YZmMHm1pm89LCRSdMAYFTXeLTYtVyQTqQ245DBoLc2QDBQPIolU10zWxPISX1lwSgurSjfKY69UPOCXup1niYbDuBj5N5AFUFwEg80k8B0gm0S_f2s7rv3hSwUXGtusLUHOIUUT7VH2Mxq49HA&q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sa=X&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQtKgLegQIGBAB
+              - generic [ref=e89]: 图片
+          - listitem [ref=e90]:
+            - link "购物" [ref=e91] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&udm=28&fbs=ABfTbFUhNGvvPEUFOvrsPMHwBXgOm668fbRC_a7Vhb8DCgbMq8eqV8bT1VY7Sa-SsVne4NkpLkz0HZk_YZmMHm1pm89LCRSdMAYFTXeLTYtVyQTqQ245DBoLc2QDBQPIolU10zWxPISX1lwSgurSjfKY69UPOCXup1niYbDuBj5N5AFUFwEg80k8B0gm0S_f2s7rv3hSwUXGtusLUHOIUUT7VH2Mxq49HA&q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&ved=1t:220175&ictx=111
+              - generic [ref=e93]: 购物
+          - listitem [ref=e94]:
+            - link "视频" [ref=e95] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&udm=7&fbs=ABfTbFUhNGvvPEUFOvrsPMHwBXgOm668fbRC_a7Vhb8DCgbMq8eqV8bT1VY7Sa-SsVne4NkpLkz0HZk_YZmMHm1pm89LCRSdMAYFTXeLTYtVyQTqQ245DBoLc2QDBQPIolU10zWxPISX1lwSgurSjfKY69UPOCXup1niYbDuBj5N5AFUFwEg80k8B0gm0S_f2s7rv3hSwUXGtusLUHOIUUT7VH2Mxq49HA&q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sa=X&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQtKgLegQIFBAB
+              - generic [ref=e97]: 视频
+          - listitem [ref=e98]:
+            - link "短视频" [ref=e99] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&udm=39&fbs=ABfTbFUhNGvvPEUFOvrsPMHwBXgOm668fbRC_a7Vhb8DCgbMq8eqV8bT1VY7Sa-SsVne4NkpLkz0HZk_YZmMHm1pm89LCRSdMAYFTXeLTYtVyQTqQ245DBoLc2QDBQPIolU10zWxPISX1lwSgurSjfKY69UPOCXup1niYbDuBj5N5AFUFwEg80k8B0gm0S_f2s7rv3hSwUXGtusLUHOIUUT7VH2Mxq49HA&q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sa=X&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQs6gLegQIFRAB
+              - generic [ref=e101]: 短视频
+          - listitem [ref=e102]:
+            - link "新闻" [ref=e103] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&tbm=nws&source=lnms&fbs=ABfTbFUhNGvvPEUFOvrsPMHwBXgOm668fbRC_a7Vhb8DCgbMq8eqV8bT1VY7Sa-SsVne4NkpLkz0HZk_YZmMHm1pm89LCRSdMAYFTXeLTYtVyQTqQ245DBoLc2QDBQPIolU10zWxPISX1lwSgurSjfKY69UPOCXup1niYbDuBj5N5AFUFwEg80k8B0gm0S_f2s7rv3hSwUXGtusLUHOIUUT7VH2Mxq49HA&sa=X&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ0pQJegQIFhAB
+              - generic [ref=e105]: 新闻
+          - listitem [ref=e106]:
+            - button "更多过滤条件" [ref=e107] [cursor=pointer]:
+              - generic "更多过滤条件" [ref=e108]:
+                - generic [ref=e109]:
+                  - generic [ref=e110]: 更多
+                  - img [ref=e112]
+        - button "工具" [ref=e115] [cursor=pointer]:
+          - generic [ref=e117]:
+            - generic [ref=e118]: 工具
+            - img [ref=e120]
+    - heading "搜索结果" [level=1] [ref=e122]
+    - generic [ref=e127]:
+      - generic [ref=e146]:
+        - generic [ref=e148]:
+          - generic [ref=e150]:
+            - generic [ref=e151]:
+              - img [ref=e152]
+              - heading "AI 概览" [level=2] [ref=e154]
+            - button "关于这条结果的详细信息" [ref=e158]:
+              - img [ref=e160]
+          - generic [ref=e180]:
+            - generic [ref=e183]:
+              - generic [ref=e184]:
+                - button "InGaAs Photodiode - Fast IR detector - Switchable gain ..." [ref=e187]:
+                  - img "InGaAs Photodiode - Fast IR detector - Switchable gain ..." [ref=e188]
+                - text: The typical responsivity for an InGaAs PIN photodiode at 1550 nm is
+                - mark [ref=e189]:
+                  - text: between
+                  - strong [ref=e190]: 0.85 A/W and 1.05 A/W
+                - text: .
+                - generic [ref=e192]:
+                  - link "Excelitas（+1 个）- 查看相关链接" [ref=e193] [cursor=pointer]:
+                    - /url: https://www.excelitas.com/product/c30617l-100-ingaas-pin-100um-ceramic-smd
+                  - button "Excelitas（+1 个）- 查看相关链接" [ref=e194] [cursor=pointer]:
+                    - generic [ref=e196]:
+                      - generic [ref=e197]: Excelitas
+                      - generic [ref=e198]: "+1"
+                    - img [ref=e201]
+              - generic [ref=e203]:
+                - text: This range corresponds to an
+                - strong [ref=e204]: external quantum efficiency
+                - text: (EQE) of roughly 70% to 85%. In theory, 100% quantum efficiency at 1550 nm would yield 1.26 A/W, but physical reflections and absorption limits keep standard commercial devices slightly lower.
+                - generic [ref=e206]:
+                  - link [ref=e207] [cursor=pointer]:
+                    - /url: https://opg.optica.org/abstract.cfm?uri=oe-30-2-3047
+                  - button [ref=e208] [cursor=pointer]:
+                    - generic [ref=e210]:
+                      - generic [ref=e211]: Optica Publishing Group
+                      - generic [ref=e212]: "+1"
+                    - img [ref=e215]
+              - generic [ref=e218]: "Key factors that affect this typical value:"
+              - list [ref=e220]:
+                - listitem [ref=e221]:
+                  - generic [ref=e222]:
+                    - strong [ref=e223]: "Anti-reflective (AR) coatings:"
+                    - text: Diodes optimized with AR coatings at 1550 nm generally push toward the 0.95 A/W to 1.05 A/W mark.
+                - listitem [ref=e224]:
+                  - generic [ref=e225]:
+                    - strong [ref=e226]: "Standard uncoated devices:"
+                    - text: Often fall between 0.85 A/W and 0.90 A/W.
+                - listitem [ref=e227]:
+                  - generic [ref=e228]:
+                    - strong [ref=e229]: "Temperature:"
+                    - text: Minor variations can occur, but responsivity is generally quite stable near room temperature.
+                  - button [ref=e232] [cursor=pointer]:
+                    - img [ref=e235]
+              - generic [ref=e238]:
+                - text: For more information, you can review technical specs on
+                - link [ref=e240] [cursor=pointer]:
+                  - /url: https://www.thorlabs.com/photodiodes
+                  - text: Thorlabs Photodiodes
+                - text: or view general parameters on
+                - link [ref=e242] [cursor=pointer]:
+                  - /url: https://www.excelitas.com/product/c30619gh-ingaas-pin-05mm-18
+                  - text: Excelitas Technologies
+                - text: .
+                - button [ref=e245] [cursor=pointer]:
+                  - img [ref=e248]
+              - generic [ref=e252]:
+                - text: If you are looking at a
+                - strong [ref=e253]: specific manufacturer or part number
+                - text: ", I can pull the exact typical responsivity and other operational specs for you. Just let me know which model you are considering."
+            - generic [ref=e258]:
+              - generic [ref=e260]:
+                - button "4 个网站" [ref=e261] [cursor=pointer]:
+                  - generic [ref=e270]: 4 个网站
+                - button "关于这条结果" [ref=e275] [cursor=pointer]:
+                  - img [ref=e277]
+              - list [ref=e280]:
+                - listitem [ref=e281]:
+                  - generic [ref=e282]:
+                    - link "Near 100% external quantum efficiency 1550-nm broad .... 在新标签页中打开。" [ref=e283] [cursor=pointer]:
+                      - /url: https://opg.optica.org/abstract.cfm?uri=oe-30-2-3047
+                    - generic [ref=e284]:
+                      - generic [ref=e286]:
+                        - generic [ref=e287]: Near 100% external quantum efficiency 1550-nm broad ...
+                        - generic [ref=e288]: 2022年1月14日 — Extensive work has been devoted to improving the speed, line...
+                      - generic [ref=e290]:
+                        - generic [ref=e295]: Optica Publishing Group
+                        - button "关于这条结果" [ref=e299] [cursor=pointer]:
+                          - img [ref=e301]
+                - listitem [ref=e305]:
+                  - generic [ref=e306]:
+                    - link "C30617L-100 - InGaAs PIN, 100um, Ceramic SMD - Excelitas. 在新标签页中打开。" [ref=e307] [cursor=pointer]:
+                      - /url: https://www.excelitas.com/product/c30617l-100-ingaas-pin-100um-ceramic-smd
+                    - generic [ref=e308]:
+                      - generic [ref=e310]:
+                        - generic [ref=e311]: C30617L-100 - InGaAs PIN, 100um, Ceramic SMD - Excelitas
+                        - generic [ref=e312]: "SPECIFICATIONS * Breakdown Voltage: 60 V. * Operating voltag..."
+                      - generic [ref=e314]:
+                        - generic [ref=e319]: Excelitas
+                        - button [ref=e323] [cursor=pointer]:
+                          - img [ref=e325]
+                - listitem [ref=e329]:
+                  - generic [ref=e330]:
+                    - link [ref=e331] [cursor=pointer]:
+                      - /url: https://solsta.co.uk/upload-repository/webtable-docs/C30642GH.pdf
+                    - generic [ref=e332]:
+                      - generic [ref=e334]:
+                        - generic [ref=e335]: Large Area InGaAs PIN Photodiodes - Solsta UK
+                        - generic [ref=e336]: Large Area InGaAs PIN Photodiodes. Page 1. www.excelitas.com...
+                      - generic [ref=e338]:
+                        - generic [ref=e343]: Solsta UK
+                        - button [ref=e347] [cursor=pointer]:
+                          - img [ref=e349]
+              - button [ref=e353] [cursor=pointer]:
+                - generic [ref=e354]: 全部显示
+        - button "显示更多 AI 概览" [ref=e358]:
+          - generic [ref=e360] [cursor=pointer]:
+            - generic [ref=e361]: 展开
+            - img [ref=e363]
+      - main [ref=e366]:
+        - generic [ref=e370]:
+          - table [ref=e376]:
+            - rowgroup [ref=e377]:
+              - row "Google 学术：InGaAs PIN photodiode responsivity 1550nm typical A/W" [ref=e378]:
+                - cell "Google 学术：InGaAs PIN photodiode responsivity 1550nm typical A/W" [ref=e379]:
+                  - heading "Google 学术：InGaAs PIN photodiode responsivity 1550nm typical A/W" [level=3] [ref=e380]:
+                    - link "Google 学术：InGaAs PIN photodiode responsivity 1550nm typical A/W" [ref=e381] [cursor=pointer]:
+                      - /url: https://scholar.google.com.hk/scholar?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&hl=zh-CN&as_sdt=0&as_vis=1&oi=scholart
+                      - generic [ref=e382]:
+                        - text: Google 学术：
+                        - emphasis [ref=e383]: InGaAs PIN photodiode responsivity 1550nm typical A/W
+              - row "High-responsivity 40 Gbit/s InGaAs/InP PIN … - ‎Yin - 被引用次数：19 InGaAs–InP photodiodes with high responsivity and … - ‎Wang - 被引用次数：140 … of the response of Si and InGaAs pin photodiodes … - ‎Van Uffelen - 被引用次数：10" [ref=e384]:
+                - cell "High-responsivity 40 Gbit/s InGaAs/InP PIN … - ‎Yin - 被引用次数：19 InGaAs–InP photodiodes with high responsivity and … - ‎Wang - 被引用次数：140 … of the response of Si and InGaAs pin photodiodes … - ‎Van Uffelen - 被引用次数：10" [ref=e385]:
+                  - heading "High-responsivity 40 Gbit/s InGaAs/InP PIN … - ‎Yin - 被引用次数：19" [level=3] [ref=e386]:
+                    - link "High-responsivity 40 Gbit/s InGaAs/InP PIN …" [ref=e387] [cursor=pointer]:
+                      - /url: https://scholar.google.com.hk/scholar_url?url=https://www.jos.ac.cn/article/id/052c7037-15cc-49d8-bba4-1a9b37e17e8b&hl=zh-CN&sa=X&ei=0-I_aoiYKd216rQPmc22yQw&scisig=ANDmEU7bWvinKcwQhXVlGPN9yl0A&oi=scholarr
+                      - generic [ref=e388]:
+                        - text: High-
+                        - emphasis [ref=e389]: responsivity
+                        - text: 40 Gbit/s
+                        - emphasis [ref=e390]: InGaAs
+                        - text: /InP
+                        - emphasis [ref=e391]: PIN
+                        - text: …
+                    - generic [ref=e392]:
+                      - text: "-"
+                      - generic [ref=e393]: ‎Yin
+                      - text: "- 被引用次数：19"
+                  - heading "InGaAs–InP photodiodes with high responsivity and … - ‎Wang - 被引用次数：140" [level=3] [ref=e394]:
+                    - link "InGaAs–InP photodiodes with high responsivity and …" [ref=e395] [cursor=pointer]:
+                      - /url: https://scholar.google.com.hk/scholar_url?url=https://ieeexplore.ieee.org/abstract/document/4282001/&hl=zh-CN&sa=X&ei=0-I_aoiYKd216rQPmc22yQw&scisig=ANDmEU5g8z5Bbl2sk1I14JqHAPVV&oi=scholarr
+                      - generic [ref=e396]:
+                        - emphasis [ref=e397]: InGaAs
+                        - text: –InP
+                        - emphasis [ref=e398]: photodiodes
+                        - text: with high
+                        - emphasis [ref=e399]: responsivity
+                        - text: and …
+                    - generic [ref=e400]:
+                      - text: "-"
+                      - generic [ref=e401]: ‎Wang
+                      - text: "- 被引用次数：140"
+                  - heading "… of the response of Si and InGaAs pin photodiodes … - ‎Van Uffelen - 被引用次数：10" [level=3] [ref=e402]:
+                    - link "… of the response of Si and InGaAs pin photodiodes …" [ref=e403] [cursor=pointer]:
+                      - /url: https://scholar.google.com.hk/scholar_url?url=https://www.spiedigitallibrary.org/conference-proceedings-of-spie/5554/0000/Wavelength-dependence-of-the-response-of-Si-and-InGaAs-pin/10.1117/12.562518.short&hl=zh-CN&sa=X&ei=0-I_aoiYKd216rQPmc22yQw&scisig=ANDmEU5ICGozXjx24aLz8cA8B56H&oi=scholarr
+                      - generic [ref=e404]:
+                        - text: … of the
+                        - emphasis [ref=e405]: response
+                        - text: of Si and
+                        - emphasis [ref=e406]: InGaAs pin photodiodes
+                        - text: …
+                    - generic [ref=e407]:
+                      - text: "-"
+                      - generic [ref=e408]: ‎Van Uffelen
+                      - text: "- 被引用次数：10"
+          - generic [ref=e411]:
+            - heading "Web results" [level=2] [ref=e412]
+            - generic [ref=e413]:
+              - generic [ref=e416]:
+                - link "C30641GH - InGaAs PIN, 1mm, TO-18 Excelitas https://www.excelitas.com › product › c3064..." [ref=e418] [cursor=pointer]:
+                  - /url: https://www.excelitas.com/product/c30641gh-ingaas-pin-1mm-18
+                  - heading "C30641GH - InGaAs PIN, 1mm, TO-18" [level=3] [ref=e419]
+                  - generic [ref=e421]:
+                    - img [ref=e426]
+                    - generic [ref=e428]:
+                      - generic [ref=e430]: Excelitas
+                      - generic [ref=e432]: https://www.excelitas.com › product › c3064...
+                - generic [ref=e433]:
+                  - generic [ref=e434]: ·
+                  - link "翻译此页" [ref=e435] [cursor=pointer]:
+                    - /url: https://translate.google.com/translate?u=https://www.excelitas.com/product/c30641gh-ingaas-pin-1mm-18&hl=zh-CN&sl=en&tl=zh-CN&client=search
+                - button "关于这条结果的详细信息" [ref=e438] [cursor=pointer]:
+                  - img [ref=e441]
+              - generic [ref=e445]:
+                - emphasis [ref=e446]: High responsivity at 1300 nm and 1550 nm
+                - text: "; Active area diameter: 1.0 mm; High linearity over large dynamic range; Available in various robust TO packages ..."
+          - generic [ref=e450]:
+            - generic [ref=e453]:
+              - link "Near 100% external quantum efficiency 1550-nm broad ... Optica Publishing Group https://opg.optica.org › abstract" [ref=e455] [cursor=pointer]:
+                - /url: https://opg.optica.org/abstract.cfm?uri=oe-30-2-3047
+                - heading "Near 100% external quantum efficiency 1550-nm broad ..." [level=3] [ref=e456]
+                - generic [ref=e462]:
+                  - generic [ref=e464]: Optica Publishing Group
+                  - generic [ref=e466]: https://opg.optica.org › abstract
+              - generic [ref=e467]:
+                - generic [ref=e468]: ·
+                - link "翻译此页" [ref=e469] [cursor=pointer]:
+                  - /url: https://translate.google.com/translate?u=https://opg.optica.org/abstract.cfm?uri%3Doe-30-2-3047&hl=zh-CN&sl=en&tl=zh-CN&client=search
+              - button "关于这条结果的详细信息" [ref=e472] [cursor=pointer]:
+                - img [ref=e475]
+            - generic [ref=e478]:
+              - generic [ref=e479]: 作者：Y Shen · 2022 · 被引用次数：18 —
+              - generic [ref=e480]:
+                - text: To reach 100% EQE at 1550 nm, the
+                - emphasis [ref=e481]: responsivity of the detectors must be close to 1.26 A/W
+                - text: . Most reported InGaAs-based photodiodes have a ...
+          - generic [ref=e485]:
+            - generic [ref=e488]:
+              - link "Large Area InGaAs PIN Photodiodes Solsta UK https://solsta.co.uk › webtable-docs" [ref=e490] [cursor=pointer]:
+                - /url: https://solsta.co.uk/upload-repository/webtable-docs/C30642GH.pdf
+                - heading "Large Area InGaAs PIN Photodiodes" [level=3] [ref=e491]
+                - generic [ref=e497]:
+                  - generic [ref=e499]: Solsta UK
+                  - generic [ref=e501]: https://solsta.co.uk › webtable-docs
+              - generic [ref=e502]:
+                - generic:
+                  - generic: PDF
+              - button "关于这条结果的详细信息" [ref=e505] [cursor=pointer]:
+                - img [ref=e508]
+            - generic [ref=e510]:
+              - generic [ref=e512]:
+                - emphasis [ref=e513]: Typical responsivity
+                - text: of 0.2
+                - emphasis [ref=e514]: A/W
+                - text: at 850 nm for our large area
+                - emphasis [ref=e515]: InGaAs
+                - text: devices allows use of a single detector in fiber optic test instrumentation designed to ...
+              - generic [ref=e516]: 11 页
+          - generic [ref=e520]:
+            - generic [ref=e523]:
+              - link "InGaAs PIN Photodiode AC Photonics Inc https://acphotonics.com › ingaas-pin-photo..." [ref=e525] [cursor=pointer]:
+                - /url: https://acphotonics.com/ingaas-pin-photodiode
+                - heading "InGaAs PIN Photodiode" [level=3] [ref=e526]
+                - generic [ref=e532]:
+                  - generic [ref=e534]: AC Photonics Inc
+                  - generic [ref=e536]: https://acphotonics.com › ingaas-pin-photo...
+              - generic [ref=e537]:
+                - generic [ref=e538]: ·
+                - link "翻译此页" [ref=e539] [cursor=pointer]:
+                  - /url: https://translate.google.com/translate?u=https://acphotonics.com/ingaas-pin-photodiode&hl=zh-CN&sl=en&tl=zh-CN&client=search
+              - button "关于这条结果的详细信息" [ref=e542] [cursor=pointer]:
+                - img [ref=e545]
+            - generic [ref=e549]:
+              - text: ACP's PTD Series InGaAs Pin Photodiode are
+              - emphasis [ref=e550]: sensitive at 1310nm and 1550nm bands
+              - text: . The planar design and dielectric passivation bring superior noise and ...
+          - generic [ref=e554]:
+            - generic [ref=e557]:
+              - link "Free-Space InGaAs Avalanche Photodetectors Thorlabs https://www.thorlabs.com › free-space-ingaa..." [ref=e559] [cursor=pointer]:
+                - /url: https://www.thorlabs.com/free-space-ingaas-avalanche-photodetectors
+                - heading "Free-Space InGaAs Avalanche Photodetectors" [level=3] [ref=e560]
+                - generic [ref=e566]:
+                  - generic [ref=e568]: Thorlabs
+                  - generic [ref=e570]: https://www.thorlabs.com › free-space-ingaa...
+              - generic [ref=e571]:
+                - generic [ref=e572]: ·
+                - link "翻译此页" [ref=e573] [cursor=pointer]:
+                  - /url: https://translate.google.com/translate?u=https://www.thorlabs.com/free-space-ingaas-avalanche-photodetectors&hl=zh-CN&sl=en&tl=zh-CN&client=search
+              - button "关于这条结果的详细信息" [ref=e576] [cursor=pointer]:
+                - img [ref=e579]
+            - generic [ref=e583]:
+              - emphasis [ref=e584]: Typical Max Responsivity, 9 A/W @ 1500 nm
+              - text: (M = 10). Transimpedance Gain, 50 kV/A (50 Ω Termination) 100 kV/A (High-Z Termination). Max Conversion Gain
+              - superscript [ref=e585]: b
+              - text: ", 0.9 × ..."
+          - generic [ref=e589]:
+            - generic [ref=e592]:
+              - link "PDA-1500-3-XA Optoway Technology https://www.optoway.com › files › PIN_PD › PD..." [ref=e594] [cursor=pointer]:
+                - /url: https://www.optoway.com/upload/files/PIN_PD/PDA-1500-3-XA.pdf
+                - heading "PDA-1500-3-XA" [level=3] [ref=e595]
+                - generic [ref=e601]:
+                  - generic [ref=e603]: Optoway Technology
+                  - generic [ref=e605]: https://www.optoway.com › files › PIN_PD › PD...
+              - generic [ref=e606]:
+                - generic:
+                  - generic: PDF
+              - button "关于这条结果的详细信息" [ref=e609] [cursor=pointer]:
+                - img [ref=e612]
+            - generic [ref=e614]:
+              - generic [ref=e616]:
+                - text: DESCRIPTION. PDA-1500-3-SA
+                - emphasis [ref=e617]: InGaAs PIN Photodiode
+                - text: series are high quality analog photodetectors designed for AM. CATV receiver applications.
+              - generic [ref=e618]: 2 页
+          - generic [ref=e622]:
+            - generic [ref=e625]:
+              - link "High-Speed Normal-Incidence p-i-n InGaAs ... The Hong Kong University of Science and Technology https://ptc.home.ece.ust.hk › Papers" [ref=e627] [cursor=pointer]:
+                - /url: https://ptc.home.ece.ust.hk/Papers/2012/Gaoyan's%20paper.pdf
+                - heading "High-Speed Normal-Incidence p-i-n InGaAs ..." [level=3] [ref=e628]
+                - generic [ref=e630]:
+                  - img [ref=e635]
+                  - generic [ref=e637]:
+                    - generic [ref=e639]: The Hong Kong University of Science and Technology
+                    - generic [ref=e641]: https://ptc.home.ece.ust.hk › Papers
+              - generic [ref=e642]:
+                - generic:
+                  - generic: PDF
+              - button "关于这条结果的详细信息" [ref=e645] [cursor=pointer]:
+                - img [ref=e648]
+            - generic [ref=e651]:
+              - generic [ref=e652]: 作者：Y Gao · 2012 · 被引用次数：50 —
+              - generic [ref=e653]:
+                - text: A dark current of. 0.2 µA and a
+                - emphasis [ref=e654]: responsivity of 0.5 A/W at 1550 nm
+                - text: were measured at −1 V for a device 20 µm in diameter. This device exhibited an optical 3 ...
+          - generic [ref=e658]:
+            - generic [ref=e661]:
+              - link "InGaAs Pin Photodiode New England Photoconductor https://www.nepcorp.com › InGaAs_RT" [ref=e663] [cursor=pointer]:
+                - /url: https://www.nepcorp.com/InGaAs_RT.html
+                - heading "InGaAs Pin Photodiode" [level=3] [ref=e664]
+                - generic [ref=e670]:
+                  - generic [ref=e672]: New England Photoconductor
+                  - generic [ref=e674]: https://www.nepcorp.com › InGaAs_RT
+              - generic [ref=e675]:
+                - generic [ref=e676]: ·
+                - link "翻译此页" [ref=e677] [cursor=pointer]:
+                  - /url: https://translate.google.com/translate?u=https://www.nepcorp.com/InGaAs_RT.html&hl=zh-CN&sl=en&tl=zh-CN&client=search
+              - button "关于这条结果的详细信息" [ref=e680] [cursor=pointer]:
+                - img [ref=e683]
+            - generic [ref=e687]:
+              - emphasis [ref=e688]: InGaAs PIN Photodiode
+              - text: ;
+              - emphasis [ref=e689]: Responsivity
+              - text: "@"
+              - emphasis [ref=e690]: 1550nm A/W
+              - text: Min/Typ, 0.90/0.95, 0.90/0.95 ; Dark Current @ 5V nA Max/Typ, 1.0/.05, 5.0/1.0 ; Capacitance @ 5V pF Max/Typ, 1.2 ...
+            - generic [ref=e692]:
+              - text: 缺少字词： typical ‎| 必须包含：
+              - link "typical" [ref=e693] [cursor=pointer]:
+                - /url: /search?sca_esv=650bb547ae878b5f&q=InGaAs+PIN+photodiode+responsivity+1550nm+%22typical%22+A/W&sa=X&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ5t4CegQIOxAB
+          - generic [ref=e697]:
+            - generic [ref=e700]:
+              - link "C30619, C30641, C30642, C30665 and C30723 Series HTDS https://www.htds.fr › uploads › 2019/08 › Excelit..." [ref=e702] [cursor=pointer]:
+                - /url: https://www.htds.fr/wp-content/uploads/2019/08/Excelitas-C30619-C30641-C30642-C30665-and-C30723-Series-datasheet.pdf
+                - heading "C30619, C30641, C30642, C30665 and C30723 Series" [level=3] [ref=e703]
+                - generic [ref=e709]:
+                  - generic [ref=e711]: HTDS
+                  - generic [ref=e713]: https://www.htds.fr › uploads › 2019/08 › Excelit...
+              - generic [ref=e714]:
+                - generic:
+                  - generic: PDF
+              - button "关于这条结果的详细信息" [ref=e717] [cursor=pointer]:
+                - img [ref=e720]
+            - generic [ref=e722]:
+              - generic [ref=e724]:
+                - emphasis [ref=e725]: Typical responsivity
+                - text: of 0.2
+                - emphasis [ref=e726]: A/W
+                - text: at 850nm for our large-area
+                - emphasis [ref=e727]: InGaAs
+                - text: devices allows use of a single detector in fiber optic test instrumentation designed to ...
+              - generic [ref=e728]: 12 页
+        - generic [ref=e730]:
+          - generic [ref=e735]:
+            - heading "用户还搜索了" [level=2] [ref=e737]
+            - generic [ref=e739]:
+              - generic [ref=e740]:
+                - link "InGaAs Photodiode responsivity" [ref=e744] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&q=InGaAs+Photodiode+responsivity&sa=X&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ1QJ6BAgnEAE
+                  - generic [ref=e745]:
+                    - generic [ref=e750]: InGaAs Photodiode responsivity
+                    - img [ref=e754]
+                - link "Photodiode InGaAs" [ref=e759] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&q=Photodiode+InGaAs&sa=X&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ1QJ6BAgrEAE
+                  - generic [ref=e760]:
+                    - generic [ref=e765]: Photodiode InGaAs
+                    - img [ref=e769]
+                - link "InGaAs detector" [ref=e774] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&q=InGaAs+detector&sa=X&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ1QJ6BAgqEAE
+                  - generic [ref=e775]:
+                    - generic [ref=e780]: InGaAs detector
+                    - img [ref=e784]
+              - generic [ref=e786]:
+                - link "Extended InGaAs photodiode" [ref=e790] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&q=Extended+InGaAs+photodiode&sa=X&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ1QJ6BAgpEAE
+                  - generic [ref=e791]:
+                    - generic [ref=e796]: Extended InGaAs photodiode
+                    - img [ref=e800]
+                - link "InGaAs quantum efficiency" [ref=e805] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&q=InGaAs+quantum+efficiency&sa=X&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ1QJ6BAgoEAE
+                  - generic [ref=e806]:
+                    - generic [ref=e811]: InGaAs quantum efficiency
+                    - img [ref=e815]
+          - navigation [ref=e817]:
+            - heading "网页导航" [level=1] [ref=e818]
+            - text: "1"
+            - link "Page 2" [ref=e821] [cursor=pointer]:
+              - /url: /search?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sca_esv=650bb547ae878b5f&ei=0-I_ao74Go2dvr0P3umDyAQ&start=10&sa=N&sstk=AU9db-AJ9LklendfxTmoK8tZolnLTBlsl3foxuv2Abluzt59i_ahQFDdILnWaL30ncZoqPgUyAFYMwVUdlJ7PjKRsTMKtMGS9g7MgQ&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ8tMDegQIJRAE
+              - text: "2"
+            - link "Page 3" [ref=e823] [cursor=pointer]:
+              - /url: /search?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sca_esv=650bb547ae878b5f&ei=0-I_ao74Go2dvr0P3umDyAQ&start=20&sa=N&sstk=AU9db-AJ9LklendfxTmoK8tZolnLTBlsl3foxuv2Abluzt59i_ahQFDdILnWaL30ncZoqPgUyAFYMwVUdlJ7PjKRsTMKtMGS9g7MgQ&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ8tMDegQIJRAG
+              - text: "3"
+            - link "Page 4" [ref=e825] [cursor=pointer]:
+              - /url: /search?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sca_esv=650bb547ae878b5f&ei=0-I_ao74Go2dvr0P3umDyAQ&start=30&sa=N&sstk=AU9db-AJ9LklendfxTmoK8tZolnLTBlsl3foxuv2Abluzt59i_ahQFDdILnWaL30ncZoqPgUyAFYMwVUdlJ7PjKRsTMKtMGS9g7MgQ&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ8tMDegQIJRAI
+              - text: "4"
+            - link "Page 5" [ref=e827] [cursor=pointer]:
+              - /url: /search?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sca_esv=650bb547ae878b5f&ei=0-I_ao74Go2dvr0P3umDyAQ&start=40&sa=N&sstk=AU9db-AJ9LklendfxTmoK8tZolnLTBlsl3foxuv2Abluzt59i_ahQFDdILnWaL30ncZoqPgUyAFYMwVUdlJ7PjKRsTMKtMGS9g7MgQ&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ8tMDegQIJRAK
+              - text: "5"
+            - link "Page 6" [ref=e829] [cursor=pointer]:
+              - /url: /search?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sca_esv=650bb547ae878b5f&ei=0-I_ao74Go2dvr0P3umDyAQ&start=50&sa=N&sstk=AU9db-AJ9LklendfxTmoK8tZolnLTBlsl3foxuv2Abluzt59i_ahQFDdILnWaL30ncZoqPgUyAFYMwVUdlJ7PjKRsTMKtMGS9g7MgQ&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ8tMDegQIJRAM
+              - text: "6"
+            - link "Page 7" [ref=e831] [cursor=pointer]:
+              - /url: /search?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sca_esv=650bb547ae878b5f&ei=0-I_ao74Go2dvr0P3umDyAQ&start=60&sa=N&sstk=AU9db-AJ9LklendfxTmoK8tZolnLTBlsl3foxuv2Abluzt59i_ahQFDdILnWaL30ncZoqPgUyAFYMwVUdlJ7PjKRsTMKtMGS9g7MgQ&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ8tMDegQIJRAO
+              - text: "7"
+            - link "Page 8" [ref=e833] [cursor=pointer]:
+              - /url: /search?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sca_esv=650bb547ae878b5f&ei=0-I_ao74Go2dvr0P3umDyAQ&start=70&sa=N&sstk=AU9db-AJ9LklendfxTmoK8tZolnLTBlsl3foxuv2Abluzt59i_ahQFDdILnWaL30ncZoqPgUyAFYMwVUdlJ7PjKRsTMKtMGS9g7MgQ&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ8tMDegQIJRAQ
+              - text: "8"
+            - link "Page 9" [ref=e835] [cursor=pointer]:
+              - /url: /search?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sca_esv=650bb547ae878b5f&ei=0-I_ao74Go2dvr0P3umDyAQ&start=80&sa=N&sstk=AU9db-AJ9LklendfxTmoK8tZolnLTBlsl3foxuv2Abluzt59i_ahQFDdILnWaL30ncZoqPgUyAFYMwVUdlJ7PjKRsTMKtMGS9g7MgQ&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ8tMDegQIJRAS
+              - text: "9"
+            - link "Page 10" [ref=e837] [cursor=pointer]:
+              - /url: /search?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sca_esv=650bb547ae878b5f&ei=0-I_ao74Go2dvr0P3umDyAQ&start=90&sa=N&sstk=AU9db-AJ9LklendfxTmoK8tZolnLTBlsl3foxuv2Abluzt59i_ahQFDdILnWaL30ncZoqPgUyAFYMwVUdlJ7PjKRsTMKtMGS9g7MgQ&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ8tMDegQIJRAU
+              - text: "10"
+            - heading "下一页" [level=2] [ref=e839]:
+              - link "下一页" [ref=e840] [cursor=pointer]:
+                - /url: /search?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A/W&sca_esv=650bb547ae878b5f&ei=0-I_ao74Go2dvr0P3umDyAQ&start=10&sa=N&sstk=AU9db-AJ9LklendfxTmoK8tZolnLTBlsl3foxuv2Abluzt59i_ahQFDdILnWaL30ncZoqPgUyAFYMwVUdlJ7PjKRsTMKtMGS9g7MgQ&ved=2ahUKEwjOrduW1aeVAxWNjq8BHd70AEkQ8NMDegQIJRAW
+                - generic [ref=e842]: 下一页
+        - navigation
+    - contentinfo [ref=e843]:
+      - heading "页脚链接" [level=1] [ref=e844]
+      - generic [ref=e848]:
+        - generic [ref=e850]:
+          - text: 香港
+          - generic [ref=e852]:
+            - button "香港 - 是根据您的 IP 地址推断出来的" [ref=e854] [cursor=pointer]:
+              - generic [ref=e855]: 香港
+              - generic [ref=e857]:
+                - text: "-"
+                - generic [ref=e858]: 是根据您的 IP 地址推断出来的
+            - text: "-"
+            - button "更新位置信息" [ref=e860] [cursor=pointer]: 更新位置信息
+        - generic [ref=e863]:
+          - link "帮助" [ref=e864] [cursor=pointer]:
+            - /url: https://support.google.com/websearch/?p=ws_results_help&hl=zh-CN&fg=1
+          - link "发送反馈" [ref=e865] [cursor=pointer]:
+            - /url: "#"
+          - link "隐私权" [ref=e866] [cursor=pointer]:
+            - /url: https://policies.google.com/privacy?hl=zh-CN&fg=1
+          - link "条款" [ref=e867] [cursor=pointer]:
+            - /url: https://policies.google.com/terms?hl=zh-CN&fg=1

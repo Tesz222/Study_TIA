@@ -1,0 +1,320 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - generic:
+      - link "Skip to main content" [ref=e2] [cursor=pointer]
+      - link "Accessibility help" [ref=e3] [cursor=pointer]:
+        - /url: https://support.google.com/websearch/answer/181196?hl=en-HK
+  - generic [ref=e8]:
+    - search [ref=e9]:
+      - generic [ref=e12]:
+        - link "Go to Google Home" [ref=e13] [cursor=pointer]:
+          - /url: https://www.google.com/webhp?hl=en&ictx=0&sa=X&ved=0ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88QpYkNCAw
+          - img "Go to Google Home" [ref=e14]
+        - generic [ref=e15]:
+          - combobox "Search" [ref=e18]: site:thorlabs.com ingaas photodiode responsivity datasheet site:thorlabs.com ingaas photodiode responsivity datasheet
+          - generic [ref=e19]:
+            - button "Clear" [ref=e21] [cursor=pointer]:
+              - img [ref=e23]
+            - generic [ref=e26]:
+              - button "Search by voice" [ref=e27] [cursor=pointer]:
+                - img [ref=e28]
+              - button "Search by image" [ref=e30] [cursor=pointer]:
+                - img [ref=e31]
+        - button "Search" [ref=e33] [cursor=pointer]:
+          - img [ref=e36]
+    - generic [ref=e38]:
+      - button "Settings" [ref=e40] [cursor=pointer]:
+        - img [ref=e43]
+      - button "Share" [ref=e46] [cursor=pointer]:
+        - img [ref=e50]
+      - generic [ref=e52]:
+        - button "Google apps" [ref=e54] [cursor=pointer]:
+          - img [ref=e55]
+        - link "Sign in" [ref=e59] [cursor=pointer]:
+          - /url: https://accounts.google.com/ServiceLogin?hl=en&passive=true&continue=https://www.google.com/search%3Fq%3Dsite:thorlabs.com%2Bingaas%2Bphotodiode%2Bresponsivity%2Bdatasheet%26hl%3Den&ec=futura_srp_og_si_72236_p
+  - generic [ref=e61]:
+    - navigation [ref=e67]:
+      - generic [ref=e73]:
+        - list [ref=e74]:
+          - listitem [ref=e75]:
+            - link "AI Mode" [ref=e78] [cursor=pointer]:
+              - /url: /search?q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sca_esv=650bb547ae878b5f&hl=en&udm=50&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5bBLHMJ0vMQmTbuI72DM7jn1PTmby9t4tumVo2l1imA7Sgl2sn6UgauLDePlglhpIUW78G1Kdjmp8H-Q7RgokRny8YNIJcvz7W2uCPaHor_uYTuE9NwRIVgr6vIwJ4p51AyVOp3ZZT5XYnl2Q83tBsu-8ixiWTdSrtklTU5Csf1CvXE39Q&aep=1&ntc=1&sa=X&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Q2J8OegQIFBAD
+              - generic [ref=e81]: AI Mode
+          - listitem [ref=e82]:
+            - link "All" [disabled] [ref=e83]:
+              - generic [ref=e85]: All
+          - listitem [ref=e86]:
+            - link "Shopping" [ref=e87] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&hl=en&udm=28&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5bBLHMJ0vMQmTbuI72DM7jn1PTmby9t4tumVo2l1imA7Sgl2sn6UgauLDePlglhpIUW78G1Kdjmp8H-Q7RgokRny8YNIJcvz7W2uCPaHor_uYTuE9NwRIVgr6vIwJ4p51AyVOp3ZZT5XYnl2Q83tBsu-8ixiWTdSrtklTU5Csf1CvXE39Q&q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&ved=1t:220175&ictx=111
+              - generic [ref=e89]: Shopping
+          - listitem [ref=e90]:
+            - link "Images" [ref=e91] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&hl=en&udm=2&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5bBLHMJ0vMQmTbuI72DM7jn1PTmby9t4tumVo2l1imA7Sgl2sn6UgauLDePlglhpIUW78G1Kdjmp8H-Q7RgokRny8YNIJcvz7W2uCPaHor_uYTuE9NwRIVgr6vIwJ4p51AyVOp3ZZT5XYnl2Q83tBsu-8ixiWTdSrtklTU5Csf1CvXE39Q&q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sa=X&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88QtKgLegQIGBAB
+              - generic [ref=e93]: Images
+          - listitem [ref=e94]:
+            - link "Videos" [ref=e95] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&hl=en&udm=7&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5bBLHMJ0vMQmTbuI72DM7jn1PTmby9t4tumVo2l1imA7Sgl2sn6UgauLDePlglhpIUW78G1Kdjmp8H-Q7RgokRny8YNIJcvz7W2uCPaHor_uYTuE9NwRIVgr6vIwJ4p51AyVOp3ZZT5XYnl2Q83tBsu-8ixiWTdSrtklTU5Csf1CvXE39Q&q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sa=X&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88QtKgLegQIFxAB
+              - generic [ref=e97]: Videos
+          - listitem [ref=e98]:
+            - link "Forums" [ref=e99] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&hl=en&udm=18&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5bBLHMJ0vMQmTbuI72DM7jn1PTmby9t4tumVo2l1imA7Sgl2sn6UgauLDePlglhpIUW78G1Kdjmp8H-Q7RgokRny8YNIJcvz7W2uCPaHor_uYTuE9NwRIVgr6vIwJ4p51AyVOp3ZZT5XYnl2Q83tBsu-8ixiWTdSrtklTU5Csf1CvXE39Q&q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sa=X&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Qs6gLegQIGRAB
+              - generic [ref=e101]: Forums
+          - listitem [ref=e102]:
+            - link "Short videos" [ref=e103] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&hl=en&udm=39&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5bBLHMJ0vMQmTbuI72DM7jn1PTmby9t4tumVo2l1imA7Sgl2sn6UgauLDePlglhpIUW78G1Kdjmp8H-Q7RgokRny8YNIJcvz7W2uCPaHor_uYTuE9NwRIVgr6vIwJ4p51AyVOp3ZZT5XYnl2Q83tBsu-8ixiWTdSrtklTU5Csf1CvXE39Q&q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sa=X&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Qs6gLegQIGhAB
+              - generic [ref=e105]: Short videos
+          - listitem [ref=e106]:
+            - button "More filters" [ref=e107] [cursor=pointer]:
+              - generic "More filters" [ref=e108]:
+                - generic [ref=e109]:
+                  - generic [ref=e110]: More
+                  - img [ref=e112]
+        - button "Tools" [ref=e115] [cursor=pointer]:
+          - generic [ref=e117]:
+            - generic [ref=e118]: Tools
+            - img [ref=e120]
+    - heading "Search Results" [level=1] [ref=e122]
+    - main [ref=e128]:
+      - generic [ref=e132]:
+        - generic [ref=e135]:
+          - heading "Web results" [level=2] [ref=e136]
+          - generic [ref=e137]:
+            - generic [ref=e140]:
+              - link "Photodiodes Thorlabs https://www.thorlabs.com › photodiodes" [ref=e142] [cursor=pointer]:
+                - /url: https://www.thorlabs.com/photodiodes
+                - heading "Photodiodes" [level=3] [ref=e143]
+                - generic [ref=e149]:
+                  - generic [ref=e151]: Thorlabs
+                  - generic [ref=e153]: https://www.thorlabs.com › photodiodes
+              - button "About this result" [ref=e156] [cursor=pointer]:
+                - img [ref=e159]
+            - generic [ref=e162]:
+              - generic [ref=e163]:
+                - text: The FD05D and FD10D are
+                - emphasis [ref=e164]: InGaAs photodiodes
+                - text: with high
+                - emphasis [ref=e165]: responsivity
+                - text: from 900 ... This tab also outlines the theory and methods we use to define the
+                - emphasis [ref=e166]: specifications
+                - text: ...
+              - link "Read more" [ref=e167] [cursor=pointer]:
+                - /url: https://www.thorlabs.com/photodiodes#:~:text=The%20FD05D%20and%20FD10D%20are,range%20of%20typical%20InGaAs%20photodiodes.&text=This%20tab%20also%20outlines%20the,the%20specifications%20of%20our%20photodiodes.
+        - generic [ref=e171]:
+          - generic [ref=e174]:
+            - link "InGaAs Free-Space Amplified Photodetectors Thorlabs https://www.thorlabs.com › ingaas-free-space-amplified-..." [ref=e176] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/ingaas-free-space-amplified-photodetectors
+              - heading "InGaAs Free-Space Amplified Photodetectors" [level=3] [ref=e177]
+              - generic [ref=e183]:
+                - generic [ref=e185]: Thorlabs
+                - generic [ref=e187]: https://www.thorlabs.com › ingaas-free-space-amplified-...
+            - button "About this result" [ref=e190] [cursor=pointer]:
+              - img [ref=e193]
+          - generic [ref=e196]:
+            - generic [ref=e197]:
+              - emphasis [ref=e198]: InGaAs
+              - text: Amplified Photodetector, Switchable Gain ; PDA20CS2, 800 - 1700 nm, DC - 11 MHz, 1.51 kV/A - 4.75 MV/A, 0.75 kVA - 2.38 MV/A ; PDA10CS2, 900 - 1700 nm, DC ...
+            - link "Read more" [ref=e199] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/ingaas-free-space-amplified-photodetectors#:~:text=InGaAs%20Amplified%20Photodetector%2C%20Switchable%20Gain&text=PDA20CS2,0.75%20kVA%20%2D%202.38%20MV%2FA&text=PDA10CS2,DC%20%2D%2013%20MHz
+        - generic [ref=e203]:
+          - generic [ref=e206]:
+            - link "Calibrated Photodiodes Thorlabs https://www.thorlabs.com › calibrated-photodiodes" [ref=e208] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/calibrated-photodiodes
+              - heading "Calibrated Photodiodes" [level=3] [ref=e209]
+              - generic [ref=e215]:
+                - generic [ref=e217]: Thorlabs
+                - generic [ref=e219]: https://www.thorlabs.com › calibrated-photodiodes
+            - button "About this result" [ref=e222] [cursor=pointer]:
+              - img [ref=e225]
+          - generic [ref=e228]:
+            - generic [ref=e229]:
+              - text: Each
+              - emphasis [ref=e230]: photodiode
+              - text: comes with its own data table and graph of the
+              - emphasis [ref=e231]: responsivity
+              - text: vs wavelength. The
+              - emphasis [ref=e232]: responsivity
+              - text: of a particular
+              - emphasis [ref=e233]: photodiode
+              - text: varies from lot to lot.
+            - link "Read more" [ref=e234] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/calibrated-photodiodes#:~:text=Each%20photodiode%20comes%20with%20its,varies%20from%20lot%20to%20lot.
+        - generic [ref=e238]:
+          - generic [ref=e241]:
+            - link "Free-Space InGaAs Avalanche Photodetectors Thorlabs https://www.thorlabs.com › free-space-ingaas-avalanche-..." [ref=e243] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/free-space-ingaas-avalanche-photodetectors
+              - heading "Free-Space InGaAs Avalanche Photodetectors" [level=3] [ref=e244]
+              - generic [ref=e250]:
+                - generic [ref=e252]: Thorlabs
+                - generic [ref=e254]: https://www.thorlabs.com › free-space-ingaas-avalanche-...
+            - button "About this result" [ref=e257] [cursor=pointer]:
+              - img [ref=e260]
+          - generic [ref=e263]:
+            - generic [ref=e264]:
+              - text: Temperature-Compensated InGaAs Avalanche Photodetectors ;
+              - emphasis [ref=e265]: Typical Max Responsivity, 9 A/W @ 1500 nm
+              - text: (M = 10) ; Transimpedance Gain, 50 kV/A (50 Ω Termination) 100 ...
+            - link "Read more" [ref=e266] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/free-space-ingaas-avalanche-photodetectors#:~:text=Temperature%2DCompensated%20InGaAs%20Avalanche%20Photodetectors&text=Typical%20Max%20Responsivity,1500%20nm%20(M%20%3D%2010)&text=Transimpedance%20Gain,100%20kV%2FA%20(High%2DZ%20Termination)
+        - generic [ref=e270]:
+          - generic [ref=e273]:
+            - link "InGaAs Amplified Photodetector with Thermoelectric Cooler Thorlabs https://www.thorlabs.com › ingaas-amplified-photodetect..." [ref=e275] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/ingaas-amplified-photodetector-with-thermoelectric-cooler
+              - heading "InGaAs Amplified Photodetector with Thermoelectric Cooler" [level=3] [ref=e276]
+              - generic [ref=e282]:
+                - generic [ref=e284]: Thorlabs
+                - generic [ref=e286]: https://www.thorlabs.com › ingaas-amplified-photodetect...
+            - button "About this result" [ref=e289] [cursor=pointer]:
+              - img [ref=e292]
+          - generic [ref=e295]:
+            - generic [ref=e296]:
+              - text: Peak Wavelength, 2.3 µm ;
+              - emphasis [ref=e297]: Peak Responsivity, 1.3 A/W (Typ.) at Peak Wavelength
+              - text: ; Active Area, 0.8 mm · (Ø1.0 mm) ; Window Material, Borosilicate Glass.
+            - link "Read more" [ref=e298] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/ingaas-amplified-photodetector-with-thermoelectric-cooler#:~:text=Peak%20Wavelength,2.3%20%C2%B5m&text=Peak%20Responsivity,A%2FW%20(Typ.)%20at%20Peak%20Wavelength&text=Active%20Area,0.8%20mm2&text=(%C3%981.0%20mm)&text=Window%20Material,Borosilicate%20Glass
+        - generic [ref=e302]:
+          - generic [ref=e305]:
+            - link "Mounted Photodiodes Thorlabs https://www.thorlabs.com › mounted-photodiodes" [ref=e307] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/mounted-photodiodes
+              - heading "Mounted Photodiodes" [level=3] [ref=e308]
+              - generic [ref=e314]:
+                - generic [ref=e316]: Thorlabs
+                - generic [ref=e318]: https://www.thorlabs.com › mounted-photodiodes
+            - button "About this result" [ref=e321] [cursor=pointer]:
+              - img [ref=e324]
+          - generic [ref=e327]:
+            - generic [ref=e328]:
+              - text: Thorlabs offers silicon (Si), black silicon (b-Si), indium gallium arsenide (
+              - emphasis [ref=e329]: InGaAs
+              - text: ), or germanium (Ge)
+              - emphasis [ref=e330]: photodiodes
+              - text: in convenient externally SM05 (0.535"-40) or ...
+            - link "Read more" [ref=e331] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/mounted-photodiodes#:~:text=Thorlabs%20offers%20silicon%20(Si)%2C%20black,or%20SM1%20(1.035%22%2D40)%20threaded%20tubes.
+        - generic [ref=e335]:
+          - generic [ref=e338]:
+            - link "Photodiode Power Sensors (C-Series) Thorlabs https://www.thorlabs.com › photodiode-power-sensors-c-..." [ref=e340] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/photodiode-power-sensors-c-series
+              - heading "Photodiode Power Sensors (C-Series)" [level=3] [ref=e341]
+              - generic [ref=e347]:
+                - generic [ref=e349]: Thorlabs
+                - generic [ref=e351]: https://www.thorlabs.com › photodiode-power-sensors-c-...
+            - button "About this result" [ref=e354] [cursor=pointer]:
+              - img [ref=e357]
+          - generic [ref=e360]:
+            - generic [ref=e361]:
+              - emphasis [ref=e362]: Responsivity
+              - superscript [ref=e363]: h
+              - text: (Click for Plot), Raw Data ; Coating/Diffuser, Reflective ND (OD1.5) ; Housing Dimensions, 150 mm x 19 mm x 10 mm; 5 mm Thickness on Sensor Side.
+            - link "Read more" [ref=e364] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/photodiode-power-sensors-c-series#:~:text=Responsivityh%20(Click%20for%20Plot),Raw%20Data&text=Coating%2FDiffuser,Reflective%20ND%20(OD1.5)d&text=Housing%20Dimensions,mm%20Thickness%20on%20Sensor%20Side
+        - generic [ref=e368]:
+          - generic [ref=e371]:
+            - link "Photodiodes and Photoconductors Tutorials Thorlabs https://www.thorlabs.com › photodiodes-and-photocond..." [ref=e373] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/photodiodes-and-photoconductors-tutorials
+              - heading "Photodiodes and Photoconductors Tutorials" [level=3] [ref=e374]
+              - generic [ref=e380]:
+                - generic [ref=e382]: Thorlabs
+                - generic [ref=e384]: https://www.thorlabs.com › photodiodes-and-photocond...
+            - button "About this result" [ref=e387] [cursor=pointer]:
+              - img [ref=e390]
+          - generic [ref=e393]:
+            - generic [ref=e394]:
+              - text: For example, and
+              - emphasis [ref=e395]: InGaAs
+              - text: detector has a shunt resistance on the order of 10 MΩ while a Ge detector is in the kΩ range. This can significantly impact the noise ...
+            - link "Read more" [ref=e396] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/photodiodes-and-photoconductors-tutorials#:~:text=For%20example%2C%20and%20InGaAs%20detector,noise%20current%20on%20the%20photodiode.
+        - generic [ref=e400]:
+          - generic [ref=e403]:
+            - link "Inline Photodetector Thorlabs https://www.thorlabs.com › inline-photodetectors" [ref=e405] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/inline-photodetectors
+              - heading "Inline Photodetector" [level=3] [ref=e406]
+              - generic [ref=e412]:
+                - generic [ref=e414]: Thorlabs
+                - generic [ref=e416]: https://www.thorlabs.com › inline-photodetectors
+            - button "About this result" [ref=e419] [cursor=pointer]:
+              - img [ref=e422]
+          - generic [ref=e425]:
+            - generic [ref=e426]:
+              - text: The waveguide directionally diverts the tapped light to an
+              - emphasis [ref=e427]: InGaAs photodiode
+              - text: ", preventing back reflections from the detector propagating back into the fiber."
+            - link "Read more" [ref=e428] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/inline-photodetectors#:~:text=The%20waveguide%20directionally%20diverts%20the,propagating%20back%20into%20the%20fiber.
+        - generic [ref=e432]:
+          - generic [ref=e435]:
+            - link "Free-Space Biased Detectors Thorlabs https://www.thorlabs.com › free-space-biased-detectors" [ref=e437] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/free-space-biased-detectors
+              - heading "Free-Space Biased Detectors" [level=3] [ref=e438]
+              - generic [ref=e444]:
+                - generic [ref=e446]: Thorlabs
+                - generic [ref=e448]: https://www.thorlabs.com › free-space-biased-detectors
+            - button "About this result" [ref=e451] [cursor=pointer]:
+              - img [ref=e454]
+          - generic [ref=e457]:
+            - generic [ref=e458]:
+              - text: The slim housing allows the optical detector to slip into tight setups. Our Si and
+              - emphasis [ref=e459]: InGaAs
+              - text: detectors are based on fast PIN
+              - emphasis [ref=e460]: photodiodes
+              - text: ", whereas our Ge detectors ..."
+            - link "Read more" [ref=e461] [cursor=pointer]:
+              - /url: https://www.thorlabs.com/free-space-biased-detectors#:~:text=The%20slim%20housing%20allows%20the,based%20on%20N%2Don%2DP%20type%20photodiodes.
+      - navigation [ref=e464]:
+        - heading "Page navigation" [level=1] [ref=e465]
+        - text: "1"
+        - link "Page 2" [ref=e468] [cursor=pointer]:
+          - /url: /search?q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sca_esv=650bb547ae878b5f&hl=en&ei=QuM_atfyBJjX1e8P2eTP-Aw&start=10&sa=N&sstk=AU9db-B0aCU33qvntZmAH_lSTlrw24C_5UuWuuZHN0vMTXMUS-eRaI5LTDgivXXG4JpFSGsNyEEFUoN8nl86LoGxdCj3QLs_RusmpA&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Q8tMDegQILhAE
+          - text: "2"
+        - link "Page 3" [ref=e470] [cursor=pointer]:
+          - /url: /search?q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sca_esv=650bb547ae878b5f&hl=en&ei=QuM_atfyBJjX1e8P2eTP-Aw&start=20&sa=N&sstk=AU9db-B0aCU33qvntZmAH_lSTlrw24C_5UuWuuZHN0vMTXMUS-eRaI5LTDgivXXG4JpFSGsNyEEFUoN8nl86LoGxdCj3QLs_RusmpA&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Q8tMDegQILhAG
+          - text: "3"
+        - link "Page 4" [ref=e472] [cursor=pointer]:
+          - /url: /search?q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sca_esv=650bb547ae878b5f&hl=en&ei=QuM_atfyBJjX1e8P2eTP-Aw&start=30&sa=N&sstk=AU9db-B0aCU33qvntZmAH_lSTlrw24C_5UuWuuZHN0vMTXMUS-eRaI5LTDgivXXG4JpFSGsNyEEFUoN8nl86LoGxdCj3QLs_RusmpA&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Q8tMDegQILhAI
+          - text: "4"
+        - link "Page 5" [ref=e474] [cursor=pointer]:
+          - /url: /search?q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sca_esv=650bb547ae878b5f&hl=en&ei=QuM_atfyBJjX1e8P2eTP-Aw&start=40&sa=N&sstk=AU9db-B0aCU33qvntZmAH_lSTlrw24C_5UuWuuZHN0vMTXMUS-eRaI5LTDgivXXG4JpFSGsNyEEFUoN8nl86LoGxdCj3QLs_RusmpA&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Q8tMDegQILhAK
+          - text: "5"
+        - link "Page 6" [ref=e476] [cursor=pointer]:
+          - /url: /search?q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sca_esv=650bb547ae878b5f&hl=en&ei=QuM_atfyBJjX1e8P2eTP-Aw&start=50&sa=N&sstk=AU9db-B0aCU33qvntZmAH_lSTlrw24C_5UuWuuZHN0vMTXMUS-eRaI5LTDgivXXG4JpFSGsNyEEFUoN8nl86LoGxdCj3QLs_RusmpA&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Q8tMDegQILhAM
+          - text: "6"
+        - link "Page 7" [ref=e478] [cursor=pointer]:
+          - /url: /search?q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sca_esv=650bb547ae878b5f&hl=en&ei=QuM_atfyBJjX1e8P2eTP-Aw&start=60&sa=N&sstk=AU9db-B0aCU33qvntZmAH_lSTlrw24C_5UuWuuZHN0vMTXMUS-eRaI5LTDgivXXG4JpFSGsNyEEFUoN8nl86LoGxdCj3QLs_RusmpA&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Q8tMDegQILhAO
+          - text: "7"
+        - link "Page 8" [ref=e480] [cursor=pointer]:
+          - /url: /search?q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sca_esv=650bb547ae878b5f&hl=en&ei=QuM_atfyBJjX1e8P2eTP-Aw&start=70&sa=N&sstk=AU9db-B0aCU33qvntZmAH_lSTlrw24C_5UuWuuZHN0vMTXMUS-eRaI5LTDgivXXG4JpFSGsNyEEFUoN8nl86LoGxdCj3QLs_RusmpA&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Q8tMDegQILhAQ
+          - text: "8"
+        - link "Page 9" [ref=e482] [cursor=pointer]:
+          - /url: /search?q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sca_esv=650bb547ae878b5f&hl=en&ei=QuM_atfyBJjX1e8P2eTP-Aw&start=80&sa=N&sstk=AU9db-B0aCU33qvntZmAH_lSTlrw24C_5UuWuuZHN0vMTXMUS-eRaI5LTDgivXXG4JpFSGsNyEEFUoN8nl86LoGxdCj3QLs_RusmpA&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Q8tMDegQILhAS
+          - text: "9"
+        - link "Page 10" [ref=e484] [cursor=pointer]:
+          - /url: /search?q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sca_esv=650bb547ae878b5f&hl=en&ei=QuM_atfyBJjX1e8P2eTP-Aw&start=90&sa=N&sstk=AU9db-B0aCU33qvntZmAH_lSTlrw24C_5UuWuuZHN0vMTXMUS-eRaI5LTDgivXXG4JpFSGsNyEEFUoN8nl86LoGxdCj3QLs_RusmpA&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Q8tMDegQILhAU
+          - text: "10"
+        - heading "Next" [level=2] [ref=e486]:
+          - link "Next" [ref=e487] [cursor=pointer]:
+            - /url: /search?q=site:thorlabs.com+ingaas+photodiode+responsivity+datasheet&sca_esv=650bb547ae878b5f&hl=en&ei=QuM_atfyBJjX1e8P2eTP-Aw&start=10&sa=N&sstk=AU9db-B0aCU33qvntZmAH_lSTlrw24C_5UuWuuZHN0vMTXMUS-eRaI5LTDgivXXG4JpFSGsNyEEFUoN8nl86LoGxdCj3QLs_RusmpA&ved=2ahUKEwjXm7zL1aeVAxWYa_UHHVnyE88Q8NMDegQILhAW
+            - generic [ref=e489]: Next
+      - navigation
+    - contentinfo [ref=e490]:
+      - heading "Footer links" [level=1] [ref=e491]
+      - generic [ref=e495]:
+        - generic [ref=e497]:
+          - text: Hong Kong
+          - generic [ref=e499]:
+            - button "Hong Kong - From your IP address" [ref=e501] [cursor=pointer]:
+              - generic [ref=e502]: Hong Kong
+              - generic [ref=e504]:
+                - text: "-"
+                - generic [ref=e505]: From your IP address
+            - text: "-"
+            - button "Update location" [ref=e507] [cursor=pointer]: Update location
+        - generic [ref=e510]:
+          - link "Help" [ref=e511] [cursor=pointer]:
+            - /url: https://support.google.com/websearch/?p=ws_results_help&hl=en-HK&fg=1
+          - link "Send feedback" [ref=e512] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy" [ref=e513] [cursor=pointer]:
+            - /url: https://policies.google.com/privacy?hl=en-HK&fg=1
+          - link "Terms" [ref=e514] [cursor=pointer]:
+            - /url: https://policies.google.com/terms?hl=en-HK&fg=1

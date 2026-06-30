@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0009: OPA2705 深度解析 — 信号链中的"瑞士军刀"运放</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .signal-chain-map {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin: 1.2rem 0;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+    .signal-chain-map .highlight {
+      background: var(--accent-light);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+    }
+    .param-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .param-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.6rem 0.8rem;
+    }
+    .param-item .label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .param-item .value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent-dark);
+    }
+    .param-item .note {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .circuit-desc {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    .circuit-desc h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.3rem;
+      color: var(--accent-dark);
+    }
+    @media (max-width: 600px) {
+      .param-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>OPA2705 深度解析 — 信号链中的"瑞士军刀"运放</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  光电检测信号链 · Lesson 0009
+</p>
+
+<blockquote>
+  <strong>关键洞察</strong>
+  <p>OPA2705 不是信号链中哪个"明星"——它不是主 TIA、不是高速 ADC 驱动器——但它是你板子上<em>最常出现</em>的那个运放。二级增益、有源滤波、电平移位、参考缓冲、VOA 驱动……一颗 OPA2705 双通道包办两块。读懂它等于读懂了一整类<strong>通用型轨到轨运放</strong>的选型思维。</p>
+</blockquote>
+
+<!-- ============================================ -->
+<!--  SECTION 1: DEVICE OVERVIEW                  -->
+<!-- ============================================ -->
+<h2>1. 芯片速览</h2>
+
+<p><strong>OPA2705</strong> 是 TI（原 Burr-Brown 产品线）推出的 <strong>双通道、轨到轨 I/O、CMOS 运算放大器</strong>。定位在"够用就好"的通用型，在成本、功耗和性能之间取了很好的平衡。</p>
+
+<div class="param-grid">
+  <div class="param-item">
+    <div class="label">通道数</div>
+    <div class="value">2</div>
+    <div class="note">SOIC-8 / MSOP-8 封装</div>
+  </div>
+  <div class="param-item">
+    <div class="label">电源范围</div>
+    <div class="value">4.5 ~ 24 V</div>
+    <div class="note">单电源；或 ±2.25 ~ ±12 V 双电源</div>
+  </div>
+  <div class="param-item">
+    <div class="label">增益带宽积 (GBW)</div>
+    <div class="value">1 MHz</div>
+    <div class="note">适合 DC~100 kHz 信号处理</div>
+  </div>
+  <div class="param-item">
+    <div class="label">压摆率 (SR)</div>
+    <div class="value">0.6 V/µs</div>
+    <div class="note">对应满功率带宽 ~9.5 kHz @ 20 V<sub>pp</sub></div>
+  </div>
+  <div class="param-item">
+    <div class="label">输入偏置电流 (I<sub>B</sub>)</div>
+    <div class="value">10 pA</div>
+    <div class="note">CMOS 输入级，注意温度系数</div>
+  </div>
+  <div class="param-item">
+    <div class="label">失调电压 (V<sub>OS</sub>)</div>
+    <div class="value">500 µV typ / 2 mV max</div>
+    <div class="note">够用，但对精密 DC 测量需校准</div>
+  </div>
+  <div class="param-item">
+    <div class="label">静态电流 (I<sub>Q</sub>)</div>
+    <div class="value">200 µA/通道</div>
+    <div class="note">低功耗，适合电池/便携设备</div>
+  </div>
+  <div class="param-item">
+    <div class="label">输出摆幅</div>
+    <div class="value">距电源轨 20 mV</div>
+    <div class="note">@ 10 kΩ 负载；重载下会缩水</div>
+  </div>
+  <div class="param-item">
+    <div class="label">CMRR / PSRR</div>
+    <div class="value">80 / 85 dB</div>
+    <div class="note">典型值，够 12-bit 系统用</div>
+  </div>
+  <div class="param-item">
+    <div class="label">工作温度</div>
+    <div class="value">-40 ~ +125 °C</div>
+    <div class="note">工业级</div>
+  </div>
+</div>
+
+<div class="callout callout-info">
+  <strong>🔗 命名规则</strong>
+  <p>TI/Burr-Brown 的 OPAx705 系列：<br>
+  <strong>OPA705</strong> = 单通道 (SOT-23-5) · <strong>OPA2705</strong> = 双通道 (SOIC-8/MSOP-8) · <strong>OPA4705</strong> = 四通道 (SOIC-14/TSSOP-14)<br>
+  相同的核心设计，只有封装和通道数不同。选型时优先考虑双通道 OPA2705——8 脚封装占板面积小，是一般信号调理最常用的封装形态。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 2: ROLE IN SIGNAL CHAIN            -->
+<!-- ============================================ -->
+<h2>2. 在信号链中的位置</h2>
+
+<p>回顾完整的信号链，OPA2705 不会出现在<strong>光电二极管</strong>后面的第一级——那里是 TIA 专用运放（OPA381、OPA657）的领地。它出现的位置是<strong>第一级之后的所有辅助信号处理</strong>：</p>
+
+<div class="signal-chain-map">
+<pre>
+光电二极管 ──→ TIA ──→ [<span class="highlight">二级增益</span>] ──→ [<span class="highlight">有源滤波</span>] ──→ ADC
+                          ↑              ↑
+                       OPA2705        OPA2705
+                       (一个通道)      (另一个通道)
+
+         ┌──────────────────────────────────────┐
+         │  同一颗 OPA2705 包办两个角色         │
+         └──────────────────────────────────────┘
+
+         其他辅助角色（另外的 OPA2705 或另一通道）：
+         ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
+           V<sub>REF</sub> 缓冲器 (Lesson 0008 磁珠的邻居)
+         │  VOA 驱动电压缓冲                   │
+           ​MCU ADC 输入保护/缩放
+         └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+</pre>
+</div>
+
+<h3>2.1 为什么不是 TIA？</h3>
+
+<p>OPA2705 的偏置电流（10 pA）看起来足够低，但真正的问题在于<strong>带宽和噪声</strong>：</p>
+
+<table>
+  <tr><th>参数</th><th>OPA2705</th><th>OPA381 (TIA 专用)</th><th>影响</th></tr>
+  <tr><td>GBW</td><td>1 MHz</td><td>18 MHz</td><td>OPA2705 作为 TIA 时，闭环带宽严重受限，即使中等 R<sub>f</sub> 也难以稳定</td></tr>
+  <tr><td>电压噪声</td><td>~25 nV/√Hz</td><td>5 nV/√Hz</td><td>Lesson 0003 讲过，中高 R<sub>f</sub> 下电压噪声是 TIA 噪声主导</td></tr>
+  <tr><td>V<sub>OS</sub></td><td>2 mV max</td><td>50 µV max</td><td>TIA 输出端的 DC 误差直接叠加到测量结果</td></tr>
+  <tr><td>适合角色</td><td>信号调理</td><td>前端 I-V 转换</td><td>各司其职</td></tr>
+</table>
+
+<blockquote>
+  <strong>工程直觉</strong>
+  <p>选运放时问自己两个问题：<br>
+  1. 这个位置需要多高的信号完整性？（TIA 位置 → 极高；辅助信号调理 → 中等）<br>
+  2. 这个位置的信号频率有多高？（TIA 输出可能在 kHz~MHz；ADC 之前的抗混叠滤波器通常在 DC~100 kHz）<br>
+  OPA2705 对 <strong>1 MHz GBW、DC~100 kHz 信号、中等精度要求</strong> 的场景来说，刚好卡在"够用"的甜蜜点。</p>
+</blockquote>
+
+<!-- ============================================ -->
+<!--  SECTION 3: CIRCUIT EXAMPLES                -->
+<!-- ============================================ -->
+<h2>3. 实用电路四则</h2>
+
+<h3>3.1 二级同相增益放大器</h3>
+
+<div class="circuit-desc">
+  <h4>场景</h4>
+  <p>TIA 输出为 0~3.0 V，但你的 ADC 是 24-bit Sigma-Delta（如 Lesson 0005 的 ADS1256），满量程 ±2.5 V（差分）。你需要将单端信号转换为差分，同时调整电平。</p>
+  <h4>电路</h4>
+  <pre>  ┌─── R1 (10 kΩ) ────┐
+  │                    │
+  ├─── R2 (20 kΩ) ────┤
+  │                    │
+  TIA OUT ── R3 ─┬─── OPA2705 (+) ──→ 到 ADC 正输入端
+                 │
+                R4 ──── V<sub>BIAS</sub> (1.65 V)
+                 │
+                GND
+
+  增益 = 1 + R2/R1 = 3
+  输出 = 3 × V<sub>IN</sub> - 2 × V<sub>BIAS</sub>  (差分输出时需配合反相通道)</pre>
+  <p><strong>设计要点</strong>：OPA2705 的 GBW=1 MHz，将此电路的 -3 dB 带宽设置为 1 MHz / 3 ≈ 330 kHz，对于光功率测量的 DC~1 kHz 信号绰绰有余。R1/R2 选择 10 kΩ 级，平衡噪声和功耗。</p>
+</div>
+
+<h3>3.2 二阶 Sallen-Key 低通滤波器（抗混叠）</h3>
+
+<div class="circuit-desc">
+  <h4>场景</h4>
+  <p>ADC 前端需要抗混叠滤波。Sigma-Delta ADC 内部的数字滤波器会处理大部分，但模拟域仍需要一个简单的 RC 或二阶有源滤波器来防止高频成分引起调制器过载（Lesson 0005 中提到的"差分非线性"问题）。</p>
+  <h4>电路</h4>
+  <pre>         R1         R2
+  V<sub>IN</sub> ──┬──[10k]──┬──[10k]──┬── OPA2705 (+) ── V<sub>OUT</sub>
+          │         │        │
+          C1        C2       │
+         [10nF]    [10nF]   │
+          │         │        │
+         GND       GND ─────┘
+
+  f<sub>c</sub> = 1 / (2π × √(R1·R2·C1·C2)) ≈ 1.59 kHz
+  Q = 0.707 (Butterworth 响应)</pre>
+  <p><strong>设计要点</strong>：1.6 kHz 转折频率对于光功率测量足够——功率变化比这慢得多。选择 Butterworth 响应（Q=0.707）在通带平坦度和阻带衰减之间取得平衡。OPA2705 的轨到轨输出确保信号在 ADC 满量程内无削波。</p>
+</div>
+
+<h3>3.3 V<sub>REF</sub> 缓冲器</h3>
+
+<div class="circuit-desc">
+  <h4>场景</h4>
+  <p>高精度 ADC（如 AD7175-2）需要低阻抗参考电压驱动。精密参考源（如 REF5050）的输出阻抗在 kHz 以上会上升，不能直接驱动 ADC 内部的开关电容负载。需要一个缓冲器。</p>
+  <h4>要点</h4>
+  <ul>
+    <li><strong>为什么用 OPA2705</strong>：轨到轨输出可以在接近电源轨处提供干净的参考电压。200 µA 静态电流适合低功耗仪表。</li>
+    <li><strong>为什么不用更精密的运放</strong>：V<sub>REF</sub> 缓冲器的精度主要来自参考源本身，不是运放。OPA2705 的 V<sub>OS</sub> = 500 µV 相对于 3.3 V 参考只贡献 0.015% 误差，在 16-bit 系统中可以忽略。</li>
+    <li><strong>布局</strong>：缓冲器输出引脚距离 ADC V<sub>REF</sub> 引脚越近越好。在缓冲器和 ADC 之间串一颗 10 Ω 电阻隔离（避免运放驱动容性负载时振荡）。</li>
+  </ul>
+</div>
+
+<h3>3.4 VOA 控制电压缓冲</h3>
+
+<div class="circuit-desc">
+  <h4>场景</h4>
+  <p>回顾 Lesson 0007 中 VOA 驱动电路：DAC 输出 0~5 V，需要升压到 0~120 V 驱动 MEMS VOA。OPA2705 在这里驱动<strong>第一级</strong>：DAC → OPA2705 缓冲 → 高压放大器。</p>
+  <h4>要点</h4>
+  <ul>
+    <li>OPA2705 供电 5 V，作为 DAC 输出的精确缓冲，驱动高压运放的输入</li>
+    <li>它的低漂移（2 µV/°C typ）确保温度变化时 VOA 衰减量稳定</li>
+    <li>双通道正好用一路缓冲 DAC 输出，另一路做高压反馈端电平转换</li>
+  </ul>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 4: OP-AMP COMPARISON               -->
+<!-- ============================================ -->
+<h2>4. 同级别运放横向对比</h2>
+
+<p>为你的信号链选择通用型运放时，以下这些会与 OPA2705 竞争。了解差异才能做出正确选择：</p>
+
+<table>
+  <tr>
+    <th>型号</th>
+    <th>通道</th>
+    <th>GBW</th>
+    <th>V<sub>OS</sub></th>
+    <th>I<sub>Q</sub>/ch</th>
+    <th>I<sub>B</sub></th>
+    <th>RRIO</th>
+    <th>何时选它</th>
+  </tr>
+  <tr>
+    <td><strong>OPA2705</strong></td><td>2</td><td>1 MHz</td><td>500 µV</td><td>200 µA</td><td>10 pA</td><td>✓</td>
+    <td>通用首选，成本功耗平衡</td>
+  </tr>
+  <tr>
+    <td>TLV9002</td><td>2</td><td>1 MHz</td><td>500 µV</td><td>60 µA</td><td>5 pA</td><td>✓</td>
+    <td>极端低功耗（电池供电）</td>
+  </tr>
+  <tr>
+    <td>OPA376</td><td>2</td><td>5.5 MHz</td><td>5 µV</td><td>760 µA</td><td>0.2 pA</td><td>✓</td>
+    <td>需要低失调 + 更宽带宽</td>
+  </tr>
+  <tr>
+    <td>MCP6002</td><td>2</td><td>1 MHz</td><td>4 mV</td><td>100 µA</td><td>1 pA</td><td>✓</td>
+    <td>极致低成本</td>
+  </tr>
+  <tr>
+    <td>LM358</td><td>2</td><td>0.7 MHz</td><td>2 mV</td><td>350 µA</td><td>20 nA</td><td>✗</td>
+    <td>老一代，双极型，大信号通用</td>
+  </tr>
+</table>
+
+<div class="callout callout-warning">
+  <strong>⚠ LM358 的陷阱</strong>
+  <p>LM358 是最常见的通用运放，但在你的应用场景中几乎总是<strong>不合</strong>：它<em>不是轨到轨输出</em>（输出最多到 V- + 1.5 V），在 3.3 V 或 5 V 单电源下动态范围严重受限。而且它的 I<sub>B</sub> = 20 nA，在 10 MΩ 反馈电阻上产生 200 µV 额外误差。在 2020 年代的新设计中，<strong>除非是维修替换，否则不要选 LM358</strong>。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 5: DESIGN CAVEATS                 -->
+<!-- ============================================ -->
+<h2>5. 使用注意事项</h2>
+
+<h3>5.1 容性负载驱动</h3>
+<p>OPA2705 在驱动 >100 pF 容性负载时可能振荡（典型的 CMOS 输出级问题）。解决方法：</p>
+<ul>
+  <li>输出串联一个小电阻（R<sub>ISO</sub> = 50~100 Ω）隔离容性负载</li>
+  <li>或在反馈环内放置 R<sub>ISO</sub>，将电容纳入环路补偿</li>
+  <li>在 ADC 驱动场景中（ADC 输入呈开关电容特性），这是必须考虑的问题</li>
+</ul>
+
+<h3>5.2 输入共模范围</h3>
+<p>轨到轨输入在靠近电源轨时，输入级会从 PMOS 切换到 NMOS 差分对。在这个过渡区（通常在 V<sub>CC</sub> - 1 V 附近），<strong>失调电压会突然变化约 1~2 mV</strong>。如果你的信号工作在这个区域，应该避免使用轨到轨输入运放，或者选择只有一个输入级对（如 OPA376 的零交越拓扑）。</p>
+
+<h3>5.3 噪声密度</h3>
+<p>OPA2705 的电压噪声密度约为 25 nV/√Hz @ 1 kHz。在 100 kHz 带宽下，RMS 噪声 ≈ 25 × √100k ≈ 7.9 µV<sub>RMS</sub>。对于 16-bit ADC (LSB ≈ 50 µV @ 3.3 V)，这个噪声会贡献大约 1/6 LSB<sub>RMS</sub>——可以接受，但如果你追求 24-bit 精度的极限性能，应选择更低噪声的运放（如 OPA376: 7.5 nV/√Hz）。</p>
+
+<h3>5.4 电源去耦</h3>
+<p>你的 Lesson 0008 学到的磁珠知识在这里直接用上：</p>
+<ul>
+  <li>OPA2705 的 PSRR 在 1 kHz 处约 70 dB，在 100 kHz 处降至约 40 dB</li>
+  <li>需要 π 型滤波器（磁珠 + 10 µF + 100 nF）来保持高频 PSRR</li>
+  <li>如果 OPA2705 和数字电路共用电源，务必用磁珠隔离</li>
+</ul>
+
+<!-- ============================================ -->
+<!--  SECTION 6: QUIZ                             -->
+<!-- ============================================ -->
+<h2>6. 练习与自测</h2>
+
+<div class="quiz-question">
+  <p><strong>问题 1</strong>：你需要在 TIA 输出之后加一级 10 倍增益放大器，信号带宽约为 20 kHz。OPA2705 适合这个位置吗？</p>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    A. 适合，GBW = 1 MHz，10 倍增益下闭环带宽 = 100 kHz > 20 kHz
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    B. 不适合，输出噪声会超过 ADC 的 LSB
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    C. 不适合，OPA2705 的输入偏置电流太大
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    D. 不确定，取决于 TIA 输出电压摆幅
+  </div>
+  <div id="q1" class="quiz-answer">
+    <strong>答案：A</strong><br>
+    GBW = 1 MHz，G = 10 → 闭环带宽 = 1 MHz / 10 = 100 kHz。信号带宽 20 kHz 有 5 倍余量，完全足够。输入偏置电流 10 pA 在 TIA 之后的节点上是可忽略的（信号电压在 V 级）。噪声需要具体计算（见 5.3 节），但对 20 kHz 信号和典型 ADC 精度来说在可接受范围内。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>问题 2</strong>：OPA2705 的哪项参数是它<em>不适合</em>作为主 TIA 运放的主要原因？</p>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    A. 静态电流 200 µA 太高
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    B. 增益带宽积 1 MHz 不足以实现 TIA 所需的带宽和稳定性裕度
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    C. 它不是差分输出
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    D. 工作温度范围只有 -40~+125°C
+  </div>
+  <div id="q2" class="quiz-answer">
+    <strong>答案：B</strong><br>
+    TIA 的闭环带宽受 GBW、C<sub>in</sub> 和 R<sub>f</sub> 三个因素共同限制（Lesson 0003 的 f<sub>p</sub> = √(GBW / (2π × R<sub>f</sub> × C<sub>in</sub>)) 公式）。1 MHz GBW 意味着即使用中等 R<sub>f</sub> = 100 kΩ 和 C<sub>in</sub> = 15 pF，f<sub>p</sub> ≈ √(1M / (6.28 × 100k × 15p)) ≈ 103 kHz——这还只够较低的带宽要求。更重要的是，TIA 需要足够的相位裕度来避免自激振荡（见 Lesson 0003），低 GBW 运放在这里更难补偿。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>问题 3</strong>：你在用 OPA2705 驱动一个 SAR ADC 的模拟输入。以下哪项措施对防止振荡最重要？</p>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    A. 在输出串联 50~100 Ω 电阻
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    B. 使用 0.1% 精度反馈电阻
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    C. 将运放供电电压提高到 24 V
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    D. 在反馈电阻上并联电容
+  </div>
+  <div id="q3" class="quiz-answer">
+    <strong>答案：A</strong><br>
+    SAR ADC 的输入呈开关电容负载，在采样瞬间会从运放抽取电流脉冲。这个瞬态负载等效于一个容性负载。OPA2705 在驱动 >100 pF 时可能振荡，串联隔离电阻 R<sub>ISO</sub> 将容性负载与运放输出级隔离。这是 SAR ADC 驱动设计的标准做法。（D 选项——在反馈电阻上并联电容——适用于 TIA 的稳定性补偿，但不解决 ADC 驱动场景的容性负载问题。）
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 7: SUMMARY                         -->
+<!-- ============================================ -->
+<h2>7. 小结</h2>
+
+<ul>
+  <li><strong>OPA2705 = 双通道、轨到轨、低速通用运放</strong>——适合信号链中"不太要紧但需要处理"的所有位置</li>
+  <li><strong>4.5~24 V 宽电源范围</strong>——同一颗芯片可用于 5 V 模拟系统和 ±12 V 工业信号</li>
+  <li><strong>它不是 TIA 运放</strong>——GBW 和噪声水平决定了它的角色是信号调理而非前端转换</li>
+  <li><strong>典型应用四件套</strong>：二级增益、有源滤波、参考缓冲、VOA 驱动</li>
+  <li><strong>替代选择</strong>：TLV9002（更低功耗）、OPA376（更高精度）、MCP6002（更低成本）</li>
+  <li><strong>工程连线</strong>：Lesson 0008 的磁珠 + 本节运放 = 完整的模拟电源和信号调理知识</li>
+</ul>
+
+<!-- ============================================ -->
+<!--  RESOURCES                                  -->
+<!-- ============================================ -->
+<h2>8. 延伸资源</h2>
+
+<ul>
+  <li><a href="https://www.ti.com/product/OPA2705">TI OPA2705 产品页</a> — 数据手册、仿真模型、应用笔记</li>
+  <li><a href="https://www.ti.com/lit/an/sboa274/sboa274.pdf">Noise Analysis of TIA (SB OA274)</a> — 重温 TIA 噪声分析，理解为什么 OPA2705 不适合前端</li>
+  <li><a href="../lessons/0005-sigma-delta-adc.html">Lesson 0005: Sigma-Delta ADC</a> — ADC 前端的驱动和滤波与此直接相关</li>
+  <li><a href="../lessons/0008-ferrite-beads.html">Lesson 0008: 铁氧体磁珠</a> — OPA2705 电源去耦的配套知识</li>
+  <li><a href="../reference/0001-tia-cheatsheet.html">TIA Cheatsheet</a> — 对比 OPA2705 与 TIA 专用运放的参数</li>
+</ul>
+
+<p style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.9rem;">
+  OPA2705 是一颗不会"惊艳"你但会在每块板子上出现的运放。理解了它，你就掌握了模拟信号链中"通用型"运放的选型框架。有任何不清晰的概念——比如 Sallen-Key 滤波器的详细设计，或者 OPA2705 与你的 ADC 的具体接口——随时问我。
+</p>
+
+<script>
+function revealAnswer(id) {
+  var el = document.getElementById(id);
+  if (el) el.style.display = 'block';
+}
+</script>
+
+</body>
+</html>

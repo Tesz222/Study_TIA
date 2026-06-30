@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 3：OrCAD 进阶 — 自定义符号 + DRC + 网表</title>
+  <link rel="stylesheet" href="../../assets/lesson.css">
+  <style>
+    .step { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.8rem; margin: 0.6rem 0; }
+    .step h3 { color: #1e40af; margin: 0 0 0.3rem 0; font-size: 1rem; }
+    .act { background: #fffbeb; border-left: 4px solid #d97706; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .info { background: #eff6ff; border-left: 4px solid #2563eb; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .warn { background: #fef2f2; border-left: 4px solid #dc2626; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .chk-list { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; }
+    .kbd { display: inline-block; background: #1e293b; color: #e2e8f0; border-radius: 4px; padding: 0.1em 0.5em; font-family: monospace; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+
+<h1>📅 Day 3 · OrCAD 进阶 — 自定义符号 + DRC + 网表</h1>
+<p style="color: var(--text-secondary);">
+  预计用时 1.5~2 小时 · 完成 6 项检查清单后进入 Day 4
+</p>
+
+<blockquote>
+  <strong>本日目标</strong><br>
+  ✅ 学会创建自己的器件符号（.olb）<br>
+  ✅ 学会为器件分配 PCB Footprint<br>
+  ✅ 跑过 Annotate（自动编号）和 DRC（电气规则检查）<br>
+  ✅ 成功生成网表（netlistallegro 文件夹）
+</blockquote>
+
+<hr>
+
+<h2>任务 3.1：创建自己的器件符号</h2>
+
+<div class="info">标准库很好用，但实际工作中你会遇到标准库里没有的器件（比如你公司自研的芯片）。这时你需要自己创建原理图符号。</div>
+
+<div class="step">
+  <h3>▶ 3.1.1 新建库文件</h3>
+  <div class="act"><span class="chk">☐</span> 打开 OrCAD Capture</div>
+  <div class="act"><span class="chk">☐</span> <kbd>File → New → Library</kbd></div>
+  <div class="act"><span class="chk">☐</span> 一个新的 .olb 文件出现在项目管理器中</div>
+  <div class="act"><span class="chk">☐</span> 立即保存：选中这个 .olb → <kbd>File → Save As</kbd> → 命名为 <code>MY_PARTS.olb</code> → 保存在你的工作目录下</div>
+</div>
+
+<div class="step">
+  <h3>▶ 3.1.2 创建一个 OPA381 符号</h3>
+  <div class="info">OPA381 是 TI 的一款低偏置电流运放，常用于 TIA 电路。<br>
+  它有 8 个引脚（SOIC-8 封装）：</div>
+  <table>
+    <tr><th>Pin #</th><th>名称</th><th>类型</th></tr>
+    <tr><td>1</td><td>NC</td><td>不接</td></tr>
+    <tr><td>2</td><td>-IN</td><td>反相输入</td></tr>
+    <tr><td>3</td><td>+IN</td><td>同相输入</td></tr>
+    <tr><td>4</td><td>VEE</td><td>负电源（这里接 GND）</td></tr>
+    <tr><td>5</td><td>NC</td><td>不接</td></tr>
+    <tr><td>6</td><td>OUT</td><td>输出</td></tr>
+    <tr><td>7</td><td>VCC</td><td>正电源</td></tr>
+    <tr><td>8</td><td>NC</td><td>不接</td></tr>
+  </table>
+
+  <div class="act"><span class="chk">☐</span> 在 MY_PARTS.olb 上右键 → <strong>New Part</strong></div>
+  <div class="act"><span class="chk">☐</span> 在弹出的 New Part Properties 窗口中填写：</div>
+  <ul>
+    <li><strong>Name</strong>：<code>OPA381</code></li>
+    <li><strong>Part Reference Prefix</strong>：<code>U</code>（表示这是一个 IC）</li>
+    <li><strong>PCB Footprint</strong>：<code>SOIC-8</code>（这是 Allegro 中的封装名，大小写和拼写必须一致）</li>
+    <li><strong>Parts per Package</strong>：<code>1</code>（单运放）</li>
+    <li>点击 OK</li>
+  </ul>
+</div>
+
+<div class="step">
+  <h3>▶ 3.1.3 放置引脚</h3>
+  <div class="info">引脚放置窗口会自动打开。如果关闭了，可以双击 .olb 下的 OPA381 重新进入编辑。</div>
+  <div class="act"><span class="chk">☐</span> 点击右侧工具栏的 <strong>Place Pin</strong> 图标（或按 <kbd>Shift+P</kbd>）</div>
+  <div class="act"><span class="chk">☐</span> 逐一放置 8 个引脚：</div>
+  <ul>
+    <li>NC（不接）：Name = NC, Pin Number = 1, Shape = Line, Type = Passive</li>
+    <li>-IN（反相输入）：Name = -IN, Pin Number = 2, Shape = Line, Type = Input</li>
+    <li>+IN（同相输入）：Name = +IN, Pin Number = 3, Shape = Line, Type = Input</li>
+    <li>VEE（负电源）：Name = VEE, Pin Number = 4, Shape = Line, Type = Power</li>
+    <li>NC：Name = NC, Pin Number = 5, Shape = Line, Type = Passive</li>
+    <li>OUT（输出）：Name = OUT, Pin Number = 6, Shape = Line, Type = Output</li>
+    <li>VCC（正电源）：Name = VCC, Pin Number = 7, Shape = Line, Type = Power</li>
+    <li>NC：Name = NC, Pin Number = 8, Shape = Line, Type = Passive</li>
+  </ul>
+  <div class="info">💡 <strong>Type = Power</strong> 的引脚在原理图中可以选择"隐藏"（不显示）。对于 VCC/VEE，可以后面在原理图中用 F/G 连接，也可以设为隐藏并指定网络名。</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>Ctrl+S</kbd> 保存库文件</div>
+  <div class="act"><span class="chk">☐</span> 关闭 Part Edit 窗口（点右上角的 X）</div>
+</div>
+
+<div class="step">
+  <h3>▶ 3.1.4 给符号画外形（可选，但建议）</h3>
+  <div class="act"><span class="chk">☐</span> 重新双击 OPA381 进入编辑</div>
+  <div class="act"><span class="chk">☐</span> 用 <strong>Place Rectangle</strong>（放置矩形）画一个运放的三角符号</div>
+  <div class="act"><span class="chk">☐</span> 或直接不去管它——运放标不标注三角符号不影响电气连接</div>
+</div>
+
+<hr>
+
+<h2>任务 3.2：用自建器件替换原理图</h2>
+
+<div class="step">
+  <h3>▶ 3.2.1 加载自建库</h3>
+  <div class="act"><span class="chk">☐</span> 打开 Day 2 的原理图（或新建一个原理图页）</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>P</kbd> → 点击 Add Library → 找到并加载 <code>MY_PARTS.olb</code></div>
+  <div class="act"><span class="chk">☐</span> 在 Part List 中出现了 OPA381 → 双击放置</div>
+</div>
+
+<div class="step">
+  <h3>▶ 3.2.2 分配 PCB Footprint</h3>
+  <div class="info">如果你在创建符号时已经填了 PCB Footprint，可以跳过这一步。但如果之前没填，现在来补。</div>
+  <div class="act"><span class="chk">☐</span> 选中原理图中的 OPA381 → 按 <kbd>Ctrl+E</kbd>（Edit Properties）</div>
+  <div class="act"><span class="chk">☐</span> 在 Property Editor 中找到 <strong>PCB Footprint</strong> 列 → 改为 <code>SOIC-8</code></div>
+  <div class="act"><span class="chk">☐</span> 对其他 Day 2 中的电阻电容也确认 PCB Footprint 已经填写（R0603、C0402 等）</div>
+  <div class="warn">⚠️ 这是最容易出错的地方！OrCAD 中的 PCB Footprint 名称必须和 Allegro 封装库中的文件名完全一致（大小写不敏感但拼写要一样）。</div>
+</div>
+
+<hr>
+
+<h2>任务 3.3：Annotate + DRC</h2>
+
+<div class="step">
+  <h3>▶ 3.3.1 Annotate（自动整理位号）</h3>
+  <div class="info">Annotate 会自动把器件位号整理成 R1、R2、C1、C2、U1 这样的顺序。如果你不是从空白开始画，位号可能是乱的（比如 R1 和 R3 之间跳了 R2）。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Tools → Annotate</kbd></div>
+  <div class="act"><span class="chk">☐</span> 在弹出的窗口中：</div>
+  <ul>
+    <li><strong>Action</strong>：选中 <strong>Incremental reference update</strong>（增量更新，只调整冲突的）</li>
+    <li>也可以选 <strong>Reset part references to "?"</strong> → 再 <strong>Incremental</strong>（全部重置从 R1 开始）</li>
+    <li>点击 OK</li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 查看 Session Log 确认 "Annotate completed successfully"</div>
+  <div class="act"><span class="chk">☐</span> 检查原理图中位号是否已经是 R1、R2、C1、U1 这样的顺序</div>
+</div>
+
+<div class="step">
+  <h3>▶ 3.3.2 DRC（电气规则检查）</h3>
+  <div class="info">DRC 是原理图投板前必须做的检查。它会找出：浮空的输入引脚、单端网络（没有连东西的线）、短路、位号冲突等。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Tools → Design Rules Check</kbd></p>
+  <div class="act"><span class="chk">☐</span> 在弹出的窗口中：</div>
+  <ul>
+    <li>勾选 <strong>Check single node nets</strong>（检查孤立网络——提高原理图质量的好习惯）</li>
+    <li>不勾 <strong>Check off-page connector connections</strong>（除非有多页原理图）</li>
+    <li>点击 OK</li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 查看底部 <strong>Session Log</strong>：</div>
+  <ul>
+    <li>如果有 <span style="color:red;">红色错误</span> → 双击错误行，OrCAD 会自动跳到错误位置</li>
+    <li>常见错误及修复：</li>
+  </ul>
+  <table>
+    <tr><th>错误信息</th><th>含义</th><th>怎么修</th></tr>
+    <tr><td>Floating input pin</td><td>输入引脚没连任何东西</td><td>用 W 接上它，或者放一个 No Connect（X 键）标记它</td></tr>
+    <tr><td>Single node net XXX</td><td>某网络只连了一个引脚</td><td>检查这根线是不是忘了连接其他地方</td></tr>
+    <tr><td>Duplicate Reference</td><td>有两个器件的位号相同</td><td>重新跑一遍 Annotate</td></tr>
+  </table>
+  <div class="act"><span class="chk">☐</span> <strong>重复跑 DRC 直到 0 Errors</strong>（可以有 Warnings）</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>Ctrl+S</kbd> 保存</div>
+</div>
+
+<hr>
+
+<h2>任务 3.4：生成网表</h2>
+
+<div class="step">
+  <h3>▶ 3.4.1 生成网表</h3>
+  <div class="info">网表（Netlist）是连接 OrCAD 和 Allegro 的桥梁。OrCAD 把原理图的连接关系导出成网表文件，Allegro 读入后就知道哪些器件有哪些引脚、怎么连。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Tools → Create Netlist</kbd></div>
+  <div class="act"><span class="chk">☐</span> 在弹出的窗口中：</div>
+  <ul>
+    <li>选择 <strong>PCB Editor</strong> 标签页</li>
+    <li>勾选 <strong>Create PCB Editor Netlist</strong></li>
+    <li>勾选 <strong>PCB Footprint</strong>（检查所有器件都有封装名）</li>
+    <li>点击 <strong>确定</strong></li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 看 Session Log：</div>
+  <ul>
+    <li>✅ <span style="color:green;">Netlist successfully completed</span> = 成功</li>
+    <li>❌ <span style="color:red;">Footprint not found</span> = 有器件没设 PCB Footprint → 去补上</li>
+  </ul>
+</div>
+
+<div class="step">
+  <h3>▶ 3.4.2 确认网表文件已生成</h3>
+  <div class="act"><span class="chk">☐</span> 打开你的 Project 文件夹（在 Windows 资源管理器中）</div>
+  <div class="act"><span class="chk">☐</span> 确认有一个叫 <strong>netlistallegro</strong> 的文件夹</div>
+  <div class="act"><span class="chk">☐</span> 打开它，里面应该有：<code>.dat</code>、<code>.net</code>、<code>.pst</code> 等文件</div>
+  <div class="info">💡 记下这个文件夹的路径（如 C:\Users\...\DAY3_PRACTICE\netlistallegro），Day 4 要用。</div>
+</div>
+
+<hr>
+
+<h2>📋 Day 3 检查清单</h2>
+
+<div class="chk-list">
+  <ol>
+    <li><span class="chk">☐</span> <strong>会创建 .olb 库并添加新器件</strong> — 新建了 MY_PARTS.olb</li>
+    <li><span class="chk">☐</span> <strong>会绘制器件引脚</strong> — OPA381 的 8 个引脚已放置，类型正确</li>
+    <li><span class="chk">☐</span> <strong>会设置 PCB Footprint</strong> — 每个器件都分配了封装名</li>
+    <li><span class="chk">☐</span> <strong>跑过 Annotate</strong> — 位号整理为 R1、R2、U1 等顺序</li>
+    <li><span class="chk">☐</span> <strong>跑过 DRC，零错误</strong> — Session Log 中无红色错误</li>
+    <li><span class="chk">☐</span> <strong>网表生成成功</strong> — netlistallegro 文件夹存在</li>
+  </ol>
+  <p style="text-align:center; margin:0.5rem 0 0 0;">
+    <strong>✅ 全部打勾 → 进入 Day 4（开始学 Allegro 布局！）</strong><br>
+    <strong>❌ 没打完 → 明天先补完</strong>
+  </p>
+</div>
+
+<hr>
+
+<h2>常见问题</h2>
+
+<table>
+  <tr><th>问题</th><th>原因</th><th>解决方法</th></tr>
+  <tr><td>创建 .olb 后找不到</td><td>没保存或路径不对</td><td>File → Open → Library 可以打开 .olb 文件</td></tr>
+  <tr><td>PCB Footprint 不知道填什么</td><td>不知道 Allegro 中封装的名称</td><td>先随便填一个，在 Allegro 导入时会报错，根据报错修改</td></tr>
+  <tr><td>DRC 有几十个错误</td><td>大部分是 NC 引脚没处理</td><td>不用的引脚放 No Connect 符号（按 X 键，在引脚末端点击）</td></tr>
+  <tr><td>网表生成报"Footprint not found"</td><td>有器件没填或填错了封装名</td><td>按 Ctrl+E 检查所有器件的 PCB Footprint 属性</td></tr>
+</table>
+
+<blockquote>
+  <strong>今天的任务到此结束。</strong><br><br>
+  学完了 OrCAD 部分的所有核心功能：从放置器件到生成网表。<br>
+  明天开始进入 Allegro PCB 布局布线，你将看到你的原理图变成真正的 PCB！<br>
+  全部完成约 1.5~2 小时。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Day 3 of 7 · Study_TIA Cadence 学习营 · 2026
+</p>
+
+</body>
+</html>

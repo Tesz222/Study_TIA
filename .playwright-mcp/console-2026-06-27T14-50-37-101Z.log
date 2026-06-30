@@ -1,0 +1,11 @@
+[    1415ms] [WARNING] Error with Feature-Policy header: Unrecognized feature: 'vibrate'. @ :0
+[    1415ms] [WARNING] Error with Feature-Policy header: Some features are specified in both Feature-Policy and Permissions-Policy header: geolocation. Values defined in Permissions-Policy header will be used. @ :0
+[    2142ms] [ERROR] Refused to execute script from 'https://www.laserdiode.com/themes/laserdiode/lib/jquery.vticker.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled. @ https://www.laserdiode.com/thorlabs-fga01-ingaas-photodiode-datasheet:0
+[    2159ms] [WARNING] jQuery.Deferred exception: $(...).vTicker is not a function TypeError: $(...).vTicker is not a function
+    at HTMLDocument.<anonymous> (https://www.laserdiode.com/thorlabs-fga01-ingaas-photodiode-datasheet:529:26)
+    at e (https://code.jquery.com/jquery-3.6.0.min.js:2:30038)
+    at t (https://code.jquery.com/jquery-3.6.0.min.js:2:30340) undefined @ https://code.jquery.com/jquery-3.6.0.min.js:1
+[    2161ms] Uncaught TypeError: $(...).vTicker is not a function
+    at <anonymous> (https://www.laserdiode.com/thorlabs-fga01-ingaas-photodiode-datasheet:528:25)
+    at e (https://code.jquery.com/jquery-3.6.0.min.js:1:30037)
+    at t (https://code.jquery.com/jquery-3.6.0.min.js:1:30339)

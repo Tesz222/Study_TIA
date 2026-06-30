@@ -1,0 +1,15 @@
+[      24ms] [LOG] Braze - Custom Event: Page Views fired @ :1
+[      25ms] [LOG] Braze - Custom Event: Viewed Technical Document @ :76
+[      29ms] TypeError: Cannot read properties of null (reading 'innerText')
+    at trigger (<anonymous>:91:83)
+    at <anonymous>:208:3
+    at https://assets.adobedtm.com/bc68b7886092/25785b612092/launch-715705770daf.min.js:11:28651
+    at new Promise (<anonymous>)
+    at _satellite.<computed> (https://assets.adobedtm.com/bc68b7886092/25785b612092/launch-715705770daf.min.js:11:28628)
+    at <anonymous>:1:26
+    at e._insertCursor (https://assets.adobedtm.com/bc68b7886092/25785b612092/launch-715705770daf.min.js:11:16535)
+    at e._writeScriptToken (https://assets.adobedtm.com/bc68b7886092/25785b612092/launch-715705770daf.min.js:11:17188)
+    at e._handleScriptToken (https://assets.adobedtm.com/bc68b7886092/25785b612092/launch-715705770daf.min.js:11:15747)
+    at e._writeImpl (https://assets.adobedtm.com/bc68b7886092/25785b612092/launch-715705770daf.min.js:11:14359)
+[     337ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location:0
+[    4456ms] [WARNING] A speculation rule set was inserted into the document but will be ignored. This might happen, for example, if it was previously inserted into another document, or if it was created using the innerHTML setter. @ https://www.google.com/search?q=InGaAs+PIN+photodiode+responsivity+1550nm+typical+A%2FW&sei=0uI_aqn3Nbrg1e8Pu9-suQQ:36

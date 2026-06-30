@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson PC01: 用 Pin Count 评估硬件设计工作量</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .key-point { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .key-point strong { color: #166534; }
+    .step-list li { margin: 0.6rem 0; }
+    .math-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; }
+    .case-study { background: white; border: 2px solid #93c5fd; border-radius: 10px; padding: 1rem; margin: 1rem 0; }
+    .case-study h3 { margin-top: 0; color: #1e40af; }
+  </style>
+</head>
+<body>
+
+<h1>Pin Count 法：用工具统计引脚来评估硬件工作量</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  Lesson PC01 · 项目管理实战 · 预计用时 40 分钟
+</p>
+
+<blockquote>
+  <strong>本节目标</strong>
+  学会利用 EDA 工具统计 PCB 的总管脚数（Pin Count），掌握 Pin Count 加权模型，能独立完成硬件项目的工作量估算——并知道这个方法的局限和如何修正。
+</blockquote>
+
+<h2>0. 为什么 Pin Count 能评估工作量？</h2>
+
+<h3>0.1 硬件工作量估算的难点</h3>
+
+<p>项目经理问你这块板子需要多久，你凭直觉说"大概一个月"。他问依据是什么，你说不上来。</p>
+<p>这不是你的问题——硬件设计的流程是非线性的。但 Pin Count 提供了一个<strong>客观的量化锚点</strong>：</p>
+
+<ul>
+  <li>这张 PCB 上有 47 个器件</li>
+  <li>总共有 386 个管脚</li>
+  <li>每个管脚需要原理图连接、PCB 走线、焊接、测试</li>
+  <li>根据公司历史数据，每 100 pins 的平均工时是 XX 小时</li>
+</ul>
+
+<p>这样你的估算就有了可追溯的、客观的依据。</p>
+
+<h3>0.2 Pin Count 与工作量的实证关系</h3>
+
+<p>多家硬件公司（包括 Keysight、NI 等测试仪表厂商）内部有统计数据表明：</p>
+<ul>
+  <li>Pin Count 与原理图设计时间的 <strong>Pearson 相关系数 r &asymp; 0.7~0.85</strong></li>
+  <li>Pin Count 与 PCB 布局时间的 <strong>相关系数 r &asymp; 0.75~0.9</strong></li>
+  <li>Pin Count 与调试验证时间的 <strong>相关系数 r &asymp; 0.5~0.7</strong>（调试还受更多因素影响）</li>
+</ul>
+
+<p>虽然不是一个完美的线性关系，但它是目前业界最通行的<strong>客观起评指标</strong>。</p>
+
+<div class="key-point">
+  <strong>Pin Count 估算模型的数学形式</strong><br><br>
+  最简单的形式（线性模型）：<br>
+  <strong>工时 = a x PinCount + b</strong><br><br>
+  更精确的形式（幂律模型，反映规模效应）：<br>
+  <strong>工时 = a x (PinCount)<sup>k</sup></strong><br><br>
+  其中 k 在 0.6~0.9 之间。k < 1 意味着：板子越大，平均每 pin 的工时越低——因为同样的电源网络、总线结构可以复用。<br><br>
+  举个例子：<br>
+  - 100 pins 的板子需 40 小时（0.4 h/pin）<br>
+  - 400 pins 的板子需 120 小时，不是 160 小时（0.3 h/pin，降低了 25%）<br>
+  - 1600 pins 的板子需 360 小时，不是 640 小时（0.225 h/pin）<br><br>
+  这就是规模效应——这是为什么很多项目经理的估算经验会"低估"大项目、"高估"小项目。
+</div>
+
+<h2>1. Pin Count 的统计口径——搞清楚你数的是什么</h2>
+
+<h3>1.1 最详细的统计规则</h3>
+
+<p>在你开始统计之前，先统一全团队的计数规则。以下是一份可供团队参考的 Pin Count 统计规范：</p>
+
+<table>
+  <tr><th>器件类别</th><th>每器件 Pin Count</th><th>例子</th><th>注意事项</th></tr>
+  <tr><td>分立无源器件（电阻、电容、电感）</td><td>2</td><td>0603 电阻 = 2</td><td>无论封装大小（0201 到 2512），都是 2 pins</td></tr>
+  <tr><td>分立有源器件（二极管、三极管、MOSFET）</td><td>2~3</td><td>SOT-23 三极管 = 3</td><td>按实际引脚数</td></tr>
+  <tr><td>IC（SOP、TSSOP、QFP）</td><td>等于引脚数</td><td>TSSOP-28 = 28</td><td>包括所有标注了 pin number 的引脚</td></tr>
+  <tr><td>IC（QFN）</td><td>等于侧边引脚数</td><td>QFN-32 = 32</td><td>底部散热焊盘（Exposed Pad）默认不算，如果它被连接到了 GND 网络，可加 1 pin</td></tr>
+  <tr><td>IC（BGA）</td><td>等于焊球数</td><td>BGA-256 = 256</td><td>空焊球（NC / No Connect）争议较大——建议在统计时单独注明 NC pin 数量</td></tr>
+  <tr><td>连接器（板端）</td><td>等于接触端子数</td><td>USB Type-C = 24</td><td>如果包含机械固定脚，不算 pin</td></tr>
+  <tr><td>排针/排母</td><td>等于孔位数</td><td>2x5 排针 = 10</td><td>按孔位算</td></tr>
+  <tr><td>测试点（Test Point / TP）</td><td>1</td><td>TP1 = 1</td><td>只算信号测试点，不算机械定位孔</td></tr>
+  <tr><td>电位器、可调电阻</td><td>3</td><td>3296W = 3</td><td>按实际引脚数</td></tr>
+  <tr><td>光耦、继电器</td><td>按实际引脚数</td><td>4-pin 光耦 = 4</td><td></td></tr>
+  <tr><td>晶振/振荡器</td><td>2~4</td><td>贴片晶振 4-pin = 4</td><td>按实际引脚数</td></tr>
+  <tr><td>保险丝、磁珠、跳线</td><td>2</td><td>1206 保险丝 = 2</td><td></td></tr>
+</table>
+
+<h3>1.2 模拟硬件工程师的加权 Pin Count</h3>
+
+<p>仅仅统计原始 Pin Count 对模拟工程师是不够的——一个运放反相输入端的走线注意力和一个 GPIO 走线完全不是一个级别。以下是模拟工程师专用的加权系数：</p>
+
+<table>
+  <tr><th>管脚类别</th><th>定义</th><th>加权系数</th><th>典型场景</th></tr>
+  <tr>
+    <td><strong>A 类：极致敏感</strong></td>
+    <td>pA 级输入、GOhm 级阻抗、ADC 参考输入</td>
+    <td><strong>5x</strong></td>
+    <td>TIA 反相输入端、Sigma-Delta ADC 的 V<sub>REF</sub> 输入、光电二极管阳极</td>
+  </tr>
+  <tr>
+    <td><strong>B 类：高精度模拟</strong></td>
+    <td>需精确匹配的电阻网络、低噪声信号路径</td>
+    <td><strong>3x</strong></td>
+    <td>仪表放大器输入引脚、ADC 模拟输入、DAC 输出、有源滤波器运放引脚</td>
+  </tr>
+  <tr>
+    <td><strong>C 类：普通模拟</strong></td>
+    <td>信号调理通路上但约束较少的引脚</td>
+    <td><strong>1.5x</strong></td>
+    <td>运放输出端、比较器输出、电压跟随器输入</td>
+  </tr>
+  <tr>
+    <td><strong>D 类：电源</strong></td>
+    <td>IC 供电引脚、去耦相关</td>
+    <td><strong>0.8x</strong></td>
+    <td>VCC / VDD / VSS / VEE / AVCC</td>
+  </tr>
+  <tr>
+    <td><strong>E 类：低速数字/GPIO</strong></td>
+    <td>控制信号、状态指示</td>
+    <td><strong>0.6x</strong></td>
+    <td>LED 驱动引脚、按键输入、SPI/I2C（非高速）</td>
+  </tr>
+  <tr>
+    <td><strong>F 类：空脚/NC</strong></td>
+    <td>未使用的引脚</td>
+    <td><strong>0.2x</strong></td>
+    <td>仅需拉高/拉低或不接</td>
+  </tr>
+</table>
+
+<div class="math-box">
+  <strong>加权 Pin Count 计算公式</strong><br><br>
+  WPC = &Sigma;(N<sub>i</sub> &times; W<sub>i</sub>)<br><br>
+  其中：<br>
+  N<sub>i</sub> = 第 i 类引脚的数量<br>
+  W<sub>i</sub> = 第 i 类引脚的加权系数<br><br>
+  <strong>经验法则</strong>：在高精度模拟设计中，加权 Pin Count 通常是原始 Pin Count 的 <strong>1.5~2.5 倍</strong>。
+</div>
+
+<h3>1.3 其他常用工作量关联指标</h3>
+
+<p>Pin Count 不是唯一的指标。在实际项目管理中，通常综合使用以下几个指标相互验证：</p>
+
+<table>
+  <tr><th>指标</th><th>获取方式</th><th>用途</th></tr>
+  <tr><td><strong>Pin Count</strong></td><td>EDA 直接统计</td><td>基础工作量估算</td></tr>
+  <tr><td><strong>Net Count（网络数）</strong></td><td>EDA 统计</td><td>反映连通复杂度，排除 NC pin 的"虚高"</td></tr>
+  <tr><td><strong>Component Count（器件数）</strong></td><td>EDA 统计</td><td>反映 BOM 管理、采购、焊接工作量</td></tr>
+  <tr><td><strong>打孔数（Via Count）</strong></td><td>EDA 统计</td><td>反映布线密度，高密板的值会很大</td></tr>
+  <tr><td><strong>BGA 球数</strong></td><td>手动统计</td><td>BGA 的扇出（fan-out）和走线是布局中最费时的部分</td></tr>
+</table>
+
+<h2>2. 主流 EDA 工具的 Pin Count 统计操作详解</h2>
+
+<h3>2.1 Altium Designer（最详细）</h3>
+
+<p><strong>方法一：Board Information 面板（最快速）</strong></p>
+<ol class="step-list">
+  <li>打开 PCB 文件（.PcbDoc）</li>
+  <li>点击菜单栏 <strong>Reports &#8594; Board Information</strong>（或快捷键 <strong>Ctrl+Shift+I</strong>）</li>
+  <li>弹出对话框中，<strong>General</strong> 标签页下看到：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    <pre style="font-size:0.85rem;">
+Arcs .............. 12
+Fills ............. 0
+Pads ............. 458     ← 这就是 Pin Count？ 注意：这是所有焊盘的总和，
+Strings ........... 24       包括所有器件的焊盘 + 测试点的焊盘
+Tracks ........... 3422
+Vias ............. 186
+Components ....... 47
+
+<strong>Total Pins ....... 386</strong>   ← 这才是你要找的 Pin Count！
+Nets ............. 112
+Connections ...... 286
+</pre>
+  </li>
+</ol>
+
+<div class="key-point">
+  <strong>重要区分：Pads vs Total Pins</strong><br><br>
+  <strong>Pads</strong> = 所有焊盘的总数。如果一个电阻有两个焊盘、一个 QFP-100 有 100 个焊盘，Pads 统计所有。<br>
+  <strong>Total Pins</strong> = 有电气连接的管脚数。如果一个电阻的两个焊盘都连了网络，就算 2 pins；如果一个 QFP-100 上有 10 个 NC 引脚没连网络，可能只算 90 pins。<br><br>
+  <strong>在 Altium 中，看 Total Pins，不要看 Pads。</strong>
+</div>
+
+<p><strong>方法二：BOM 报表（最详细，可按器件类型分类）</strong></p>
+<ol class="step-list">
+  <li>点击 <strong>Reports &#8594; Bill of Materials</strong></li>
+  <li>在 BOM 对话框中，右侧 <strong>Columns</strong> 区域，确保选中了 <strong>Total Pins</strong> 列</li>
+  <li>点击 <strong>Export</strong>，导出为 Excel</li>
+  <li>在 Excel 中，你可以：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    - 按器件类型分类求和（如"所有电阻的 pin 数之和"）<br>
+    - 添加一列"加权系数"，计算加权 Pin Count<br>
+    - 自动生成工时估算表
+  </li>
+</ol>
+
+<p><strong>方法三：Component Cross Reference Report（按封装分组）</strong></p>
+<ol class="step-list">
+  <li>点击 <strong>Reports &#8594; Project Reports &#8594; Component Cross Reference</strong></li>
+  <li>生成一个 .XLS 文件，包含每种封装的器件数量和总 pin 数</li>
+</ol>
+
+<h3>2.2 Cadence Allegro</h3>
+
+<p><strong>方法一：Component Pin Report</strong></p>
+<ol class="step-list">
+  <li>菜单 <strong>Tools &#8594; Reports &#8594; Component Pin Report</strong></li>
+  <li>在弹出窗口的 <strong>Report Contents</strong> 中，勾选 <strong>Include Summary Statistics</strong></li>
+  <li>生成的报告末尾会显示：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    <pre style="font-size:0.85rem;">
+-------------------------------------------
+Summary Statistics
+-------------------------------------------
+Total Components in Design:    47
+Total Pins in Design:         386
+Total Physical Pins:          412 （含 NC）
+Pins Not Routed:                5
+</pre>
+  </li>
+  <li><strong>Total Pins in Design</strong> 是实际电气连接数</li>
+</ol>
+
+<p><strong>方法二：SKILL 脚本自定义统计</strong><br>
+Allegro 的 SKILL 脚本语言可以深度定制。以下是一个简单的 SKILL 脚本示例：</p>
+
+<div class="math-box">
+  <pre>
+; count_pins.il — Allegro SKILL 脚本，统计 Pin Count 并按类型分类
+axlCmdRegister("count_pins" 'count_pins)
+
+procedure(count_pins()
+  let((components comp pins totalPins classA classB classC)
+    totalPins = 0
+    classA = 0  ; 模拟关键信号系数 5x
+    classB = 0  ; 普通模拟信号系数 3x
+    classC = 0  ; 数字信号系数 1x
+    
+    components = axlDBGetDesign()->components
+    foreach(comp components
+      pins = comp->pins
+      totalPins = totalPins + length(pins)
+      ; 这里可以根据 pin 的 net name 做分类统计
+      ; 例如 net name 包含 "ADC_IN" 的归入 classA
+    )
+    
+    printf("Total Pin Count: %d\n" totalPins)
+    printf("Weighted Pin Count: %d\n" classA*5 + classB*3 + classC*1)
+  )
+)
+  </pre>
+</div>
+
+<h3>2.3 KiCad（开源免费）</h3>
+
+<ol class="step-list">
+  <li>打开 PCB 文件（.kicad_pcb）</li>
+  <li><strong>File &#8594; Board Statistics</strong>（或快捷键 <strong>Ctrl+Shift+S</strong>）</li>
+  <li>在弹出的 <strong>Board Statistics</strong> 对话框中：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    <strong>General</strong> 标签页：显示 Footprints: XX, <strong>Pins: XXX</strong><br>
+    <strong>Nets</strong> 标签页：显示 Net 数量和每个 Net 的连接数
+  </li>
+</ol>
+
+<h3>2.4 原理图阶段提前统计（重要！）</h3>
+
+<p>PCB 布局阶段才统计 Pin Count 已经晚了。你应该在<strong>原理图设计阶段</strong>就估算出 Pin Count，用于项目立项。</p>
+
+<p>原理图阶段的方法：</p>
+<ol class="step-list">
+  <li>在原理图编辑器中，同样可以查看 Pin Count（Altium：Reports &#8594; Bill of Materials，也可以在项目文档级别汇总）</li>
+  <li>如果你还没有完整的原理图，可以用<strong>估算表</strong>：</li>
+</ol>
+
+<div class="math-box">
+  <strong>立项阶段 Pin Count 估算表</strong><br><br>
+  <pre>
+器件类型       | 预估数量 | 每器件 Pins | 小计
+---------------+----------+------------+------
+MCU/CPU        |    1     |    100     |  100
+运放           |    8     |     8      |   64
+ADC            |    2     |    28      |   56
+电源芯片       |    3     |     8      |   24
+电阻           |   80     |     2      |  160
+电容           |   60     |     2      |  120
+连接器         |    --    |    40      |   40
+其他           |          |    36      |   36
+---------------+----------+------------+------
+<strong>Total Pin Count 估算值 = 600 ± 60</strong>
+  </pre>
+</div>
+
+<h2>3. 完整的 Pin Count 工作量估算模型</h2>
+
+<h3>3.1 多阶段加权模型</h3>
+
+<p>前面提到不同设计阶段与 Pin Count 的相关系数不同。一个更精确的模型是<strong>分阶段估算</strong>：</p>
+
+<table>
+  <tr><th>设计阶段</th><th>阶段说明</th><th>工时公式（每 100 pins）</th><th>模拟板系数</th></tr>
+  <tr>
+    <td><strong>S1：需求分析与器件选型</strong></td>
+    <td>确定架构、选器件、建库</td>
+    <td>4~6 h / 100 pins</td>
+    <td>&times; 1.5</td>
+  </tr>
+  <tr>
+    <td><strong>S2：原理图设计</strong></td>
+    <td>绘制原理图、连接网络</td>
+    <td>6~10 h / 100 pins</td>
+    <td>&times; 1.2</td>
+  </tr>
+  <tr>
+    <td><strong>S3：PCB 布局</strong></td>
+    <td>布局 + 布线 + 覆铜</td>
+    <td>12~30 h / 100 pins</td>
+    <td>&times; 1.5~2.0</td>
+  </tr>
+  <tr>
+    <td><strong>S4：设计审查</strong></td>
+    <td>原理图 + layout 审查和修改</td>
+    <td>3~6 h / 100 pins</td>
+    <td>&times; 1.3</td>
+  </tr>
+  <tr>
+    <td><strong>S5：BOM 与供应链</strong></td>
+    <td>BOM 整理、采购支持</td>
+    <td>2~4 h / 100 pins</td>
+    <td>&times; 1.0</td>
+  </tr>
+  <tr>
+    <td><strong>S6：调试验证</strong></td>
+    <td>上电、调试、测试</td>
+    <td>8~16 h / 100 pins</td>
+    <td>&times; 1.5~2.5</td>
+  </tr>
+  <tr>
+    <td><strong>S7：EMC/安规认证</strong></td>
+    <td>预测试、修改、重测</td>
+    <td>4~8 h / 100 pins</td>
+    <td>&times; 2.0（如需要）</td>
+  </tr>
+</table>
+
+<h3>3.2 完整计算示例：高精度光功率计主板</h3>
+
+<p>我们用上面学到的所有知识，进行一个完整的实例估算。</p>
+
+<div class="case-study">
+  <h3>案例：一台双通道光功率计的模拟主板</h3>
+  <p><strong>板卡特征</strong>：4 层板，高精度模拟测量，工作温度 0~50&deg;C</p>
+
+  <p><strong>Step 1：统计器件和 Pin Count</strong></p>
+  <pre>
+  器件               | 数量 | 每器件 pins | 小计  | 加权系数 | 加权计
+  -------------------+------+------------+-------+----------+-------
+  光电二极管          |   2  |     2      |   4   |   A (5x) |  20
+  OPA381 (TIA)       |   2  |     8      |  16   |   A (5x) |  80
+  增益切换模拟开关    |   1  |    16      |  16   |   B (3x) |  48
+  ADS1256 (ADC)      |   1  |    28      |  28   |   A (5x) | 140
+  ADR4550 (参考源)   |   1  |     8      |   8   |   A (5x) |  40
+  STM32F4 (MCU)      |   1  |   100      | 100   |   E (0.6x)|  60
+  精密电阻           |   30 |     2      |  60   |   B (3x) | 180
+  NP0 电容           |   25 |     2      |  50   |   C (1.5x)|  75
+  去耦电容           |   15 |     2      |  30   |   D (0.8x)|  24
+  连接器             |   3  |    26      |  26   |   E (0.6x)|  16
+  测试点             |   12 |     1      |  12   |   D (0.8x)|  10
+  电源芯片           |   2  |     8      |  16   |   D (0.8x)|  13
+  -------------------+------+------------+-------+----------+-------
+  原始 Pin Count     |      |            | 366   |
+  加权 Pin Count     |      |            |       |          | 706
+  </pre>
+
+  <p><strong>Step 2：选择修正系数</strong></p>
+  <ul>
+    <li>模数混合板，基准系数 = 1.0</li>
+    <li>高精度模拟（A 类引脚较多），额外模拟修正 = 1.3x</li>
+    <li>工程师第一次设计此类板卡 = 1.3x</li>
+    <li>综合修正系数 = 1.0 x 1.3 x 1.3 = <strong>1.69x</strong></li>
+  </ul>
+
+  <p><strong>Step 3：计算各阶段工时</strong></p>
+  <pre>
+  阶段   | 公式（基于原始 366 pins）| 基础工时 | 修正后  | 逐周分配
+  -------+--------------------------+---------+---------+--------
+  S1选型 | 366/100 x 5h x 1.5      |  27     |   42    | 第 1 周
+  S2原理 | 366/100 x 8h x 1.2      |  29     |   50    | 第 1-2 周
+  S3布局 | 366/100 x 20h x 1.8     |  73     |  128    | 第 2-4 周
+  S4审查 | 366/100 x 4h x 1.3      |  15     |   20    | 第 4 周
+  S5BOM  | 366/100 x 3h x 1.0      |  11     |   11    | 第 4 周
+  S6调试 | 366/100 x 12h x 2.0     |  44     |   72    | 第 5-7 周
+  S7安规 | 366/100 x 4h x 2.0      |  15     |   14    | 第 7-8 周
+  -------+--------------------------+---------+---------+--------
+  合计   |                          | 214     |  337    | 8 周
+  </pre>
+
+  <p><strong>Step 4：对比不同估算方法</strong></p>
+  <pre>
+  方法 A：原始 Pin Count (366) x 平均 h/pin (0.35)          = 128 h
+  方法 B：原始 Pin Count x 分段系数（如上表第一步）           = 214 h
+  方法 C：加权 Pin Count x 分段系数 x 模拟修正（如上表）     = 337 h
+  方法 D：仅按器件数量 x 8 h/器件 (96 器件 x 8h)            = 768 h（明显高估）
+  </pre>
+
+  <p><strong>结论</strong>：最合理的估算是 337 小时（约 8 周）。如果你只报 128 小时，项目经理会很高兴，但你会加班到崩溃。如果你报 768 小时，项目经理会换人做。337 小时是一个<strong>有依据、可辩护</strong>的数字。</p>
+</div>
+
+<h3>3.3 如何校准你所在团队的工时系数</h3>
+
+<p>上面的例子用的是行业通用数据，但每个团队的效率不同。你需要用<strong>你所在团队的历史项目数据</strong>来校准系数。</p>
+
+<p><strong>校准方法</strong>：</p>
+<ol class="step-list">
+  <li>找出你团队过去的 3~5 个已完成的项目</li>
+  <li>记录每个项目的：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    A. 总 Pin Count（从 Altium/Allegro 重新统计）<br>
+    B. 实际总工时（从工时系统导出）<br>
+    C. 模拟引脚占比（估算）<br>
+    D. 板层数、复杂度评分
+  </li>
+  <li>计算每个项目实际的"小时 / 100 pins"值</li>
+  <li>取平均值作为你的团队基线</li>
+</ol>
+
+<div class="math-box">
+  <strong>校准示例</strong><br><br>
+  <pre>
+  项目 | Pin Count | 实际工时 | h/100 pins | 模拟占比 | 备注
+  -----+-----------+----------+------------+----------+-------
+  A    |   285     |   240    |   84       |  30%     | 4层板
+  B    |   520     |   380    |   73       |  15%     | 4层板，复用多
+  C    |   168     |   180    |   107      |  45%     | 高精度模拟
+  D    |   1024    |   580    |   57       |  10%     | 8层数字板，复用+自动布线
+  -----+-----------+----------+------------+----------+-------
+  
+  团队基线：模拟为主项目 ~ 90~110 h/100 pins
+            数字为主项目 ~ 55~75 h/100 pins
+  你的那站：光功率计 366 pins, 模拟占比 ~40%  = 约 90 h/100 pins
+  估算 = 366/100 x 90 = 329 h (约 8 周)  ← 和上文的详细估算结果非常接近
+  </pre>
+</div>
+
+<h2>4. 模拟工程师如何向项目经理汇报 Pin Count 估算</h2>
+
+<p>你算出了数据，但项目经理不一定理解"加权 Pin Count"是什么。以下是一个<strong>汇报框架</strong>：</p>
+
+<div class="spec-flow">
+  <p><strong>向项目经理汇报的模板</strong></p>
+  <p>"基于 <strong>Pin Count 工作量模型</strong>，我对这块板卡的工时进行了估算：</p>
+  <ul>
+    <li>全板共 <strong>366 个管脚</strong>，其中敏感模拟信号约 60 个（系数 5x），普通模拟信号约 110 个（系数 3x）</li>
+    <li>加权后等效管脚数约 <strong>706</strong></li>
+    <li>参考我们团队之前三个模拟项目的历史数据（平均 95 h/100 pins），估算工时约 <strong>330 小时</strong></li>
+    <li>按每周有效开发时间 40 小时计算，<strong>约 8~9 周</strong></li>
+    <li>不确定性主要来自第一次使用这个 ADC 方案，建议预留 1 周缓冲</li>
+  </ul>
+  <p>这是我建议的 <strong>8 周里程碑计划</strong>：</p>
+  <pre>
+  第 1-2 周：原理图设计（含器件选型和仿真）
+  第 3 周： 设计审查 + BOM
+  第 4-6 周：PCB 布局（4 层板，高精度模拟优先走线）
+  第 7-8 周：调试 + 性能验证
+  第 9 周： 缓冲期（如果需要）
+  </pre>
+  "</p>
+</div>
+
+<h2>5. 常见误区与陷阱</h2>
+
+<div class="warning-box">
+  <strong>误区 1：只看 Total Pin Count，不看加权 Pin Count</strong><br>
+  一个 BGA-256 的全数字板和一个 BGA-256 的模数混合板，Pin Count 相同，但工作量差 2~3 倍。必须用加权 Pin Count。<br><br>
+  
+  <strong>误区 2：忽视复用率</strong><br>
+  如果这版设计有 40% 的原理图是从上一版复用的，Pin Count 估算应该乘以 0.6。EDA 工具无法区分"新画的"和"复用的"，需要人工估算复用比例。<br><br>
+  
+  <strong>误区 3：忽略建库时间</strong><br>
+  如果设计中包含大量新器件（非公司标准库），那么建库（创建原理图符号 + PCB 封装 + 3D 模型）的时间会显著增加。标准库器件多的板，每 pin 工时可以降低 20~30%。<br><br>
+  
+  <strong>误区 4：认为 Pin Count 与调试时间线性相关</strong><br>
+  调试时间与 Pin Count 的相关性较弱（r &asymp; 0.5~0.7）。一块板子 90% 的调试时间往往花在 10% 的关键信号上。如果你有 5 个高精度模拟通道，即使总 Pin Count 不大，调试时间也可能很长。<br><br>
+  
+  <strong>误区 5：不分阶段，一个系数到底</strong><br>
+  原理图阶段的每 pin 工时和布局阶段的每 pin 工时不一样。应该分阶段估算，并分别设定合理性审查——"原理图 200 h 看起来合理，但布局 500 h 是不是太多了？"——在项目执行过程中分阶段校准。
+</div>
+
+<h2>6. 用脚本自动化 Pin Count 统计和工时计算</h2>
+
+<p>下面是一个完整的 Python 脚本，可以直接解析从 Altium 导出的 BOM Excel，自动计算加权 Pin Count 和预估工时：</p>
+
+<div class="math-box">
+  <pre>
+# pin_estimator.py
+# 用法：python pin_estimator.py bom_export.xlsx
+
+import sys
+import pandas as pd
+
+# 加权系数定义
+COEFF = {
+    'A类_极致敏感': 5.0,
+    'B类_高精度模拟': 3.0,
+    'C类_普通模拟': 1.5,
+    'D类_电源': 0.8,
+    'E类_数字GPIO': 0.6,
+    'F类_空脚NC': 0.2,
+}
+
+# 阶段工时系数 (h/100pins, 基于原始 Pin Count)
+PHASE_HOURS = {
+    'S1选型':   {'base': 5, 'coeff': 1.5},
+    'S2原理图': {'base': 8, 'coeff': 1.2},
+    'S3布局':   {'base': 20, 'coeff': 1.8},
+    'S4审查':   {'base': 4, 'coeff': 1.3},
+    'S5BOM':    {'base': 3, 'coeff': 1.0},
+    'S6调试':   {'base': 12, 'coeff': 2.0},
+    'S7安规':   {'base': 4, 'coeff': 2.0},
+}
+
+def estimate(pin_count_raw, pin_count_weighted, analog_ratio):
+    print(f"{'='*60}")
+    print(f"Pin Count 工作量估算报告")
+    print(f"{'='*60}")
+    print(f"原始 Pin Count:     {pin_count_raw}")
+    print(f"加权 Pin Count:     {pin_count_weighted}")
+    print(f"加权/原始比:        {pin_count_weighted/pin_count_raw:.2f}x")
+    print(f"模拟信号占比:       {analog_ratio*100:.0f}%")
+    print()
+    
+    total = 0
+    print(f"{'阶段':10s} | {'基础(h)':8s} | {'修正(h)':8s} | {'说明'}")
+    print("-"*55)
+    for phase, v in PHASE_HOURS.items():
+        raw_h = pin_count_raw / 100 * v['base']
+        adj_h = raw_h * v['coeff']
+        total += adj_h
+        analog_note = "模拟修正" if v['coeff'] > 1.3 else ""
+        print(f"{phase:10s} | {raw_h:8.0f} | {adj_h:8.0f} | {analog_note}")
+    
+    print("-"*55)
+    print(f"{'合计':10s} |           | {total:8.0f} |")
+    weeks = total / 40
+    print(f"{'='*60}")
+    print(f"估算总工时: {total:.0f} 小时")
+    print(f"    约合:   {total/8:.0f} 人天")
+    print(f"    按周:   {weeks:.1f} 周 (40h/周)")
+    print(f"{'='*60}")
+
+if __name__ == '__main__':
+    # 示例: 光功率计主板
+    estimate(
+        pin_count_raw=366,
+        pin_count_weighted=706,
+        analog_ratio=0.4
+    )
+  </pre>
+</div>
+
+<p>输出效果：</p>
+<div class="math-box">
+  <pre>
+============================================================
+Pin Count 工作量估算报告
+============================================================
+原始 Pin Count:     366
+加权 Pin Count:     706
+加权/原始比:        1.93x
+模拟信号占比:       40%
+
+阶段       | 基础(h) | 修正(h) | 说明
+-------------------------------------------------------
+S1选型     |       18 |       27 | 模拟修正
+S2原理图   |       29 |       35 | 模拟修正
+S3布局     |       73 |      132 | 模拟修正
+S4审查     |       15 |       19 | 模拟修正
+S5BOM      |       11 |       11 |
+S6调试     |       44 |       88 | 模拟修正
+S7安规     |       15 |       29 | 模拟修正
+-------------------------------------------------------
+合计       |           |      341 |
+============================================================
+估算总工时: 341 小时
+    约合:   43 人天
+    按周:   8.5 周 (40h/周)
+============================================================
+  </pre>
+</div>
+
+<h2>7. 动手练习</h2>
+
+<div class="quiz-question">
+  <p><strong>练习 1：模拟板卡的 Pin Count 统计与加权</strong></p>
+  <p>你正在设计一块 4 通道光电探测板，以下是 BOM，请计算原始 Pin Count 和加权 Pin Count：</p>
+  <ul>
+    <li>4 x OPA381 (SOIC-8) — 每个 8 pins，每个运放的 2 个输入脚被归类为 A 类（5x）</li>
+    <li>4 x InGaAs PIN 光电二极管 (2-pin) — 全部 A 类（5x）</li>
+    <li>1 x ADS1256 (TSSOP-28) — 2 个模拟输入脚 A 类，其余 B/C 类</li>
+    <li>1 x STM32G4 (LQFP-48) — 约 12 个模拟相关引脚 B 类，其余 E 类</li>
+    <li>20 x 精密电阻 (0603) — 2 pins 每个，B 类（3x）</li>
+    <li>16 x NP0 电容 (0603) — C 类（1.5x）</li>
+    <li>10 x 去耦电容 (0603) — D 类（0.8x）</li>
+    <li>1 x 排针 2x5（10 pins）— E 类（0.6x）</li>
+    <li>8 x 测试点 — D 类（0.8x）</li>
+  </ul>
+  <div class="quiz-answer">
+    <strong>原始 Pin Count 计算</strong>：<br>
+    OPA381：4 x 8 = 32<br>
+    PD：4 x 2 = 8<br>
+    ADS1256：1 x 28 = 28<br>
+    STM32G4：1 x 48 = 48<br>
+    电阻：20 x 2 = 40<br>
+    NP0 电容：16 x 2 = 32<br>
+    去耦电容：10 x 2 = 20<br>
+    排针：1 x 10 = 10<br>
+    测试点：8 x 1 = 8<br>
+    <strong>原始 Pin Count = 32+8+28+48+40+32+20+10+8 = 226</strong><br><br>
+    <strong>加权 Pin Count 计算</strong>：<br>
+    A 类：OPA381 输入 (4x2x5=40) + PD (4x2x5=40) + ADC 输入 (2x5=10) = <strong>90</strong><br>
+    B 类：ADS1256 其他引脚 (26x3=78) + STM32 模拟 (12x3=36) + 电阻 (40x3=120) = <strong>234</strong><br>
+    C 类：运放输出 (4x1.5=6) + NP0 (32x1.5=48) = <strong>54</strong><br>
+    D 类：去耦 (20x0.8=16) + 测试点 (8x0.8=6) = <strong>22</strong><br>
+    E 类：STM32 数字 (36x0.6=22) + 排针 (10x0.6=6) = <strong>28</strong><br>
+    <strong>加权 Pin Count = 90+234+54+22+28 = 428</strong><br><br>
+    原始 226 vs 加权 428 = 1.89x，典型高精度模拟板。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>练习 2：从原始 Pin Count 估算工时并呈现给项目经理</strong></p>
+  <p>你算出了这块 4 通道板卡的 Pin Count 为 226（加权 428）。你所在团队的历史数据：模拟项目平均 92 h/100 pins。板卡为 4 层板，已经是第三次改版（复用率约 60%）。请写出向项目经理汇报的估算结论。</p>
+  <div class="quiz-answer">
+    <strong>汇报模板</strong>：<br><br>
+    "这块 4 通道光电探测板是第三次改版，约 60% 的设计可以复用上一版。<br><br>
+    按 Pin Count 法估算：<br>
+    - 原始 Pin Count = 226，其中 60% 复用 → 有效新 pin ≈ 90<br>
+    - 加权 Pin Count = 428（模拟信号占比高）<br>
+    - 团队基线 = 92 h/100 pins（模拟项目）<br><br>
+    <strong>估算工时</strong>：<br>
+    - 新设计部分：90/100 x 92 = 83 h<br>
+    - 复用验证部分：136/100 x 20 = 27 h（仅做检查)<br>
+    - 合计 ≈ 110 h = 3 周（含 20% 缓冲）<br><br>
+    和第一次做这块板（约 8 周）相比，第三次改版的工作量大幅下降，主要在验证修改部分和新增功能的调试。<br>
+    建议里程碑：<br>
+    - 第 1 周：原理图修改 + 审查<br>
+    - 第 2 周：layout 修改 + 复查<br>
+    - 第 3 周：调试 + 验证"
+  </div>
+</div>
+
+<h2>8. 推荐资源</h2>
+
+<ul>
+  <li><strong>Altium 官方文档</strong>：<a href="https://www.altium.com/documentation/altium-designer/reports-ad" target="_blank">Reports 面板使用说明</a></li>
+  <li><strong>Cadence 文档</strong>：Allegro SKILL Reference — 自定义报告和 Pin Count 统计</li>
+  <li><strong>书籍</strong>：<em>Developing Embedded Systems with Micrium</em> — 项目管理章节讨论硬件工程工作量估算</li>
+  <li><strong>书籍</strong>：<em>The Hardware Hacker</em> — Andrew "bunnie" Huang（第 7 章供应链管理参考成本估算方法）</li>
+</ul>
+
+<blockquote>
+  <strong>整节课总结</strong><br><br>
+  <strong>核心结论</strong>：Pin Count 法是最通行的硬件工作量定量估算方法，但<strong>必须配合加权系数和阶段修正使用</strong>，不能只看原始数字。<br><br>
+  <strong>作为模拟硬件工程师</strong>，你的价值和痛点都在于——你的 Pin Count 数字可能不大，但加权系数高、修正系数高。你要学会把这个差异<strong>翻译</strong>成项目经理能理解的语言："这块板模拟引脚多，虽然总 pin 数只有 226，但加权后相当于 428 pin 的数字板工作量。"<br><br>
+  用得好的时候，Pin Count 法是你在项目估算博弈中的<strong>客观依据</strong>；用得不好的时候，它会<strong>严重低估</strong>模拟部分的工作量。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Lesson PC01 · Study_TIA 教学工坊 · 项目管理篇 · v2 详细版
+</p>
+
+<script>
+  document.querySelectorAll('.quiz-question').forEach(function(q) {
+    q.addEventListener('click', function() {
+      var answer = this.querySelector('.quiz-answer');
+      if (answer) answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+</script>
+
+</body>
+</html>

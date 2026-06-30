@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson EDA01: Cadence OrCAD + Allegro 设计流程</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .key-point { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .key-point strong { color: #166534; }
+    .step-list li { margin: 0.6rem 0; }
+    .shortcut-table td:first-child code { background: #e2e8f0; padding: 0.15em 0.4em; border-radius: 4px; font-weight: 600; }
+    .flow-box { background: white; border: 2px solid #93c5fd; border-radius: 10px; padding: 1rem; margin: 1rem 0; }
+  </style>
+</head>
+<body>
+
+<h1>Cadence OrCAD + Allegro 设计流程</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  Lesson EDA01 · EDA 工具实战 · 预计用时 45 分钟
+</p>
+
+<blockquote>
+  <strong>本节目标</strong>
+  掌握 Cadence OrCAD Capture（原理图）和 Allegro PCB Editor（布局）的完整设计流程，能独立完成从原理图到 PCB 投板的操作——重点覆盖模拟电路的常用功能和技巧。
+</blockquote>
+
+<h2>0. Cadence PCB 设计流程总览</h2>
+
+<p>Cadence 的 PCB 设计工具链由多个工具组成，核心流程如下：</p>
+
+<div class="flow-box">
+  <pre style="font-size:0.9rem; text-align:center;">
+  <strong>OrCAD Capture</strong>          <strong>Allegro PCB Editor</strong>          <strong>制造输出</strong>
+  （原理图设计）                （PCB 布局布线）                （生产文件）
+        |                            |                            |
+  画原理图 &#8594; 生成网表 &#8594;  导入网表 &#8594; 布局 &#8594; 布线 &#8594;  出 Gerber &#8594; 投板
+        |                            |                            |
+  创建设备符号                 约束规则设置                 钻孔文件
+  分配 PCB 封装                叠层设计                    装配图
+  DRC 检查                     DRC 检查                     IPC-356 网表
+  </pre>
+</div>
+
+<p><strong>关键名词解释</strong>：</p>
+<table>
+  <tr><th>名词</th><th>全称</th><th>含义</th></tr>
+  <tr><td>Netlist（网表）</td><td>—</td><td>描述元器件引脚之间连接关系的文件。OrCAD 生成网表，Allegro 读取网表</td></tr>
+  <tr><td>Footprint（封装）</td><td>—</td><td>元器件的 PCB 物理焊盘图形，.dra 文件</td></tr>
+  <tr><td>Symbol（符号）</td><td>—</td><td>原理图中元器件的逻辑图形，.olb 文件</td></tr>
+  <tr><td>Cross-probe</td><td>—</td><td>OrCAD 和 Allegro 之间的交互定位：在原理图中选中一个器件，PCB 中自动高亮</td></tr>
+  <tr><td>Back annotation</td><td>—</td><td>从 PCB 回传信息到原理图（如修改后的位号、交换的引脚）</td></tr>
+  <tr><td>Constraint</td><td>约束</td><td>走线的电气和物理规则（线宽、间距、等长、阻抗等）</td></tr>
+</table>
+
+<h2>1. OrCAD Capture 原理图设计</h2>
+
+<h3>1.1 界面速览</h3>
+
+<p>打开 OrCAD Capture CIS 后，你会看到几个主要区域：</p>
+<ul>
+  <li><strong>项目管理器</strong>（Project Manager）：左侧树形结构，管理设计文件（.dsn）、库文件（.olb）、输出文件</li>
+  <li><strong>原理图编辑区</strong>：中间主区域，绘制原理图</li>
+  <li><strong>工具栏</strong>：顶部和右侧，最常用的是 Place 相关工具</li>
+  <li><strong>Session Log</strong>：底部信息窗口，显示 DRC 结果、网表生成日志等</li>
+</ul>
+
+<h3>1.2 最关键的操作——放置元器件</h3>
+
+<p>OrCAD 中放置元器件的正确步骤：</p>
+
+<ol class="step-list">
+  <li><strong>Place &#8594; Part</strong>（快捷键 <strong>P</strong>）— 弹出 Place Part 对话框</li>
+  <li>在 <strong>Libraries</strong> 中选中你要用的库。常用库路径：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    - <code>C:\Cadence\SPB_17.4\tools\capture\library\*.olb</code>（Cadence 自带库）<br>
+    - 自己创建的库 <code>.\library\*.olb</code>
+  </li>
+  <li>搜索器件名，双击放置</li>
+  <li>按 <strong>R</strong> 旋转，按 <strong>Tab</strong> 放置多个</li>
+</ol>
+
+<table class="shortcut-table">
+  <tr><th>快捷键</th><th>功能</th><th>模拟工程师常用场景</th></tr>
+  <tr><td><code>P</code></td><td>Place Part（放置器件）</td><td>最常用，放运放、电阻、电容</td></tr>
+  <tr><td><code>W</code></td><td>Place Wire（走线）</td><td>连接引脚</td></tr>
+  <tr><td><code>N</code></td><td>Place Net Alias（网络别名）</td><td>标注网络名，如 <code>ADC_IN1</code></td></tr>
+  <tr><td><code>G</code></td><td>Place Ground（地）</td><td>接地点，注意选 <code>0/SOURCE</code></td></tr>
+  <tr><td><code>F</code></td><td>Place Power（电源）</td><td>电源符号</td></tr>
+  <tr><td><code>B</code></td><td>Place Bus（总线）</td><td>数字信号总线</td></tr>
+  <tr><td><code>T</code></td><td>Place Text（文本）</td><td>注释说明</td></tr>
+  <tr><td><code>I</code></td><td>Zoom In</td><td></td></tr>
+  <tr><td><code>O</code></td><td>Zoom Out</td><td></td></tr>
+  <tr><td><code>Ctrl+A</code></td><td>Select All</td><td></td></tr>
+  <tr><td><code>Ctrl+E</code></td><td>Edit Part（编辑器件属性）</td><td>修改封装名、Value</td></tr>
+</table>
+
+<h3>1.3 为模拟工程师建立的规范</h3>
+
+<p><strong>规范 1：网络命名</strong></p>
+<p>好的网络命名能让原理图可读性大幅提升：</p>
+<pre>
+  <strong>模拟信号</strong>：ADC_IN1, ADC_IN2, DAC_OUT, TIA_OUT_CH1, PD_ANODE
+  <strong>电源网络</strong>：+3V3_A（模拟 3.3V）, +3V3_D（数字 3.3V）, VCC_OPA, VEE_OPA
+  <strong>参考电压</strong>：VREF_2V5, VREF_1V25
+  <strong>地</strong>：GND_A（模拟地）, GND_D（数字地）, GND_PWR（电源地）
+</pre>
+
+<p><strong>规范 2：添加电源和地符号</strong></p>
+<ul>
+  <li>每个 IC 必须有明确的电源和地连接——不要只依赖"隐含连接"，即使 OrCAD 支持 Off-page connector</li>
+  <li>模拟地和数字地使用不同的符号，便于后续在 Allegro 中处理地平面分割</li>
+  <li>使用 <code>Place Power</code>（快捷键 F）放置电源符号；使用 <code>Place Ground</code>（快捷键 G）放置地符号</li>
+</ul>
+
+<p><strong>规范 3：模拟信号添加测试点</strong></p>
+<ul>
+  <li>在所有关键模拟节点添加测试点（Test Point），包括：TIA 输出、ADC 输入、参考电压输出、电源输出</li>
+  <li>在原理图中用特殊的符号标记测试点（Place &#8594; Test Point），或添加一个 0&Omega; 电阻占位</li>
+  <li>这会在 Allegro 中自动生成测试点焊盘，方便调试时测量</li>
+</ul>
+
+<p><strong>规范 4：添加 DRC 标记</strong></p>
+<ul>
+  <li>模拟信号走线注意：Place &#8594; Line 画一条线，然后在线上右键 &#8594; Edit Properties，在 Net Properties 中添加约束</li>
+  <li>例如：对 TIA 输入节点添加 <code>NO_SLASH</code> 属性（禁止自动灌铜），<code>ROUTED</code> 属性（必须手工走线）</li>
+</ul>
+
+<h3>1.4 创建设备符号（.olb）</h3>
+
+<p>如果 Cadence 标准库中没有你需要的器件，你需要自己创建：</p>
+
+<ol class="step-list">
+  <li><strong>File &#8594; New &#8594; Library</strong>，创建 .olb 文件</li>
+  <li>在 .olb 上右键 &#8594; <strong>New Part</strong></li>
+  <li>填写属性：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    - <strong>Name</strong>：器件型号，如 <code>OPA381</code><br>
+    - <strong>Part Reference Prefix</strong>：位号前缀，如 <code>U</code>（IC）、<code>R</code>（电阻）、<code>C</code>（电容）<br>
+    - <strong>PCB Footprint</strong>：封装名，必须与 Allegro 中的封装名完全一致<br>
+    - <strong>Parts per Package</strong>：一个封装内的单元数，如 LM358 是双运放，选 2
+  </li>
+  <li>用 <strong>Place Pin</strong> 放置引脚：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    - <strong>Power pins</strong>：VCC 选类型 Power，VEE 选类型 Power<br>
+    - <strong>Signal pins</strong>：输入选 Input、输出选 Output<br>
+    - 不用的引脚可以标注 NC
+  </li>
+  <li>保存后即可在原理图 Place Part 中调用</li>
+</ol>
+
+<div class="key-point">
+  <strong>创建运放符号的注意事项（模拟工程师必看）</strong><br><br>
+  <strong>1. 隐藏电源引脚</strong>：很多标准库中运放的 VCC/VEE 是隐藏引脚（hidden pin）。如果你在原理图中看不到电源连接，需要在 Part 属性中找到 <strong>Power Pins Visible</strong> 改为 True，或者通过 Place Power 符号连接。<br><br>
+  <strong>2. 多个 Part 的位号</strong>：双运放（Parts per Package = 2）在原理图上显示为 U1A 和 U1B。PCB 上共用同一个封装。这是 Cadence 的 <strong>Heterogeneous</strong> 概念——原理图上的多 Part 对应 PCB 上的一个器件。<br><br>
+  <strong>3. PCB Footprint 必须完全匹配</strong>：OrCAD 中的 <code>PCB Footprint</code> 属性值必须和 Allegro 中 .dra 文件的文件名一致（不含扩展名）。大小写不敏感但空格和特殊字符必须一致。最常见的网表错误就来自这里。
+</div>
+
+<h3>1.5 从 OrCAD 生成网表并导入 Allegro</h3>
+
+<ol class="step-list">
+  <li>原理图画完后，<strong>Tools &#8594; Create Netlist</strong></li>
+  <li>在弹出的对话框中：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    - 选择 <strong>PCB Editor</strong> 标签页<br>
+    - <strong>PCB Footprint</strong>：勾上，确保检查所有器件有封装<br>
+    - <strong>Create PCB Editor Netlist</strong>：勾上<br>
+    - 点击 <strong>确定</strong>
+  </li>
+  <li>成功生成后，会在项目目录下创建 <code>netlistallegro</code> 文件夹，包含 <code>.dat</code>、<code>.net</code>、<code>.pst</code> 文件</li>
+  <li>在 Allegro PCB Editor 中：<strong>File &#8594; Import &#8594; Logic</strong>（或直接 <strong>File &#8594; Import &#8594; Netlist</strong>）</li>
+  <li>选择 <strong>Cadence</strong> 标签，Import directory 指向 <code>./netlistallegro</code></li>
+  <li>点击 <strong>Import</strong>，完成网表导入</li>
+</ol>
+
+<h2>2. Allegro PCB Editor 布局布线</h2>
+
+<h3>2.1 准备工作：叠层设计</h3>
+
+<p>在 Allegro 中开始布局之前，第一件事是配置 PCB 叠层：</p>
+
+<ol class="step-list">
+  <li><strong>Setup &#8594; Cross-section</strong>（或 <strong>Setup &#8594; Stackup</strong>）</li>
+  <li>在 <strong>Cross-section Editor</strong> 中配置板层：</li>
+</ol>
+
+<p>以 4 层模拟板为例：</p>
+<table>
+  <tr><th>层名</th><th>类型</th><th>厚度</th><th>用途</th></tr>
+  <tr><td>TOP</td><td>Signal</td><td>1 oz (35 um)</td><td>模拟信号走线 + 关键器件</td></tr>
+  <tr><td>GND_INNER</td><td>Plane</td><td>1 oz</td><td>模拟地层（完整地平面）</td></tr>
+  <tr><td>PWR_INNER</td><td>Plane</td><td>1 oz</td><td>电源层 + 必要时走少量信号</td></tr>
+  <tr><td>BOTTOM</td><td>Signal</td><td>1 oz</td><td>次要信号 + 去耦电容</td></tr>
+</table>
+
+<p>对于高精度模拟板，建议：</p>
+<ul>
+  <li>顶层（TOP）放敏感模拟器件和走线</li>
+  <li>第二层为完整的地平面（不分割）</li>
+  <li>第三层为电源平面</li>
+  <li>底层放不敏感的信号和辅助器件</li>
+</ul>
+
+<h3>2.2 Allegro 最常用的快捷键</h3>
+
+<table class="shortcut-table">
+  <tr><th>快捷键</th><th>功能</th><th>模拟工程师常用场景</th></tr>
+  <tr><td><code>F5</code></td><td>Zoom In</td><td></td></tr>
+  <tr><td><code>F6</code></td><td>Zoom Out</td><td></td></tr>
+  <tr><td><code>F7</code></td><td>Zoom Fit（全屏显示）</td><td></td></tr>
+  <tr><td><code>I</code></td><td>Add Connect（走线）</td><td>手动走模拟信号</td></tr>
+  <tr><td><code>R</code></td><td>Rotation mode（旋转器件）</td><td>摆放器件时按 R 旋转</td></tr>
+  <tr><td><code>M</code></td><td>Move（移动）</td><td>移动器件或走线</td></tr>
+  <tr><td><code>C</code></td><td>Copy（复制）</td><td></td></tr>
+  <tr><td><code>V</code></td><td>Add Via（打过孔）</td><td>换层走线</td></tr>
+  <tr><td><code>Delete</code></td><td>Delete（删除）</td><td></td></tr>
+  <tr><td><code>F3</code></td><td>Show measure（测量）</td><td>测量间距是否符合规则</td></tr>
+  <tr><td><code>F4</code></td><td>Toggle grid（切换栅格）</td><td>精细走线时关栅格</td></tr>
+  <tr><td><code>Ctrl+F5</code></td><td>Refresh（刷新）</td><td></td></tr>
+  <tr><td><code>Shift+F5</code></td><td>Highlight（高亮网络）</td><td>高亮模拟信号网络</td></tr>
+  <tr><td><code>Shift+F6</code></td><td>Dehighlight（取消高亮）</td><td></td></tr>
+  <tr><td><code>~</code>（波浪号）</td><td>Toggle Opaque（切换透明度）</td><td>查看底层走线</td></tr>
+</table>
+
+<h3>2.3 模拟信号走线的 Allegro 技巧</h3>
+
+<p><strong>技巧 1：建立模拟信号约束规则</strong></p>
+<ol class="step-list">
+  <li><strong>Setup &#8594; Constraints &#8594; Constraint Manager</strong>（或 <strong>Setup &#8594; Electrical Constraints</strong>）</li>
+  <li>在 <strong>Physical</strong> 标签页中，点击右键 &#8594; <strong>Create &mdash; Physical CSet</strong></li>
+  <li>创建一个名为 <code>ANALOG_SIGNAL</code> 的物理约束集：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    - <strong>Line Width Min/Max</strong>：0.2 mm ~ 0.5 mm（根据电流需求调整）<br>
+    - <strong>Neck Width</strong>：0.15 mm（用于密集区域）<br>
+    - <strong>Vias</strong>：选择合适尺寸的过孔（如 0.3/0.5 mm 钻孔/焊盘）
+  </li>
+  <li>在 <strong>Spacing</strong> 标签页中，创建 <code>ANALOG_SPACE</code> 间距约束集：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    - <strong>Line to Line</strong>：0.2 mm（模拟信号之间）<br>
+    - <strong>Line to Shape</strong>：0.3 mm（走线到铜皮）<br>
+    - <strong>Line to Via</strong>：0.2 mm
+  </li>
+  <li>回到原理图或 Allegro 中，将模拟信号网络（如 <code>TIA_OUT</code>、<code>ADC_IN</code>）关联到这个约束集</li>
+</ol>
+
+<p><strong>技巧 2：保护环（Guard Ring）在 Allegro 中的实现</strong></p>
+<ol class="step-list">
+  <li>选择 <strong>Add &#8594; Line</strong>，在 <strong>Route Keepin</strong> 类中选择 <code>Guard Ring</code>（如果没有这个 subclass，可以自己创建）</li>
+  <li>在需要保护的高阻抗输入周围画一圈闭合走线</li>
+  <li>将这条线赋值为 GND 网络（选中后右键 &#8594; <strong>Assign Net</strong> &#8594; 选择 GND）</li>
+  <li>在 <strong>Shape &#8594; Add Rect</strong> 或 <strong>Add Circular</strong> 中选择 <code>Guard Ring</code> subclass，用铜皮覆盖这条走线</li>
+  <li>如果 Allegro 版本支持，也可以直接使用 <strong>Setup &#8594; Design Parameter Editor &#8594; Guard Ring</strong> 的自动化工具</li>
+</ol>
+
+<p><strong>技巧 3：模拟信号包地（Guard Trace）</strong></p>
+<ol class="step-list">
+  <li>对敏感模拟信号（如 ADC 的模拟输入），在其两侧各走一条 GND 线，起到屏蔽作用</li>
+  <li>操作：选 <strong>Add &#8594; Connect</strong>（快捷键 I），选择 GND 网络，在信号线两侧各走一条平行地线</li>
+  <li>在包地线上每隔一小段打一个地过孔</li>
+</ol>
+
+<p><strong>技巧 4：挖空输入节点下方的地铜（Keep-out）</strong></p>
+<ol class="step-list">
+  <li>选择 <strong>Shape &#8594; Void &#8594; Polygon</strong> 或 <strong>Shape &#8594; Void &#8594; Circular</strong></li>
+  <li>在 TIA 输入焊盘下方画一个圆形或矩形区域</li>
+  <li>这会从地铜皮上挖掉这个区域，减少寄生电容</li>
+</ol>
+
+<h3>2.4 布局流程</h3>
+
+<ol class="step-list">
+  <li><strong>放置器件</strong>（Place &#8594; Manually 或 Quickplace）：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    - 先放连接器（固定接口位置）<br>
+    - 再放核心 IC（ADC、运放、MCU）<br>
+    - 最后放外围无源器件（电阻电容就近摆放）
+  </li>
+  <li><strong>机械孔定位</strong>：先放螺丝孔，确认板卡外形</li>
+  <li><strong>关键器件优先布局</strong>：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    - 光电二极管尽量靠近运放输入（< 3 mm）<br>
+    - R<sub>f</sub> 和 C<sub>f</sub> 紧靠运放<br>
+    - ADC 靠近模拟信号输入连接器<br>
+    - 去耦电容紧靠 IC 电源引脚
+  </li>
+  <li><strong>扇出（Fan-out）</strong>：对 QFP/TSSOP 封装的 IC，先将引脚引出到过孔</li>
+  <li><strong>走线</strong>：先走模拟关键信号，再走普通信号，最后走电源</li>
+  <li><strong>覆铜</strong>：先铺模拟地（GND_A），再铺数字地（GND_D），最后在背面用 0&Omega; 电阻或磁珠单点连接</li>
+</ol>
+
+<h3>2.5 Design Rule Check（DRC）</h3>
+
+<p>投板前必须做 DRC：</p>
+
+<ul>
+  <li><strong>Setup &#8594; Constraints &#8594; Design Constraints</strong> — 检查和修改全局约束</li>
+  <li><strong>Display &#8594; Status</strong> — 查看当前 DRC 状态。如果有错误图标，双击定位到错误位置</li>
+  <li>DRC 常见错误：</li>
+  <ul>
+    <li><strong>Line to Line Spacing</strong>：走线间距不足</li>
+    <li><strong>Unrouted Net</strong>：有网络未连接</li>
+    <li><strong>Unconnected Pin</strong>：有引脚没走线</li>
+    <li><strong>Stub</strong>：走线分支过长（对高速信号需要关注，模拟信号可忽略）</li>
+  </ul>
+</ul>
+
+<h3>2.6 出 Gerber 文件（投板前最后一步）</h3>
+
+<ol class="step-list">
+  <li><strong>Manufacture &#8594; Artwork</strong>（或 <strong>File &#8594; Export &#8594; Gerber</strong>）</li>
+  <li>在 <strong>Film Control</strong> 标签页中配置每层：</li>
+  <li style="list-style:none; margin-left:2rem;">
+    - TOP：顶层走线 + 顶层阻焊（Solder Mask Top）<br>
+    - GND_INNER：内层地平面<br>
+    - PWR_INNER：内层电源层<br>
+    - BOTTOM：底层走线 + 底层阻焊<br>
+    - SILK_TOP：顶层丝印<br>
+    - DRILL：钻孔图
+  </li>
+  <li>点击 <strong>Generate Artwork</strong> 生成 Gerber 文件</li>
+  <li>再生成钻孔文件：<strong>Manufacture &#8594; NC &#8594; Drill</strong></li>
+  <li>用 <strong>CAM350</strong> 或 Allegro 自带的 <strong>Artwork Review</strong> 查看 Gerber 文件确认正确</li>
+</ol>
+
+<h2>3. OrCAD 和 Allegro 之间的交互</h2>
+
+<h3>3.1 Cross-probe（交互定位）</h3>
+
+<p>这是 Cadence 流程中最常用的操作之一：</p>
+<ul>
+  <li>在 OrCAD 中选中一个器件或网络 <strong>右键 &#8594; Select</strong></li>
+  <li>按下 <strong>Alt+Ctrl+F11</strong>（或点击工具栏的 Cross-probe 图标）</li>
+  <li>Allegro 会自动定位并高亮对应的器件或走线</li>
+  <li>反过来在 Allegro 中也能高亮后 Cross-probe 到 OrCAD</li>
+</ul>
+
+<h3>3.2 Back Annotation（反向标注）</h3>
+
+<p>如果你在 Allegro 中修改了器件的位号（如交换了 U1 和 U2 的位号），需要回传到 OrCAD：</p>
+
+<ol class="step-list">
+  <li>Allegro 中：<strong>Logic &#8594; Back Annotation</strong>，生成 <code>.swp</code> 文件</li>
+  <li>OrCAD 中：<strong>Tools &#8594; Back Annotate</strong>，导入 <code>.swp</code> 文件</li>
+  <li>OrCAD 会自动更新原理图中的位号</li>
+</ol>
+
+<h2>4. 动手练习</h2>
+
+<div class="quiz-question">
+  <p><strong>练习 1：模拟 TIA 电路的 OrCAD 原理图操作</strong></p>
+  <p>请写出在 OrCAD Capture 中完成以下操作的步骤：</p>
+  <ol>
+    <li>放置一个 OPA381（SOIC-8）</li>
+    <li>放置一个光电二极管（使用标准库中的 PHOTODIODE 符号）</li>
+    <li>放置反馈电阻 R<sub>f</sub>（Resistor）和反馈电容 C<sub>f</sub>（Capacitor）</li>
+    <li>连接所有引脚（走线 + 标注网络名）</li>
+    <li>添加电源和地</li>
+    <li>生成网表</li>
+  </ol>
+  <div class="quiz-answer">
+    <strong>操作步骤</strong>：<br><br>
+    <strong>Step 1：放置 OPA381</strong><br>
+    - 按 P 打开 Place Part<br>
+    - 在 Libraries 中加载 OPA381 所在库（如果标准库没有，需要先创建 .olb）<br>
+    - 双击 OPA381 放置到原理图<br>
+    - 如果 OPA381 是双运放，会显示 U1A，可以再放一个 U1B<br><br>
+    <strong>Step 2：放置光电二极管</strong><br>
+    - 按 P，在 <code>DISCRETE.olb</code> 中搜索 <code>PHOTODIODE</code> 或 <code>LED</code><br>
+    - 如果标准库没有光电二极管符号，可以自己创建一个 2-pin 的符号<br><br>
+    <strong>Step 3：放置 R<sub>f</sub> 和 C<sub>f</sub></strong><br>
+    - 按 P，在 <code>DISCRETE.olb</code> 选 <code>R</code>（电阻），<code>C</code>（电容）<br>
+    - 在原理图上放置后，双击器件修改 Value（如 R<sub>f</sub> = 100k）<br>
+    - 在 Property Editor 中设置 PCB Footprint（如 R0603、C0402）<br><br>
+    <strong>Step 4：走线</strong><br>
+    - 按 W 开始走线，点击光电二极管的阴极连接到 OPA381 的反相输入引脚（pin 2）<br>
+    - R<sub>f</sub> 一端连 pin 2，另一端连 pin 6（输出）<br>
+    - C<sub>f</sub> 并联在 R<sub>f</sub> 两端<br>
+    - 按 N 给输入节点命名 <code>PD_IN</code>，输出节点命名 <code>TIA_OUT</code><br><br>
+    <strong>Step 5：电源和地</strong><br>
+    - 按 F 放置电源 +5V 到 OPA381 的 VCC（pin 7）<br>
+    - 按 F 放置电源 -5V 到 VEE（pin 4）<br>
+    - 按 G 放置地到光电二极管的阳极<br><br>
+    <strong>Step 6：生成网表</strong><br>
+    - Tools &#8594; Create Netlist<br>
+    - 选 PCB Editor 标签页，确认<br>
+    - 检查 Session Log 无错误
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>练习 2：Allegro 布局 TIA 电路的要点</strong></p>
+  <p>在 Allegro 中布局一个 TIA 电路时，以下操作分别用什么命令/快捷键？</p>
+  <ol>
+    <li>移动光电二极管使它与运放尽量靠近</li>
+    <li>手动走线连接 PD 到运放输入</li>
+    <li>在 TIA 输入焊盘下方挖掉地铜</li>
+    <li>创建模拟信号的线宽约束（0.3 mm）</li>
+    <li>高亮 TIA_OUT 网络检查走线路径</li>
+  </ol>
+  <div class="quiz-answer">
+    <strong>操作命令</strong>：<br><br>
+    <strong>1. 移动器件</strong>：按 <strong>M</strong>（Move），点击光电二极管，移动到运放旁边。如果需要旋转，按 <strong>R</strong>。<br><br>
+    <strong>2. 手动走线</strong>：按 <strong>I</strong>（Add Connect），点击 PD 焊盘，走到运放输入焊盘。如果需要换层，按 <strong>V</strong> 打过孔。<br><br>
+    <strong>3. 挖空地铜</strong>：<strong>Shape &#8594; Void &#8594; Circular</strong>（或 Polygon），在输入焊盘下方画一个圈，从地铜皮上挖掉。<br><br>
+    <strong>4. 约束设置</strong>：<strong>Setup &#8594; Constraints &#8594; Constraint Manager</strong>，在 Physical 标签页创建新的 Physical CSet，设 Line Width 为 0.3 mm。然后将 TIA 输入网络关联到此 CSet。<br><br>
+    <strong>5. 高亮网络</strong>：按 <strong>Shift+F5</strong>，在 Options 面板中选择网络名 <code>TIA_OUT</code>，点击确定。
+  </div>
+</div>
+
+<h2>5. 推荐资源</h2>
+
+<ul>
+  <li><strong>Cadence 官方文档</strong>：<em>Allegro PCB Editor User Guide</em>（安装目录下 <code>\\doc\\</code> 文件夹）</li>
+  <li><strong>Cadence 官方培训</strong>：<em>OrCAD Capture Workshop Guide</em></li>
+  <li><strong>YouTube 频道</strong>：Cadence PCB Design 官方频道，搜索"Allegro tutorial"</li>
+  <li><strong>书籍</strong>：<em>Complete PCB Design Using OrCAD Capture and PCB Editor</em> — Kraig Mitzner</li>
+  <li><strong>内部资源</strong>：公司内部通常有 Cadence 的 Skill 脚本库和封装库规范</li>
+</ul>
+
+<blockquote>
+  <strong>总结</strong><br><br>
+  OrCAD + Allegro 是业界最通用的 PCB 设计工具链之一。对模拟硬件工程师来说，关键不在于记住所有功能，而在于掌握<strong>从原理图到投板的完整流程</strong>：<br><br>
+  <strong>OrCAD</strong>：画原理图 &#8594; 创建设备 &#8594; 分配封装 &#8594; DRC &#8594; 生成网表<br>
+  <strong>Allegro</strong>：导入网表 &#8594; 设约束 &#8594; 布局 &#8594; 走线 &#8594; 覆铜 &#8594; DRC &#8594; 出 Gerber<br><br>
+  多用快捷键（I、M、R、V），每次操作比点菜单快 3~5 秒，一天能省下大量时间。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Lesson EDA01 · Study_TIA 教学工坊 · Cadence 工具实战
+</p>
+
+<script>
+  document.querySelectorAll('.quiz-question').forEach(function(q) {
+    q.addEventListener('click', function() {
+      var answer = this.querySelector('.quiz-answer');
+      if (answer) answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+</script>
+
+</body>
+</html>

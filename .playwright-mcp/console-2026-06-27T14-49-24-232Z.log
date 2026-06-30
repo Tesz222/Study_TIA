@@ -1,0 +1,16 @@
+[      18ms] [LOG] Braze - Custom Event: Page Views fired @ :1
+[      20ms] [LOG] Braze - Custom Event: Viewed Technical Document @ :76
+[      20ms] TypeError: Cannot read properties of null (reading 'innerText')
+    at trigger (<anonymous>:91:83)
+    at <anonymous>:208:3
+    at https://assets.adobedtm.com/bc68b7886092/25785b612092/launch-715705770daf.min.js:11:28651
+    at new Promise (<anonymous>)
+    at _satellite.<computed> (https://assets.adobedtm.com/bc68b7886092/25785b612092/launch-715705770daf.min.js:11:28628)
+    at <anonymous>:1:26
+    at e._insertCursor (https://assets.adobedtm.com/bc68b7886092/25785b612092/launch-715705770daf.min.js:11:16535)
+    at e._writeScriptToken (https://assets.adobedtm.com/bc68b7886092/25785b612092/launch-715705770daf.min.js:11:17188)
+    at e._handleScriptToken (https://assets.adobedtm.com/bc68b7886092/25785b612092/launch-715705770daf.min.js:11:15747)
+    at e._writeImpl (https://assets.adobedtm.com/bc68b7886092/25785b612092/launch-715705770daf.min.js:11:14359)
+[    3204ms] [WARNING] A speculation rule set was inserted into the document but will be ignored. This might happen, for example, if it was previously inserted into another document, or if it was created using the innerHTML setter. @ https://www.google.com/search?q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&hl=en:35
+[    4163ms] [WARNING] Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://www.youtube.com') does not match the recipient window's origin ('https://www.google.com'). @ https://www.youtube.com/s/player/5b27766f/www-widgetapi.vflset/www-widgetapi.js:162
+[    5181ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://static.doubleclick.net/instream/ad_status.js:0

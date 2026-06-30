@@ -1,0 +1,895 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - generic:
+      - link "Skip to main content" [ref=e2] [cursor=pointer]
+      - link "Accessibility help" [ref=e3] [cursor=pointer]:
+        - /url: https://support.google.com/websearch/answer/181196?hl=en-HK
+  - generic [ref=e8]:
+    - search [ref=e9]:
+      - generic [ref=e12]:
+        - link "Go to Google Home" [ref=e13] [cursor=pointer]:
+          - /url: https://www.google.com/webhp?hl=en&ictx=0&sa=X&ved=0ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQpYkNCAw
+          - img "Go to Google Home" [ref=e14]
+        - generic [ref=e15]:
+          - combobox "Search" [ref=e18]: transimpedance amplifier noise analysis op amp voltage noise dominant photodiode transimpedance amplifier noise analysis op amp voltage noise dominant photodiode
+          - generic [ref=e19]:
+            - button "Clear" [ref=e21] [cursor=pointer]:
+              - img [ref=e23]
+            - generic [ref=e26]:
+              - button "Search by voice" [ref=e27] [cursor=pointer]:
+                - img [ref=e28]
+              - button "Search by image" [ref=e30] [cursor=pointer]:
+                - img [ref=e31]
+        - button "Search" [ref=e33] [cursor=pointer]:
+          - img [ref=e36]
+    - generic [ref=e38]:
+      - button "Settings" [ref=e40] [cursor=pointer]:
+        - img [ref=e43]
+      - button "Share" [ref=e46] [cursor=pointer]:
+        - img [ref=e50]
+      - generic [ref=e52]:
+        - button "Google apps" [ref=e54] [cursor=pointer]:
+          - img [ref=e55]
+        - link "Sign in" [ref=e59] [cursor=pointer]:
+          - /url: https://accounts.google.com/ServiceLogin?hl=en&passive=true&continue=https://www.google.com/search%3Fq%3Dtransimpedance%2Bamplifier%2Bnoise%2Banalysis%2Bop%2Bamp%2Bvoltage%2Bnoise%2Bdominant%2Bphotodiode%26hl%3Den&ec=futura_srp_og_si_72236_p
+  - generic [ref=e61]:
+    - navigation [ref=e67]:
+      - generic [ref=e73]:
+        - list [ref=e74]:
+          - listitem [ref=e75]:
+            - link "AI Mode" [ref=e78] [cursor=pointer]:
+              - /url: /search?q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sca_esv=650bb547ae878b5f&hl=en&udm=50&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5bBLHMJ0vMQmTbuI72DM7jnxvATrUU2Yg9dwuUGnsUHcXPuOM0_k1dPPnMiKJgy16YDDqH-_iHFiQkOW8hi7RXxbx-p0rrtPynGdM4Y3BzbgasK2jck2RijcHMRNvbjn_f35QtGOxCPNpiN8_uM2f1KfHZZ4ljNFPrvlswpgLP1ETmolpA&aep=1&ntc=1&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ2J8OegQIExAD
+              - generic [ref=e81]: AI Mode
+          - listitem [ref=e82]:
+            - link "All" [disabled] [ref=e83]:
+              - generic [ref=e85]: All
+          - listitem [ref=e86]:
+            - link "Shopping" [ref=e87] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&hl=en&udm=28&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5bBLHMJ0vMQmTbuI72DM7jnxvATrUU2Yg9dwuUGnsUHcXPuOM0_k1dPPnMiKJgy16YDDqH-_iHFiQkOW8hi7RXxbx-p0rrtPynGdM4Y3BzbgasK2jck2RijcHMRNvbjn_f35QtGOxCPNpiN8_uM2f1KfHZZ4ljNFPrvlswpgLP1ETmolpA&q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&ved=1t:220175&ictx=111
+              - generic [ref=e89]: Shopping
+          - listitem [ref=e90]:
+            - link "Images" [ref=e91] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&hl=en&udm=2&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5bBLHMJ0vMQmTbuI72DM7jnxvATrUU2Yg9dwuUGnsUHcXPuOM0_k1dPPnMiKJgy16YDDqH-_iHFiQkOW8hi7RXxbx-p0rrtPynGdM4Y3BzbgasK2jck2RijcHMRNvbjn_f35QtGOxCPNpiN8_uM2f1KfHZZ4ljNFPrvlswpgLP1ETmolpA&q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQtKgLegQIGBAB
+              - generic [ref=e93]: Images
+          - listitem [ref=e94]:
+            - link "Videos" [ref=e95] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&hl=en&udm=7&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5bBLHMJ0vMQmTbuI72DM7jnxvATrUU2Yg9dwuUGnsUHcXPuOM0_k1dPPnMiKJgy16YDDqH-_iHFiQkOW8hi7RXxbx-p0rrtPynGdM4Y3BzbgasK2jck2RijcHMRNvbjn_f35QtGOxCPNpiN8_uM2f1KfHZZ4ljNFPrvlswpgLP1ETmolpA&q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQtKgLegQIFxAB
+              - generic [ref=e97]: Videos
+          - listitem [ref=e98]:
+            - link "Short videos" [ref=e99] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&hl=en&udm=39&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5bBLHMJ0vMQmTbuI72DM7jnxvATrUU2Yg9dwuUGnsUHcXPuOM0_k1dPPnMiKJgy16YDDqH-_iHFiQkOW8hi7RXxbx-p0rrtPynGdM4Y3BzbgasK2jck2RijcHMRNvbjn_f35QtGOxCPNpiN8_uM2f1KfHZZ4ljNFPrvlswpgLP1ETmolpA&q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQs6gLegQIFRAB
+              - generic [ref=e101]: Short videos
+          - listitem [ref=e102]:
+            - link "Forums" [ref=e103] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&hl=en&udm=18&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5bBLHMJ0vMQmTbuI72DM7jnxvATrUU2Yg9dwuUGnsUHcXPuOM0_k1dPPnMiKJgy16YDDqH-_iHFiQkOW8hi7RXxbx-p0rrtPynGdM4Y3BzbgasK2jck2RijcHMRNvbjn_f35QtGOxCPNpiN8_uM2f1KfHZZ4ljNFPrvlswpgLP1ETmolpA&q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQs6gLegQIFhAB
+              - generic [ref=e105]: Forums
+          - listitem [ref=e106]:
+            - button "More filters" [ref=e107] [cursor=pointer]:
+              - generic "More filters" [ref=e108]:
+                - generic [ref=e109]:
+                  - generic [ref=e110]: More
+                  - img [ref=e112]
+        - button "Tools" [ref=e115] [cursor=pointer]:
+          - generic [ref=e117]:
+            - generic [ref=e118]: Tools
+            - img [ref=e120]
+    - heading "Search Results" [level=1] [ref=e122]
+    - generic [ref=e127]:
+      - generic [ref=e146]:
+        - generic [ref=e148]:
+          - generic [ref=e150]:
+            - generic [ref=e151]:
+              - img [ref=e152]
+              - heading "AI Overview" [level=2] [ref=e154]
+            - button "About this result" [ref=e158]:
+              - img [ref=e160]
+          - generic [ref=e180]:
+            - generic [ref=e183]:
+              - generic [ref=e184]:
+                - text: When dealing with a photodiode and a transimpedance amplifier (TIA), the op-amp's voltage noise (
+                - generic [ref=e187]:
+                  - img
+                  - math [ref=e189]:
+                    - generic [ref=e191]:
+                      - generic [ref=e192]: e
+                      - generic [ref=e193]: "n"
+                  - img [ref=e194]:
+                    - generic [ref=e195]: 𝑒
+                    - generic [ref=e196]: 𝑛
+                - text: ) often becomes the
+                - strong [ref=e197]: dominant source of output noise
+                - text: at high frequencies. This happens because voltage noise is multiplied by the TIA's "noise gain," which increases significantly at higher frequencies due to total input capacitance.
+                - generic [ref=e199]:
+                  - link "TI E2E support forums (+4) – View related links" [ref=e200] [cursor=pointer]:
+                    - /url: https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/14/article18_2D00_noise11_2D00_Photodiode_2D00_Noise-1.pdf
+                  - button "TI E2E support forums (+4) – View related links" [ref=e201] [cursor=pointer]:
+                    - generic [ref=e203]:
+                      - generic [ref=e204]: TI E2E support forums
+                      - generic [ref=e205]: "+4"
+                    - img [ref=e208]
+              - heading "The Noise Model" [level=3] [ref=e210]
+              - generic [ref=e212]:
+                - text: "Evaluating total output noise in a TIA involves combining three primary contributors:"
+                - generic [ref=e214]:
+                  - link [ref=e215] [cursor=pointer]:
+                    - /url: https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/14/article18_2D00_noise11_2D00_Photodiode_2D00_Noise-1.pdf
+                  - button [ref=e216] [cursor=pointer]:
+                    - generic [ref=e219]: TI E2E support forums
+                    - img [ref=e222]
+              - list [ref=e225]:
+                - listitem [ref=e226]:
+                  - generic [ref=e227]:
+                    - strong [ref=e228]:
+                      - text: Op-Amp Current Noise (
+                      - generic [ref=e231]:
+                        - img
+                        - math [ref=e233]:
+                          - generic [ref=e235]:
+                            - generic [ref=e236]: i
+                            - generic [ref=e237]: "n"
+                        - img [ref=e238]:
+                          - generic [ref=e239]: 𝒊
+                          - generic [ref=e240]: 𝒏
+                      - text: "):"
+                    - text: Flows through the feedback resistor, generating output voltage noise.
+                - listitem [ref=e241]:
+                  - generic [ref=e242]:
+                    - strong [ref=e243]: "Resistor Thermal Noise:"
+                    - text: The feedback resistor (
+                    - generic [ref=e246]:
+                      - img
+                      - math [ref=e248]:
+                        - generic [ref=e250]:
+                          - generic [ref=e251]: R
+                          - generic [ref=e252]: F
+                      - img [ref=e253]:
+                        - generic [ref=e254]: 𝑅
+                        - generic [ref=e255]: 𝐹
+                    - text: ) inherently produces Johnson noise, calculated as
+                    - generic [ref=e258]:
+                      - img
+                      - math [ref=e260]:
+                        - generic [ref=e263]:
+                          - generic [ref=e264]: "4"
+                          - generic [ref=e265]: k
+                          - generic [ref=e266]: T
+                          - generic [ref=e267]:
+                            - generic [ref=e268]: R
+                            - generic [ref=e269]: F
+                      - img [ref=e270]:
+                        - generic [ref=e271]: "4"
+                        - generic [ref=e272]: 𝑘
+                        - generic [ref=e273]: 𝑇
+                        - generic [ref=e274]: 𝑅
+                        - generic [ref=e275]: 𝐹
+                        - generic [ref=e276]: √
+                    - text: .
+                - listitem [ref=e277]:
+                  - generic [ref=e278]:
+                    - strong [ref=e279]:
+                      - text: Op-Amp Voltage Noise (
+                      - generic [ref=e282]:
+                        - img
+                        - math [ref=e284]:
+                          - generic [ref=e286]:
+                            - generic [ref=e287]: e
+                            - generic [ref=e288]: "n"
+                        - img [ref=e289]:
+                          - generic [ref=e290]: 𝒆
+                          - generic [ref=e291]: 𝒏
+                      - text: "):"
+                    - text: The dominant noise factor at high frequencies.
+                  - generic [ref=e293]:
+                    - link [ref=e294] [cursor=pointer]:
+                      - /url: https://eikonaloptics.com/blogs/tutorials/transimpedance-amplifiers-signals-and-noise
+                    - button [ref=e295] [cursor=pointer]:
+                      - generic [ref=e297]:
+                        - generic [ref=e298]: Eikonal Optics
+                        - generic [ref=e299]: "+4"
+                      - img [ref=e302]
+              - heading [level=3] [ref=e305]: Why Voltage Noise Dominates
+              - generic [ref=e307]:
+                - text: At the input of a TIA, you are dealing with a total capacitance (
+                - generic [ref=e310]:
+                  - img
+                  - math [ref=e312]:
+                    - generic [ref=e314]:
+                      - generic [ref=e315]: C
+                      - generic [ref=e316]:
+                        - generic [ref=e317]: I
+                        - generic [ref=e318]: "N"
+                  - img [ref=e319]:
+                    - generic [ref=e320]: 𝐶
+                    - generic [ref=e321]: 𝐼
+                    - generic [ref=e322]: 𝑁
+                - text: ), which is the sum of the
+                - strong [ref=e323]: photodiode junction capacitance
+                - text: ", the op-amp's"
+                - strong [ref=e324]: common-mode input capacitance
+                - text: ", and stray"
+                - strong [ref=e325]: PCB trace capacitance
+                - text: .
+                - generic [ref=e327]:
+                  - link [ref=e328] [cursor=pointer]:
+                    - /url: https://www.youtube.com/watch?v=sQu82i1Ba8E
+                  - button [ref=e329] [cursor=pointer]:
+                    - generic [ref=e331]:
+                      - generic [ref=e332]: YouTube
+                      - generic [ref=e333]: ·CAN Education
+                      - generic [ref=e334]: "+4"
+                    - img [ref=e337]
+              - generic [ref=e340]:
+                - text: The total input impedance decreases at higher frequencies. Because the op-amp cannot "see" this capacitance at its non-inverting input, it creates a voltage divider effect that forces the op-amp to amplify its own voltage noise. This behavior is known as the
+                - strong [ref=e341]: noise gain
+                - text: .
+                - generic [ref=e343]:
+                  - link [ref=e344] [cursor=pointer]:
+                    - /url: https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/14/article18_2D00_noise11_2D00_Photodiode_2D00_Noise-1.pdf
+                  - button [ref=e345] [cursor=pointer]:
+                    - generic [ref=e348]: TI E2E support forums
+                    - img [ref=e351]
+              - heading [level=3] [ref=e354]: The Noise Gain Formula
+              - generic [ref=e356]:
+                - text: The closed-loop noise gain (NG) of a TIA is governed by the input capacitance and the feedback capacitance (
+                - generic [ref=e359]:
+                  - img
+                  - math [ref=e361]:
+                    - generic [ref=e363]:
+                      - generic [ref=e364]: C
+                      - generic [ref=e365]: F
+                  - img [ref=e366]:
+                    - generic [ref=e367]: 𝐶
+                    - generic [ref=e368]: 𝐹
+                - text: "). It can be approximated as:"
+                - generic [ref=e371]:
+                  - generic [ref=e372]:
+                    - img
+                    - img [ref=e373]:
+                      - generic [ref=e374]: 𝑁
+                      - generic [ref=e375]: 𝐺
+                  - generic [ref=e376]:
+                    - img
+                    - img [ref=e377]:
+                      - generic [ref=e378]: ≈
+                      - generic [ref=e379]: "1"
+                  - generic [ref=e380]:
+                    - img
+                    - img [ref=e381]:
+                      - generic [ref=e382]: +
+                      - generic [ref=e383]: 𝐶
+                      - generic [ref=e384]: 𝐼
+                      - generic [ref=e385]: 𝑁
+                      - generic [ref=e386]: 𝐶
+                      - generic [ref=e387]: 𝐹
+                - generic [ref=e389]:
+                  - link [ref=e390] [cursor=pointer]:
+                    - /url: https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/14/article18_2D00_noise11_2D00_Photodiode_2D00_Noise-1.pdf
+                  - button [ref=e391] [cursor=pointer]:
+                    - generic [ref=e393]:
+                      - generic [ref=e394]: TI E2E support forums
+                      - generic [ref=e395]: "+1"
+                    - img [ref=e398]
+              - generic [ref=e401]:
+                - text: At higher frequencies, the noise gain rises at 20 dB/decade until it intersects the op-amp's open-loop gain. Because the op-amp's input voltage noise (
+                - generic [ref=e404]:
+                  - img
+                  - math [ref=e406]:
+                    - generic [ref=e408]:
+                      - generic [ref=e409]: e
+                      - generic [ref=e410]: "n"
+                  - img [ref=e411]:
+                    - generic [ref=e412]: 𝑒
+                    - generic [ref=e413]: 𝑛
+                - text: ) is multiplied by this frequency-dependent noise gain, the output voltage noise (
+                - generic [ref=e416]:
+                  - img
+                  - math [ref=e418]:
+                    - generic [ref=e420]:
+                      - generic [ref=e421]: V
+                      - generic [ref=e422]:
+                        - generic [ref=e423]: "n"
+                        - generic [ref=e424]: ","
+                        - generic [ref=e425]: o
+                        - generic [ref=e426]: u
+                        - generic [ref=e427]: t
+                  - img [ref=e428]:
+                    - generic [ref=e429]: 𝑉
+                    - generic [ref=e430]: 𝑛
+                    - generic [ref=e431]: ","
+                    - generic [ref=e432]: 𝑜
+                    - generic [ref=e433]: 𝑢
+                    - generic [ref=e434]: 𝑡
+                - text: ") spikes sharply:"
+                - generic [ref=e437]:
+                  - generic [ref=e438]:
+                    - img
+                    - img [ref=e439]:
+                      - generic [ref=e440]: 𝑉
+                      - generic [ref=e441]: 𝑛
+                      - generic [ref=e442]: ","
+                      - generic [ref=e443]: 𝑜
+                      - generic [ref=e444]: 𝑢
+                      - generic [ref=e445]: 𝑡
+                  - generic [ref=e446]:
+                    - img
+                    - img [ref=e447]:
+                      - generic [ref=e448]: ≈
+                      - generic [ref=e449]: 𝑒
+                      - generic [ref=e450]: 𝑛
+                  - generic [ref=e451]:
+                    - img
+                    - img [ref=e452]:
+                      - generic [ref=e453]: ×
+                      - generic [ref=e454]: 𝑁
+                      - generic [ref=e455]: 𝐺
+                - button [ref=e458] [cursor=pointer]:
+                  - img [ref=e461]
+              - heading [level=3] [ref=e464]: Mitigation Strategies
+              - generic [ref=e466]:
+                - text: To minimize the impact of op-amp voltage noise, you must limit the circuit's overall bandwidth and carefully balance your capacitance.
+                - generic [ref=e468]:
+                  - link [ref=e469] [cursor=pointer]:
+                    - /url: https://www.ti.com/lit/pdf/sboa060
+                  - button [ref=e470] [cursor=pointer]:
+                    - generic [ref=e473]: TI.com
+                    - img [ref=e476]
+              - list [ref=e479]:
+                - listitem [ref=e480]:
+                  - generic [ref=e481]:
+                    - strong [ref=e482]: "Select the Right Op-Amp:"
+                    - text: Choose an amplifier with ultra-low input voltage noise (e.g., JFET or CMOS inputs), where
+                    - generic [ref=e485]:
+                      - img
+                      - math [ref=e487]:
+                        - generic [ref=e489]:
+                          - generic [ref=e490]: e
+                          - generic [ref=e491]: "n"
+                      - img [ref=e492]:
+                        - generic [ref=e493]: 𝑒
+                        - generic [ref=e494]: 𝑛
+                    - text: is specified in the low single-digit
+                    - generic [ref=e497]:
+                      - generic [ref=e498]:
+                        - img
+                        - img [ref=e499]:
+                          - generic [ref=e500]: 𝑛
+                          - generic [ref=e501]: 𝑉
+                      - generic [ref=e502]:
+                        - img
+                        - img [ref=e503]:
+                          - generic [ref=e504]: /
+                          - generic [ref=e505]: 𝐻
+                          - generic [ref=e506]: 𝑧
+                          - generic [ref=e507]: √
+                    - text: .
+                  - generic [ref=e509]:
+                    - link [ref=e510] [cursor=pointer]:
+                      - /url: https://www.analog.com/media/en/technical-documentation/technical-articles/s54_en-circuits.pdf
+                    - button [ref=e511] [cursor=pointer]:
+                      - generic [ref=e513]:
+                        - generic [ref=e514]: Analog Devices
+                        - generic [ref=e515]: "+2"
+                      - img [ref=e518]
+                - listitem [ref=e520]:
+                  - generic [ref=e521]:
+                    - strong [ref=e522]:
+                      - text: Optimize the Feedback Capacitor (
+                      - generic [ref=e525]:
+                        - img
+                        - math [ref=e527]:
+                          - generic [ref=e529]:
+                            - generic [ref=e530]: C
+                            - generic [ref=e531]: F
+                        - img [ref=e532]:
+                          - generic [ref=e533]: 𝑪
+                          - generic [ref=e534]: 𝑭
+                      - text: "):"
+                    - text: A small feedback capacitor is necessary to maintain circuit stability and prevent gain peaking, but making it too small exacerbates the high-frequency noise gain spike.
+                  - generic [ref=e536]:
+                    - link [ref=e537] [cursor=pointer]:
+                      - /url: https://www.analog.com/en/resources/technical-articles/stabilize-transimpedance-amplifier-circuit-design.html
+                    - button [ref=e538] [cursor=pointer]:
+                      - generic [ref=e540]:
+                        - generic [ref=e541]: Analog Devices
+                        - generic [ref=e542]: "+3"
+                      - img [ref=e545]
+                - listitem [ref=e547]:
+                  - generic [ref=e548]:
+                    - strong [ref=e549]:
+                      - text: Reduce
+                      - generic [ref=e552]:
+                        - img
+                        - math [ref=e554]:
+                          - generic [ref=e556]:
+                            - generic [ref=e557]: C
+                            - generic [ref=e558]:
+                              - generic [ref=e559]: I
+                              - generic [ref=e560]: "N"
+                        - img [ref=e561]:
+                          - generic [ref=e562]: 𝑪
+                          - generic [ref=e563]: 𝑰
+                          - generic [ref=e564]: 𝑵
+                      - text: ":"
+                    - text: Use a photodiode with a smaller junction area or apply a larger reverse-bias voltage to the photodiode to deliberately shrink the junction capacitance.
+                  - generic [ref=e566]:
+                    - link [ref=e567] [cursor=pointer]:
+                      - /url: https://www.youtube.com/watch?v=sQu82i1Ba8E
+                    - button [ref=e568] [cursor=pointer]:
+                      - generic [ref=e570]:
+                        - generic [ref=e571]: YouTube
+                        - generic [ref=e572]: ·CAN Education
+                      - img [ref=e575]
+              - generic [ref=e579]:
+                - generic [ref=e580]: "For a visual walkthrough of the noise model, equivalent circuits, and how noise bandwidth shapes the overall output:"
+                - generic [ref=e582]:
+                  - button [ref=e586] [cursor=pointer]:
+                    - generic [ref=e587]:
+                      - img [ref=e588]
+                      - img [ref=e589]:
+                        - img [ref=e590]
+                      - generic [ref=e594]:
+                        - generic:
+                          - generic: 01:03:28
+                      - img [ref=e597]
+                  - link [ref=e600] [cursor=pointer]:
+                    - /url: https://www.youtube.com/watch?v=sQu82i1Ba8E
+                    - generic [ref=e601]:
+                      - generic [ref=e602]: Noise Analysis Photodiode Transimpedance Amplifier ...
+                      - generic [ref=e609]:
+                        - generic [ref=e610]: CAN Education
+                        - generic [ref=e611]: YouTube · 16 Mar 2022
+              - generic [ref=e613]:
+                - generic [ref=e614]: "If you want to optimize your circuit, let me know:"
+                - list [ref=e615]:
+                  - listitem [ref=e616]:
+                    - generic [ref=e617]:
+                      - text: Your
+                      - strong [ref=e618]: expected bandwidth requirements
+                  - listitem [ref=e619]:
+                    - generic [ref=e620]:
+                      - text: The
+                      - strong [ref=e621]: model of your photodiode
+                      - text: (so I can check its capacitance)
+                  - listitem [ref=e622]:
+                    - generic [ref=e623]:
+                      - text: What kind of
+                      - strong [ref=e624]: photodiode current levels
+                      - text: you are measuring
+                - generic [ref=e625]: I can help you select a suitable op-amp or calculate the optimal feedback values.
+            - generic [ref=e630]:
+              - generic [ref=e632]:
+                - button "7 sites" [ref=e633] [cursor=pointer]:
+                  - generic [ref=e642]: 7 sites
+                - button "About this result" [ref=e647] [cursor=pointer]:
+                  - img [ref=e649]
+              - list [ref=e652]:
+                - listitem [ref=e653]:
+                  - generic [ref=e654]:
+                    - 'link "Transimpedance Amplifiers: Signals and Noise - Eikonal Optics. Opens in new tab." [ref=e655] [cursor=pointer]':
+                      - /url: https://eikonaloptics.com/blogs/tutorials/transimpedance-amplifiers-signals-and-noise?srsltid=AfmBOopXVTDaVrvoW5pKeRKkP5zS-EExblU9s0R8NE6aVaOFlkqlgZTx
+                    - generic [ref=e656]:
+                      - generic [ref=e658]:
+                        - generic [ref=e659]: "Transimpedance Amplifiers: Signals and Noise - Eikonal Optics"
+                        - generic [ref=e660]: 2 Jul 2024 — A transimpedance amplifier is the configuration of choice when high-bandwidth and low noise operation is required. A transimpedanc...
+                      - generic [ref=e662]:
+                        - generic [ref=e667]: Eikonal Optics
+                        - button "About this result" [ref=e671] [cursor=pointer]:
+                          - img [ref=e673]
+                - listitem [ref=e677]:
+                  - generic [ref=e678]:
+                    - link "NOISE ANALYSIS OF FET TRANSIMPEDANCE AMPLIFIERS. Opens in new tab." [ref=e679] [cursor=pointer]:
+                      - /url: https://www.ti.com/lit/pdf/sboa060
+                    - generic [ref=e680]:
+                      - generic [ref=e682]:
+                        - generic [ref=e683]: NOISE ANALYSIS OF FET TRANSIMPEDANCE AMPLIFIERS
+                        - generic [ref=e684]: "® SBOA060. Page 2. 2. en. R2 = 107Ω In– eO. V. C2 = 1pF. C1 25pF R1 108Ω IIN Equivalent Circuit for CR1 NOTE: In+ shorted in this ..."
+                      - generic [ref=e685]:
+                        - generic [ref=e690]: TI.com
+                        - button [ref=e694] [cursor=pointer]:
+                          - img [ref=e696]
+                - listitem [ref=e700]:
+                  - generic [ref=e701]:
+                    - link [ref=e702] [cursor=pointer]:
+                      - /url: https://www.analog.com/en/resources/technical-articles/stabilize-transimpedance-amplifier-circuit-design.html
+                    - generic [ref=e703]:
+                      - generic [ref=e705]:
+                        - generic [ref=e706]: Stabilize Your Transimpedance Amplifier - Analog Devices
+                        - generic [ref=e707]: 3 Feb 2012 — Abstract. Transimpedance amplifiers (TIAs) are widely used to translate the current output of sensors like photodiode-to-voltage s...
+                      - generic [ref=e709]:
+                        - generic [ref=e714]: Analog Devices
+                        - button [ref=e718] [cursor=pointer]:
+                          - img [ref=e720]
+              - button [ref=e724] [cursor=pointer]:
+                - generic [ref=e725]: Show all
+        - button "Show more AI Overview" [ref=e729]:
+          - generic [ref=e731] [cursor=pointer]:
+            - generic [ref=e732]: Show more
+            - img [ref=e734]
+      - main [ref=e737]:
+        - generic [ref=e741]:
+          - generic [ref=e745]:
+            - generic [ref=e747]:
+              - heading "Videos" [level=2] [ref=e748]
+              - button "About this result" [ref=e749] [cursor=pointer]:
+                - img [ref=e752]
+            - generic [ref=e755]:
+              - generic [ref=e760]:
+                - generic [ref=e761]:
+                  - generic [ref=e762]:
+                    - link "Noise Analysis Photodiode Transimpedance Amplifier ... YouTube CAN Education 16 Mar 2022" [ref=e764] [cursor=pointer]:
+                      - /url: https://www.youtube.com/watch?v=sQu82i1Ba8E
+                      - heading "Noise Analysis Photodiode Transimpedance Amplifier ... YouTube CAN Education 16 Mar 2022" [level=3] [ref=e765]:
+                        - generic [ref=e768]: Noise Analysis Photodiode Transimpedance Amplifier ...
+                        - generic [ref=e770]:
+                          - generic [ref=e771]:
+                            - text: YouTube
+                            - generic [ref=e772]: · CAN Education
+                          - generic [ref=e773]: 16 Mar 2022
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: YouTube
+                              - generic: · CAN Education
+                        - button "About this result" [ref=e774] [cursor=pointer]:
+                          - img [ref=e777]
+                  - button "Noise Analysis Photodiode Transimpedance Amplifier ... by CAN Education on YouTube. Play on Google. 1:03:28" [ref=e779] [cursor=pointer]:
+                    - generic [ref=e780]:
+                      - img [ref=e783]
+                      - generic [ref=e786]:
+                        - generic [ref=e787]: 1:03:28
+                        - img [ref=e790]
+                - button "25 key moments in this video" [ref=e796] [cursor=pointer]:
+                  - generic [ref=e805]:
+                    - generic [ref=e808]: 25 key moments in this video
+                    - img [ref=e810]
+              - generic [ref=e817]:
+                - generic [ref=e818]:
+                  - generic [ref=e819]:
+                    - 'link "Noise Analysis: Photodiode Amplifier Circuit YouTube Microchip Developer Help 11 Dec 2024" [ref=e821] [cursor=pointer]':
+                      - /url: https://www.youtube.com/watch?v=iVwcywHj7ME
+                      - 'heading "Noise Analysis: Photodiode Amplifier Circuit YouTube Microchip Developer Help 11 Dec 2024" [level=3] [ref=e822]':
+                        - generic [ref=e825]: "Noise Analysis: Photodiode Amplifier Circuit"
+                        - generic [ref=e827]:
+                          - generic [ref=e828]:
+                            - text: YouTube
+                            - generic [ref=e829]: · Microchip Developer Help
+                          - generic [ref=e830]: 11 Dec 2024
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: YouTube
+                              - generic: · Microchip Developer Help
+                        - button "About this result" [ref=e831] [cursor=pointer]:
+                          - img [ref=e834]
+                  - 'button "Noise Analysis: Photodiode Amplifier Circuit by Microchip Developer Help on YouTube. Play on Google. 10:50" [ref=e836] [cursor=pointer]':
+                    - generic [ref=e837]:
+                      - img [ref=e843]
+                      - generic [ref=e846]:
+                        - generic [ref=e847]: 10:50
+                        - img [ref=e850]
+                - button "10 key moments in this video" [ref=e856] [cursor=pointer]:
+                  - generic [ref=e865]:
+                    - generic [ref=e868]: 10 key moments in this video
+                    - img [ref=e870]
+              - generic [ref=e876]:
+                - generic [ref=e877]:
+                  - generic [ref=e878]:
+                    - link "Noise Analysis Op-Amp Circuit Noninverting Amplifier ... YouTube CAN Education 12 Feb 2022" [ref=e880] [cursor=pointer]:
+                      - /url: https://www.youtube.com/watch?v=P8FuFgmkxC4
+                      - heading "Noise Analysis Op-Amp Circuit Noninverting Amplifier ... YouTube CAN Education 12 Feb 2022" [level=3] [ref=e881]:
+                        - generic [ref=e884]: Noise Analysis Op-Amp Circuit Noninverting Amplifier ...
+                        - generic [ref=e886]:
+                          - generic [ref=e887]:
+                            - text: YouTube
+                            - generic [ref=e888]: · CAN Education
+                          - generic [ref=e889]: 12 Feb 2022
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: YouTube
+                              - generic: · CAN Education
+                        - button "About this result" [ref=e890] [cursor=pointer]:
+                          - img [ref=e893]
+                  - button "Noise Analysis Op-Amp Circuit Noninverting Amplifier ... by CAN Education on YouTube. Play on Google. 45:46" [ref=e895] [cursor=pointer]:
+                    - generic [ref=e896]:
+                      - img [ref=e899]
+                      - generic [ref=e902]:
+                        - generic [ref=e903]: 45:46
+                        - img [ref=e906]
+                - button "Learn how to calculate the input and output referred RMS noise voltage in a non-inverting amplifier using Spice simulations and step-by-step calculations." [ref=e909] [cursor=pointer]:
+                  - generic [ref=e913]: Learn how to calculate the input and output referred RMS noise voltage in a non-inverting amplifier using Spice simulations and step-by-step calculations.
+            - link "View all videos" [ref=e916] [cursor=pointer]:
+              - /url: /search?sca_esv=650bb547ae878b5f&hl=en&udm=7&q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ8ccDKAJ6BAgdEAQ
+              - separator [ref=e917]
+              - generic [ref=e918]:
+                - generic [ref=e919]: View all
+                - img [ref=e921]
+          - generic [ref=e925]:
+            - heading "Web results" [level=2] [ref=e926]
+            - generic [ref=e927]:
+              - generic [ref=e930]:
+                - 'link "Transimpedance Amplifiers: Signals and Noise Eikonal Optics https://eikonaloptics.com › blogs › tutorials › transimpe..." [ref=e932] [cursor=pointer]':
+                  - /url: https://eikonaloptics.com/blogs/tutorials/transimpedance-amplifiers-signals-and-noise?srsltid=AfmBOorenR9Nw2af7pZjXn1BfhoFiBit4P0hoxrP1UWDBUN2GChbpnKn
+                  - 'heading "Transimpedance Amplifiers: Signals and Noise" [level=3] [ref=e933]'
+                  - generic [ref=e939]:
+                    - generic [ref=e941]: Eikonal Optics
+                    - generic [ref=e943]: https://eikonaloptics.com › blogs › tutorials › transimpe...
+                - button "About this result" [ref=e946] [cursor=pointer]:
+                  - img [ref=e949]
+              - generic [ref=e952]:
+                - generic [ref=e953]: 2 Jul 2024 —
+                - generic [ref=e954]:
+                  - emphasis [ref=e955]: An op-amp based transimpedance amplifier (TIA
+                  - text: ) is the circuit of choice for fast, low noise photodiode operation.The TIA bandwidth is ...
+          - generic [ref=e959]:
+            - generic [ref=e962]:
+              - link "NOISE ANALYSIS OF FET TRANSIMPEDANCE AMPLIFIERS TI.com https://www.ti.com › lit › pdf › sboa060" [ref=e964] [cursor=pointer]:
+                - /url: https://www.ti.com/lit/pdf/sboa060
+                - heading "NOISE ANALYSIS OF FET TRANSIMPEDANCE AMPLIFIERS" [level=3] [ref=e965]
+                - generic [ref=e971]:
+                  - generic [ref=e973]: TI.com
+                  - generic [ref=e975]: https://www.ti.com › lit › pdf › sboa060
+              - generic [ref=e976]:
+                - generic:
+                  - generic: PDF
+              - button "About this result" [ref=e979] [cursor=pointer]:
+                - img [ref=e982]
+            - generic [ref=e985]:
+              - generic [ref=e986]:
+                - text: The availability of detailed
+                - emphasis [ref=e987]: noise
+                - text: spectral density character- istics for the OPA111
+                - emphasis [ref=e988]: amplifier
+                - text: allows an accurate
+                - emphasis [ref=e989]: noise
+                - text: error
+                - emphasis [ref=e990]: analysis
+                - text: in a variety of ...
+              - link "Read more" [ref=e991] [cursor=pointer]:
+                - /url: https://www.ti.com/lit/pdf/sboa060#:~:text=The%20availability%20of%20detailed%20noise,variety%20of%20different%20circuit%20configurations.
+          - generic [ref=e995]:
+            - generic [ref=e998]:
+              - link "Design of high-performance photodiode receivers for optical ... University of Edinburgh Research Explorer https://www.research.ed.ac.uk › files › IEEE_Sens..." [ref=e1000] [cursor=pointer]:
+                - /url: https://www.research.ed.ac.uk/files/94033690/IEEE_Sensors_J_2005_final_submission_.pdf
+                - heading "Design of high-performance photodiode receivers for optical ..." [level=3] [ref=e1001]
+                - generic [ref=e1003]:
+                  - img [ref=e1008]
+                  - generic [ref=e1010]:
+                    - generic [ref=e1012]: University of Edinburgh Research Explorer
+                    - generic [ref=e1014]: https://www.research.ed.ac.uk › files › IEEE_Sens...
+              - generic [ref=e1015]:
+                - generic:
+                  - generic: PDF
+              - button "About this result" [ref=e1018] [cursor=pointer]:
+                - img [ref=e1021]
+            - generic [ref=e1024]:
+              - generic [ref=e1025]: by P Wright · 2005 · Cited by 77 —
+              - generic [ref=e1026]:
+                - text: Typical values of
+                - emphasis [ref=e1027]: photodiode
+                - text: capacitance and shunt resistance are shown to result in significant
+                - emphasis [ref=e1028]: noise
+                - text: gain, greatly increasing the importance of
+                - emphasis [ref=e1029]: amplifier
+                - text: ...
+              - link "Read more" [ref=e1030] [cursor=pointer]:
+                - /url: https://www.research.ed.ac.uk/files/94033690/IEEE_Sensors_J_2005_final_submission_.pdf#:~:text=Typical%20values,to%20other%20intrinsic%20noise%20sources.
+          - generic [ref=e1034]:
+            - generic [ref=e1037]:
+              - link "Comparative Analysis of the Selected Photoreceiver Input ... National Institutes of Health (.gov) https://pmc.ncbi.nlm.nih.gov › articles › PMC11902648" [ref=e1039] [cursor=pointer]:
+                - /url: https://pmc.ncbi.nlm.nih.gov/articles/PMC11902648/
+                - heading "Comparative Analysis of the Selected Photoreceiver Input ..." [level=3] [ref=e1040]
+                - generic [ref=e1046]:
+                  - generic [ref=e1048]: National Institutes of Health (.gov)
+                  - generic [ref=e1050]: https://pmc.ncbi.nlm.nih.gov › articles › PMC11902648
+              - button "About this result" [ref=e1053] [cursor=pointer]:
+                - img [ref=e1056]
+            - generic [ref=e1059]:
+              - generic [ref=e1060]: by K Achtenberg · 2025 · Cited by 3 —
+              - generic [ref=e1061]:
+                - text: In the case of a high
+                - emphasis [ref=e1062]: transimpedance
+                - text: ", the FET-based"
+                - emphasis [ref=e1063]: op
+                - text: "-"
+                - emphasis [ref=e1064]: amps
+                - text: ensure lower output
+                - emphasis [ref=e1065]: noise
+                - text: than the BJT-based ones due to the significantly lower ...
+              - link "Read more" [ref=e1066] [cursor=pointer]:
+                - /url: https://pmc.ncbi.nlm.nih.gov/articles/PMC11902648/#:~:text=In%20the%20case%20of%20a,the%20significantly%20lower%20current%20noise.
+          - generic [ref=e1070]:
+            - generic [ref=e1073]:
+              - 'link "Circuit review: Transimpedance amplifier to measure shot ... EEVblog https://www.eevblog.com › forum › projects › circuit-r..." [ref=e1075] [cursor=pointer]':
+                - /url: https://www.eevblog.com/forum/projects/circuit-review-transimpedance-amplifier-to-measure-shot-noise-in-a-photodiode/
+                - 'heading "Circuit review: Transimpedance amplifier to measure shot ..." [level=3] [ref=e1076]'
+                - generic [ref=e1082]:
+                  - generic [ref=e1084]: EEVblog
+                  - generic [ref=e1086]: https://www.eevblog.com › forum › projects › circuit-r...
+              - button "About this result" [ref=e1089] [cursor=pointer]:
+                - img [ref=e1092]
+            - generic [ref=e1095]:
+              - generic [ref=e1096]: 28 Nov 2022 —
+              - generic [ref=e1097]:
+                - text: I am designing the
+                - emphasis [ref=e1098]: transimpedance amplifier
+                - text: circuit needed to be able to measure the small shot
+                - emphasis [ref=e1099]: noise
+                - text: current produced by a
+                - emphasis [ref=e1100]: photodiode
+                - text: when a LED is ...
+              - link "Read more" [ref=e1101] [cursor=pointer]:
+                - /url: https://www.eevblog.com/forum/projects/circuit-review-transimpedance-amplifier-to-measure-shot-noise-in-a-photodiode/#:~:text=In%20my%20research%20lab%2C%20we,a%20LED%20is%20illuminating%20it.
+          - generic [ref=e1105]:
+            - generic [ref=e1108]:
+              - link "Photodiode Amplifier Noise Analysis | PDF Scribd https://www.scribd.com › document › Operational-Amp..." [ref=e1110] [cursor=pointer]:
+                - /url: https://www.scribd.com/document/923105912/Operational-Amplifier-Noise-Photodiode-Amplifier-Noise-Kay-Art-Z-Library
+                - heading "Photodiode Amplifier Noise Analysis | PDF" [level=3] [ref=e1111]
+                - generic [ref=e1117]:
+                  - generic [ref=e1119]: Scribd
+                  - generic [ref=e1121]: https://www.scribd.com › document › Operational-Amp...
+              - button "About this result" [ref=e1124] [cursor=pointer]:
+                - img [ref=e1127]
+            - generic [ref=e1130]:
+              - generic [ref=e1131]:
+                - text: CHAPTER 10. Photodiode Amplifier Noise. This chapter focuses on
+                - emphasis [ref=e1132]: noise analysis and simulation in photodiode amplifier circuits
+                - text: . In
+              - link "Read more" [ref=e1133] [cursor=pointer]:
+                - /url: https://www.scribd.com/document/923105912/Operational-Amplifier-Noise-Photodiode-Amplifier-Noise-Kay-Art-Z-Library#:~:text=CHAPTER%2010,in%20photodiode%20amplifier%20circuits.%20In
+          - generic [ref=e1137]:
+            - generic [ref=e1140]:
+              - link "Innovative Photodiode Amplifier Solutions for Future sciendo.com https://sciendo.com › download › chapter" [ref=e1142] [cursor=pointer]:
+                - /url: https://sciendo.com/2/v2/download/chapter/9788368412031/10.2478/9788368412031-032.pdf
+                - heading "Innovative Photodiode Amplifier Solutions for Future" [level=3] [ref=e1143]
+                - generic [ref=e1149]:
+                  - generic [ref=e1151]: sciendo.com
+                  - generic [ref=e1153]: https://sciendo.com › download › chapter
+              - generic [ref=e1154]:
+                - generic:
+                  - generic: PDF
+              - button "About this result" [ref=e1157] [cursor=pointer]:
+                - img [ref=e1160]
+            - generic [ref=e1163]:
+              - generic [ref=e1164]: by MA Kadhim · 2024 —
+              - generic [ref=e1165]:
+                - text: "\""
+                - emphasis [ref=e1166]: Noise Analysis
+                - text: of
+                - emphasis [ref=e1167]: Transimpedance Amplifiers
+                - text: for High-Speed Optical Receivers" in IEEE Journal of Quantum Electronics, vol. 50, no. 6, pp. 1 ...
+              - link "Read more" [ref=e1168] [cursor=pointer]:
+                - /url: https://sciendo.com/2/v2/download/chapter/9788368412031/10.2478/9788368412031-032.pdf#:~:text=%22Noise%20Analysis%20of%20Transimpedance%20Amplifiers,6%2C%20pp.%201%2D10%2C%20June%202014.
+          - generic [ref=e1172]:
+            - generic [ref=e1175]:
+              - link "Transimpedance Amplifier Noise Considerations Analog Devices https://www.analog.com › ... › Technical Articles" [ref=e1177] [cursor=pointer]:
+                - /url: https://www.analog.com/en/resources/technical-articles/transimpedance-amplifier-noise-considerations.html
+                - heading "Transimpedance Amplifier Noise Considerations" [level=3] [ref=e1178]
+                - generic [ref=e1184]:
+                  - generic [ref=e1186]: Analog Devices
+                  - generic [ref=e1188]: https://www.analog.com › ... › Technical Articles
+              - button "About this result" [ref=e1191] [cursor=pointer]:
+                - img [ref=e1194]
+            - generic [ref=e1197]:
+              - generic [ref=e1198]: 18 Feb 2015 —
+              - generic [ref=e1199]:
+                - text: Input referred
+                - emphasis [ref=e1200]: voltage noise
+                - text: (eN) consists of flicker
+                - emphasis [ref=e1201]: noise
+                - text: (or 1/f
+                - emphasis [ref=e1202]: noise
+                - text: ), which dominates at lower frequencies, and thermal
+                - emphasis [ref=e1203]: noise
+                - text: which ...
+              - link "Read more" [ref=e1204] [cursor=pointer]:
+                - /url: https://www.analog.com/en/resources/technical-articles/transimpedance-amplifier-noise-considerations.html#:~:text=Input%20referred%20voltage%20noise%20(eN),which%20dominates%20at%20higher%20frequencies.
+        - generic [ref=e1206]:
+          - generic [ref=e1211]:
+            - heading "People also search for" [level=2] [ref=e1213]
+            - generic [ref=e1215]:
+              - generic [ref=e1216]:
+                - link "Transimpedance amplifier photodiode" [ref=e1220] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&hl=en&q=Transimpedance+amplifier+photodiode&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ1QJ6BAgwEAE
+                  - generic [ref=e1221]:
+                    - generic [ref=e1226]: Transimpedance amplifier photodiode
+                    - img [ref=e1230]
+                - link "Transimpedance amplifier feedback capacitor" [ref=e1235] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&hl=en&q=Transimpedance+amplifier+feedback+capacitor&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ1QJ6BAhHEAE
+                  - generic [ref=e1236]:
+                    - generic [ref=e1241]: Transimpedance amplifier feedback capacitor
+                    - img [ref=e1245]
+                - link "Transimpedance amplifier transfer function" [ref=e1250] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&hl=en&q=Transimpedance+amplifier+transfer+function&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ1QJ6BAg-EAE
+                  - generic [ref=e1251]:
+                    - generic [ref=e1256]: Transimpedance amplifier transfer function
+                    - img [ref=e1260]
+                - link "Transimpedance amplifier bandwidth" [ref=e1265] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&hl=en&q=Transimpedance+amplifier+bandwidth&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ1QJ6BAg9EAE
+                  - generic [ref=e1266]:
+                    - generic [ref=e1271]: Transimpedance amplifier bandwidth
+                    - img [ref=e1275]
+              - generic [ref=e1277]:
+                - link "Transimpedance amplifier input impedance" [ref=e1281] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&hl=en&q=Transimpedance+amplifier+input+impedance&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ1QJ6BAg8EAE
+                  - generic [ref=e1282]:
+                    - generic [ref=e1287]: Transimpedance amplifier input impedance
+                    - img [ref=e1291]
+                - link "Transimpedance amplifier output impedance" [ref=e1296] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&hl=en&q=Transimpedance+amplifier+output+impedance&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ1QJ6BAg7EAE
+                  - generic [ref=e1297]:
+                    - generic [ref=e1302]: Transimpedance amplifier output impedance
+                    - img [ref=e1306]
+                - link "Transimpedance Amplifier chip" [ref=e1311] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&hl=en&q=Transimpedance+Amplifier+chip&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ1QJ6BAgyEAE
+                  - generic [ref=e1312]:
+                    - generic [ref=e1317]: Transimpedance Amplifier chip
+                    - img [ref=e1321]
+                - link "Transimpedance amplifier bandwidth calculation" [ref=e1326] [cursor=pointer]:
+                  - /url: /search?sca_esv=650bb547ae878b5f&hl=en&q=Transimpedance+amplifier+bandwidth+calculation&sa=X&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ1QJ6BAgxEAE
+                  - generic [ref=e1327]:
+                    - generic [ref=e1332]: Transimpedance amplifier bandwidth calculation
+                    - img [ref=e1336]
+          - navigation [ref=e1338]:
+            - heading "Page navigation" [level=1] [ref=e1339]
+            - text: "1"
+            - link "Page 2" [ref=e1342] [cursor=pointer]:
+              - /url: /search?q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sca_esv=650bb547ae878b5f&hl=en&ei=8-I_apnoIZO_vr0P3o_ruQk&start=10&sa=N&sstk=AU9db-CqAYvbS1MZ0DX3hGPQ4O297o6xBWgcPGvOpXTOTsV3fIuuFc_0jSM2KEhmlOWbZLI7paqXbkEsWpDoNkkMKFb3M2sQ9uYuJg&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ8tMDegQIUBAE
+              - text: "2"
+            - link "Page 3" [ref=e1344] [cursor=pointer]:
+              - /url: /search?q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sca_esv=650bb547ae878b5f&hl=en&ei=8-I_apnoIZO_vr0P3o_ruQk&start=20&sa=N&sstk=AU9db-CqAYvbS1MZ0DX3hGPQ4O297o6xBWgcPGvOpXTOTsV3fIuuFc_0jSM2KEhmlOWbZLI7paqXbkEsWpDoNkkMKFb3M2sQ9uYuJg&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ8tMDegQIUBAG
+              - text: "3"
+            - link "Page 4" [ref=e1346] [cursor=pointer]:
+              - /url: /search?q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sca_esv=650bb547ae878b5f&hl=en&ei=8-I_apnoIZO_vr0P3o_ruQk&start=30&sa=N&sstk=AU9db-CqAYvbS1MZ0DX3hGPQ4O297o6xBWgcPGvOpXTOTsV3fIuuFc_0jSM2KEhmlOWbZLI7paqXbkEsWpDoNkkMKFb3M2sQ9uYuJg&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ8tMDegQIUBAI
+              - text: "4"
+            - link "Page 5" [ref=e1348] [cursor=pointer]:
+              - /url: /search?q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sca_esv=650bb547ae878b5f&hl=en&ei=8-I_apnoIZO_vr0P3o_ruQk&start=40&sa=N&sstk=AU9db-CqAYvbS1MZ0DX3hGPQ4O297o6xBWgcPGvOpXTOTsV3fIuuFc_0jSM2KEhmlOWbZLI7paqXbkEsWpDoNkkMKFb3M2sQ9uYuJg&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ8tMDegQIUBAK
+              - text: "5"
+            - link "Page 6" [ref=e1350] [cursor=pointer]:
+              - /url: /search?q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sca_esv=650bb547ae878b5f&hl=en&ei=8-I_apnoIZO_vr0P3o_ruQk&start=50&sa=N&sstk=AU9db-CqAYvbS1MZ0DX3hGPQ4O297o6xBWgcPGvOpXTOTsV3fIuuFc_0jSM2KEhmlOWbZLI7paqXbkEsWpDoNkkMKFb3M2sQ9uYuJg&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ8tMDegQIUBAM
+              - text: "6"
+            - link "Page 7" [ref=e1352] [cursor=pointer]:
+              - /url: /search?q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sca_esv=650bb547ae878b5f&hl=en&ei=8-I_apnoIZO_vr0P3o_ruQk&start=60&sa=N&sstk=AU9db-CqAYvbS1MZ0DX3hGPQ4O297o6xBWgcPGvOpXTOTsV3fIuuFc_0jSM2KEhmlOWbZLI7paqXbkEsWpDoNkkMKFb3M2sQ9uYuJg&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ8tMDegQIUBAO
+              - text: "7"
+            - link "Page 8" [ref=e1354] [cursor=pointer]:
+              - /url: /search?q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sca_esv=650bb547ae878b5f&hl=en&ei=8-I_apnoIZO_vr0P3o_ruQk&start=70&sa=N&sstk=AU9db-CqAYvbS1MZ0DX3hGPQ4O297o6xBWgcPGvOpXTOTsV3fIuuFc_0jSM2KEhmlOWbZLI7paqXbkEsWpDoNkkMKFb3M2sQ9uYuJg&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ8tMDegQIUBAQ
+              - text: "8"
+            - link "Page 9" [ref=e1356] [cursor=pointer]:
+              - /url: /search?q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sca_esv=650bb547ae878b5f&hl=en&ei=8-I_apnoIZO_vr0P3o_ruQk&start=80&sa=N&sstk=AU9db-CqAYvbS1MZ0DX3hGPQ4O297o6xBWgcPGvOpXTOTsV3fIuuFc_0jSM2KEhmlOWbZLI7paqXbkEsWpDoNkkMKFb3M2sQ9uYuJg&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ8tMDegQIUBAS
+              - text: "9"
+            - link "Page 10" [ref=e1358] [cursor=pointer]:
+              - /url: /search?q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sca_esv=650bb547ae878b5f&hl=en&ei=8-I_apnoIZO_vr0P3o_ruQk&start=90&sa=N&sstk=AU9db-CqAYvbS1MZ0DX3hGPQ4O297o6xBWgcPGvOpXTOTsV3fIuuFc_0jSM2KEhmlOWbZLI7paqXbkEsWpDoNkkMKFb3M2sQ9uYuJg&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ8tMDegQIUBAU
+              - text: "10"
+            - heading "Next" [level=2] [ref=e1360]:
+              - link "Next" [ref=e1361] [cursor=pointer]:
+                - /url: /search?q=transimpedance+amplifier+noise+analysis+op+amp+voltage+noise+dominant+photodiode&sca_esv=650bb547ae878b5f&hl=en&ei=8-I_apnoIZO_vr0P3o_ruQk&start=10&sa=N&sstk=AU9db-CqAYvbS1MZ0DX3hGPQ4O297o6xBWgcPGvOpXTOTsV3fIuuFc_0jSM2KEhmlOWbZLI7paqXbkEsWpDoNkkMKFb3M2sQ9uYuJg&ved=2ahUKEwjZrYOm1aeVAxWTn68BHd7HOpcQ8NMDegQIUBAW
+                - generic [ref=e1363]: Next
+        - navigation
+    - contentinfo [ref=e1364]:
+      - heading "Footer links" [level=1] [ref=e1365]
+      - generic [ref=e1369]:
+        - generic [ref=e1371]:
+          - text: Hong Kong
+          - generic [ref=e1373]:
+            - button "Hong Kong - From your IP address" [ref=e1375] [cursor=pointer]:
+              - generic [ref=e1376]: Hong Kong
+              - generic [ref=e1378]:
+                - text: "-"
+                - generic [ref=e1379]: From your IP address
+            - text: "-"
+            - button "Update location" [ref=e1381] [cursor=pointer]: Update location
+        - generic [ref=e1384]:
+          - link "Help" [ref=e1385] [cursor=pointer]:
+            - /url: https://support.google.com/websearch/?p=ws_results_help&hl=en-HK&fg=1
+          - link "Send feedback" [ref=e1386] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy" [ref=e1387] [cursor=pointer]:
+            - /url: https://policies.google.com/privacy?hl=en-HK&fg=1
+          - link "Terms" [ref=e1388] [cursor=pointer]:
+            - /url: https://policies.google.com/terms?hl=en-HK&fg=1

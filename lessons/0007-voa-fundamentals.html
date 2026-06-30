@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0007: 可变光衰减器 (VOA) 基础</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    /* VOA-specific diagram styles */
+    .schematic {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin: 1.2rem 0;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    .schematic .label {
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.3rem;
+    }
+    .tech-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .tech-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .tech-card h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+      color: var(--accent-dark);
+    }
+    .tech-card p {
+      font-size: 0.88rem;
+      margin: 0.3rem 0;
+      color: var(--text-secondary);
+    }
+    .tech-card .pros { color: var(--success); font-size: 0.82rem; }
+    .tech-card .cons { color: #dc2626; font-size: 0.82rem; }
+    .param-table {
+      font-size: 0.88rem;
+    }
+    .param-table td:first-child {
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    @media (max-width: 600px) {
+      .tech-compare { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!--  TITLE                                       -->
+<!-- ============================================ -->
+<h1>可变光衰减器 (VOA) 基础</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  光通信测试仪表系列 · Lesson 0007
+</p>
+
+<blockquote>
+  <strong>关键洞察</strong>
+  <p>VOA 是光测试仪表中<em>唯一</em>一个同时出现在发射链路和接收链路的器件——它既用于校准接收机，也用于模拟光纤损耗。掌握了 VOA，你就掌握了光测试系统中"可控衰减"这个核心自由度。</p>
+</blockquote>
+
+<!-- ============================================ -->
+<!--  SECTION 1: WHY                              -->
+<!-- ============================================ -->
+<h2>1. 为什么需要 VOA</h2>
+
+<p>在前面的课程中，你完整学习了<strong>光电接收前端</strong>：光信号 → 光电二极管 → TIA → ADC → 数字码。但测试仪表还需要"可控光源"这一端：</p>
+
+<ul>
+  <li><strong>光功率计校准</strong>：需要已知且精确可调的光功率作为参考</li>
+  <li><strong>接收机灵敏度测试</strong>：不断降低光功率直到误码率达到阈值</li>
+  <li><strong>链路损耗模拟</strong>：在实验室中复现实际光纤链路的衰减特性</li>
+  <li><strong>通道均衡</strong>：WDM 系统中各通道功率对齐</li>
+</ul>
+
+<p>所有这些场景都需要一个能<strong>精确、稳定、可重复</strong>地控制光功率的器件——这就是 <strong>VOA（Variable Optical Attenuator）</strong>。</p>
+
+<!-- ============================================ -->
+<!--  SECTION 2: WORKING PRINCIPLES               -->
+<!-- ============================================ -->
+<h2>2. 工作原理与技术路线</h2>
+
+<p>VOA 的核心物理思想很简单：在光路中引入<strong>可控的插入损耗</strong>。但实现方式各有不同，每种技术都有自己的工程权衡。</p>
+
+<h3>2.1 MEMS VOA（主流）</h3>
+
+<p>MEMS（微机电系统）VOA 是当前最主流的技术路线。其工作原理是：</p>
+
+<ul>
+  <li>通过静电驱动或电磁驱动使微镜偏转</li>
+  <li>偏转角度改变光纤耦合效率，从而控制衰减量</li>
+  <li>典型偏转角度范围 0~10°，对应衰减范围 0~60 dB</li>
+</ul>
+
+<div class="schematic">
+  ┌─────────┐         ┌─────────┐
+  │ 输入光纤 │────▶  │   MEMS  │────▶  │ 输出光纤 │
+  │ (固定)   │        │  微镜   │       │ (可调)   │
+  └─────────┘         └─────────┘
+                        │
+                        ▼
+                    ┌──────────┐
+                    │ 静电驱动   │
+                    │ (电压控制) │
+                    └──────────┘
+  <div class="label">图1: MEMS VOA 基本原理 — 微镜偏转改变耦合效率</div>
+</div>
+
+<h3>2.2 磁光 VOA</h3>
+
+<p>基于法拉第效应：外加磁场改变磁光晶体的偏振旋转角度，通过偏振器转换成可调的衰减量。</p>
+
+<ul>
+  <li><strong>优点</strong>：全固态，无运动部件，响应速度快（亚毫秒级）</li>
+  <li><strong>典型应用</strong>：通道功率均衡（WDM 系统中需要快速响应）</li>
+  <li><strong>局限性</strong>：PDL 相对较大，成本较高</li>
+</ul>
+
+<h3>2.3 热光 VOA（波导型）</h3>
+
+<p>基于平面光波导（PLC）技术，通过加热改变波导材料的折射率，利用马赫-曾德尔干涉仪或定向耦合器实现衰减。</p>
+
+<ul>
+  <li><strong>优点</strong>：易于集成，适合多通道 VOA 阵列</li>
+  <li><strong>缺点</strong>：响应速度慢（毫秒级），温控依赖度高</li>
+  <li><strong>典型场景</strong>：WDM 通道均衡</li>
+</ul>
+
+<h3>2.4 技术路线对比</h3>
+
+<div class="tech-compare">
+
+  <div class="tech-card">
+    <h4>MEMS VOA</h4>
+    <p>衰减范围: 0~60 dB</p>
+    <p>响应时间: ~5 ms</p>
+    <p class="pros">+ 宽衰减范围</p>
+    <p class="pros">+ 低插入损耗 (&lt;1 dB)</p>
+    <p class="pros">+ 低 PDL</p>
+    <p class="cons">— 有运动部件，可靠性受限</p>
+    <p class="cons">— 对振动敏感</p>
+  </div>
+
+  <div class="tech-card">
+    <h4>磁光 VOA</h4>
+    <p>衰减范围: 0~40 dB</p>
+    <p>响应时间: &lt;0.5 ms</p>
+    <p class="pros">+ 固态，可靠性高</p>
+    <p class="pros">+ 响应极快</p>
+    <p class="cons">— PDL 较大</p>
+    <p class="cons">— 成本较高</p>
+  </div>
+
+  <div class="tech-card">
+    <h4>热光 VOA (PLC)</h4>
+    <p>衰减范围: 0~30 dB</p>
+    <p>响应时间: ~10 ms</p>
+    <p class="pros">+ 可多通道集成</p>
+    <p class="pros">+ 无运动部件</p>
+    <p class="cons">— 功耗较高</p>
+    <p class="cons">— 温度敏感</p>
+  </div>
+
+  <div class="tech-card">
+    <h4>液晶 VOA</h4>
+    <p>衰减范围: 0~50 dB</p>
+    <p>响应时间: ~20 ms</p>
+    <p class="pros">+ 偏振无关可选</p>
+    <p class="pros">+ 驱动简单</p>
+    <p class="cons">— 温度稳定性受限</p>
+    <p class="cons">— 波长相关损耗较大</p>
+  </div>
+
+</div>
+
+<p><strong>工程连线</strong>：在光通信测试仪表中，MEMS VOA 占据主导地位。你可能会问——为什么是 MEMS？因为测试仪表最看重 <em>衰减范围 + 精度 + 重复性</em>，MEMS 恰好在这三个维度上综合最优。</p>
+
+<!-- ============================================ -->
+<!--  SECTION 3: KEY SPECIFICATIONS              -->
+<!-- ============================================ -->
+<h2>3. 关键性能指标</h2>
+
+<p>VOA 的数据手册中有几个核心参数，读懂了它们就等于读懂了 VOA：</p>
+
+<table class="param-table">
+  <tr>
+    <th>参数</th>
+    <th>含义</th>
+    <th>典型值（测试级）</th>
+  </tr>
+  <tr>
+    <td>衰减范围</td>
+    <td>最小到最大衰减量的调节范围</td>
+    <td>0~60 dB</td>
+  </tr>
+  <tr>
+    <td>分辨率</td>
+    <td>可调节的最小步进</td>
+    <td>0.01 dB（测试级）</td>
+  </tr>
+  <tr>
+    <td>插入损耗 (IL)</td>
+    <td>衰减量为 0 时的固有损耗</td>
+    <td>&lt;1.0 dB</td>
+  </tr>
+  <tr>
+    <td>回波损耗 (RL)</td>
+    <td>反射光功率与入射光功率之比</td>
+    <td>&gt;45 dB（测试级要求）</td>
+  </tr>
+  <tr>
+    <td>PDL</td>
+    <td>偏振相关损耗，不同偏振态的衰减差异</td>
+    <td>&lt;0.1 dB（测试级）</td>
+  </tr>
+  <tr>
+    <td>WDL</td>
+    <td>波长相关损耗，不同波长的衰减差异</td>
+    <td>&lt;0.3 dB（C 波段）</td>
+  </tr>
+  <tr>
+    <td>响应时间</td>
+    <td>从控制电压变化到衰减值稳定所需时间</td>
+    <td>&lt;10 ms</td>
+  </tr>
+  <tr>
+    <td>光学功率处理能力</td>
+    <td>可承受的最大输入光功率</td>
+    <td>200~500 mW</td>
+  </tr>
+  <tr>
+    <td>重复性</td>
+    <td>同设置下多次测量的衰减一致性</td>
+    <td>±0.02 dB（测试级）</td>
+  </tr>
+</table>
+
+<div class="callout callout-warning">
+  <strong>⚠ 测试级 vs 通信级</strong>
+  <p>光通信网络中的 VOA 指标通常宽松得多（如 PDL &lt;0.3 dB、分辨率 0.1 dB），而<strong>测试仪表级</strong> VOA 的要求要严格 5~10 倍。这是为什么测试级 VOA 的价格可以是通信级的 10 倍以上。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 4: CONTROL SYSTEM                  -->
+<!-- ============================================ -->
+<h2>4. 光功率控制环路</h2>
+
+<p>现在让我们把你已学的<strong>信号链</strong>与 VOA 连接起来。测试仪表中最常见的配置是<strong>闭环光功率控制</strong>：</p>
+
+<div class="schematic">
+  ┌──────────┐      ┌──────────┐      ┌──────────┐      ┌──────────┐
+  │  光源    │────▶ │   VOA    │────▶ │  抽头耦合器 │────▶ │  输出    │
+  │ (激光器) │      │         │      │ (90/10)   │      │         │
+  └──────────┘      └──────────┘      └──────────┘      └──────────┘
+                        ▲                   │  (10%)
+                        │                   ▼
+                  ┌──────────┐      ┌──────────┐
+                  │  DAC     │◀────│  MCU     │◀────│  ADC    │◀────│ TIA+PD │
+                  │ + 驱动   │     │ (PID)    │      │         │     │ (监测) │
+                  └──────────┘     └──────────┘      └──────────┘     └────────┘
+  <div class="label">图2: 闭环光功率控制系统 — 你已学的 TIA+ADC 在这个环路中作为测量反馈支路</div>
+</div>
+
+<p>这个环路的设计从你的已有知识出发：</p>
+
+<ul>
+  <li><strong>监测支路</strong>（你已掌握）：抽头光 → PIN/TIA → ADC → MCU</li>
+  <li><strong>控制支路</strong>（本节新知识）：MCU → DAC → VOA 驱动器 → MEMS 偏转</li>
+  <li><strong>控制算法</strong>：PID 环路，将测量功率与设定点比较，调整 VOA 驱动电压</li>
+</ul>
+
+<h3>4.1 驱动电路设计要点</h3>
+
+<p>以 MEMS VOA 为例，其驱动电路的工程设计要点：</p>
+
+<ul>
+  <li><strong>驱动电压</strong>：典型 MEMS 需要 0~120 V（静电驱动），需要 DC-DC 升压 + 运放缓冲</li>
+  <li><strong>分辨率</strong>：16-bit DAC 配合 120 V 驱动范围，理论步进 = 120/65536 ≈ 1.8 mV，对应衰减分辨率约 0.005 dB</li>
+  <li><strong>纹波与噪声</strong>：驱动电压上的任何纹波都会直接调制到输出光功率上。1 mV<sub>pp</sub> 纹波在典型 MEMS 上可能导致 ~0.003 dB 功率抖动</li>
+  <li><strong>建立时间</strong>：DAC + 高压放大器的建立时间决定环路的带宽上限</li>
+</ul>
+
+<div class="callout callout-info">
+  <strong>🔗 与你已学的连接</strong>
+  <p>在 Lesson 0004（TIA PCB 布局）中你学习了如何在 pA 级电流下控制漏电流。VOA 驱动电路处在另一极——高电压（120 V）下防止击穿和爬电。这是 PCB 布局的另一个极端：<em>高电压间距 > 低噪声设计</em>。典型 120 V 走线间距要求 ≥1.5 mm（2 层 FR4）。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 5: APPLICATION IN TEST EQUIPMENT   -->
+<!-- ============================================ -->
+<h2>5. 测试仪表中的典型应用</h2>
+
+<h3>5.1 光功率计校准</h3>
+<p>使用标准光源 + VOA 产生覆盖全量程的功率点。校准流程：设置 VOA 至特定衰减 → 读取参考光功率计 → 读取被校仪表 → 记录偏差。VOA 在此处的精度决定校准的阶梯精度。</p>
+
+<h3>5.2 接收机灵敏度测试</h3>
+<p>ITU-T 建议的灵敏度测试标准方法：固定发射功率不变，逐步增大 VOA 衰减直到 BER 达到阈值（如 10<sup>-12</sup>）。VOA 的分辨率和重复性是关键——你需要以 0.1 dB 步进精确扫描灵敏度拐点。</p>
+
+<h3>5.3 WDM 通道功率均衡</h3>
+<p>多通道 VOA 阵列（通常是热光 PLC 型）配合 PD 阵列，由 DSP 控制每个通道的衰减量，使各通道输出功率一致。</p>
+
+<!-- ============================================ -->
+<!--  SECTION 6: VOA SELECTION GUIDE             -->
+<!-- ============================================ -->
+<h2>6. 选型考虑 — 测试仪表视角</h2>
+
+<p>假设你正在设计一台光功率计校准用的可调光衰减模块，选型优先级建议：</p>
+
+<ol>
+  <li><strong>技术路线</strong>：MEMS VOA（衰减范围、精度、成本综合最优）</li>
+  <li><strong>衰减范围</strong>：0~60 dB（覆盖绝大多数测试场景）</li>
+  <li><strong>分辨率</strong>：≤0.01 dB（对应 16-bit DAC 加适当驱动设计）</li>
+  <li><strong>PDL</strong>：&lt;0.05 dB（测试级功率计必须考虑偏振影响）</li>
+  <li><strong>回波损耗</strong>：&gt;50 dB（避免反射影响光源稳定性）</li>
+  <li><strong>光功率处理能力</strong>：≥200 mW（+23 dBm，覆盖通用测试场景）</li>
+</ol>
+
+<div class="callout callout-success">
+  <strong>💡 工程直觉</strong>
+  <p>当你说"我需要一个测试级 VOA"时，行业里默认就是 MEMS VOA。这是经过 20 多年市场验证的选择。除非有极高速响应（磁光）或多通道集成（PLC）的特殊需求，否则 MEMS 总是起点。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 7: QUIZ                             -->
+<!-- ============================================ -->
+<h2>7. 练习与自测</h2>
+
+<div class="quiz-question">
+  <p><strong>问题 1</strong>：在闭环光功率控制系统中，VOA 的正常工作条件是以下哪一项？</p>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    A. VOA 的衰减范围为 0~60 dB
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    B. VOA 的响应速度快于环路更新速率
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    C. VOA 的插入损耗优于 0.5 dB
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    D. VOA 的 PDL 小于 0.1 dB
+  </div>
+  <div id="q1" class="quiz-answer">
+    <strong>答案：B</strong><br>
+    VOA 的响应速度决定了闭环控制系统的带宽上限。如果 VOA 响应滞后于环路更新，系统会振荡。其他选项都是重要指标，但唯有响应时间是闭环稳定性的必要条件。复习图 2 中的控制环路来理解这个约束。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>问题 2</strong>：你在设计一个接收机灵敏度测试系统，需要在 -10 dBm 到 -40 dBm 范围内以 0.1 dB 步进精确调节。光源输出为 +3 dBm。VOA 需要多大的衰减范围？</p>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    A. 10 dB
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    B. 13 dB
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    C. 43 dB
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    D. 60 dB
+  </div>
+  <div id="q2" class="quiz-answer">
+    <strong>答案：C</strong><br>
+    最低输出 = -40 dBm，最高输出 = -10 dBm，需要覆盖范围 = 30 dB。但输入功率是 +3 dBm，所以最小衰减 = 3 - (-10) = 13 dB，最大衰减 = 3 - (-40) = 43 dB。因此需要至少 13~43 dB（范围 ≥30 dB）。43 dB 正好覆盖。提示：别忘了加上插入损耗的余量（通常 +2~3 dB）。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>问题 3</strong>：以下哪种 VOA 技术路线最适合需要 <strong>&lt;1 ms 响应时间</strong> 的通道功率均衡应用？</p>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    A. MEMS VOA
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    B. 磁光 VOA
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    C. 热光 PLC VOA
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    D. 液晶 VOA
+  </div>
+  <div id="q3" class="quiz-answer">
+    <strong>答案：B</strong><br>
+    磁光 VOA 的固态机制可实现 &lt;0.5 ms 响应时间。MEMS（~5 ms）、热光（~10 ms）和液晶（~20 ms）都达不到 &lt;1 ms 的要求。但注意磁光 VOA 的 PDL 通常较大，设计中需要考虑偏振管理。
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 8: SUMMARY                         -->
+<!-- ============================================ -->
+<h2>8. 小结</h2>
+
+<ul>
+  <li><strong>VOA 是光测试仪表中"可控衰减"自由度的实现者</strong></li>
+  <li><strong>MEMS VOA</strong> 是测试级仪表的默认技术路线，兼顾衰减范围、精度和成本</li>
+  <li><strong>闭环控制</strong> 将 VOA 与你已学的 TIA/ADC 信号链整合为完整的测试系统</li>
+  <li><strong>测试级 VOA</strong> 的指标要求远高于通信级——PDL、回波损耗、重复性是核心关注点</li>
+  <li><strong>VOA 驱动电路设计</strong> 的挑战与 TIA 不同：高压管理取代了低漏电流管理</li>
+</ul>
+
+<!-- ============================================ -->
+<!--  RESOURCES & FURTHER READING                -->
+<!-- ============================================ -->
+<h2>9. 延伸资源</h2>
+
+<ul>
+  <li><a href="https://www.thorlabs.com/newgrouppage9.cfm?objectgroup_id=1718">Thorlabs VOA 产品指南</a> — 看看工业级 MEMS VOA 的实物参数</li>
+  <li><a href="https://www.finisar.com/optical-components">Finisar (II-VI) VOA 产品线</a> — 了解通信级 VOA 产品形态</li>
+  <li><a href="https://www.osapublishing.org/">Optica Publishing Group</a> — 搜索 "MEMS VOA" 获取最新学术研究</li>
+  <li><a href="../lessons/0005-sigma-delta-adc.html">Lesson 0005: Sigma-Delta ADC</a> — 回顾你已学的 ADC 知识，它与 VOA 控制环路中的 ADC 选型直接相关</li>
+  <li><a href="../lessons/0001-photodetection-signal-chain.html">Lesson 0001: 光电检测信号链基础</a> — 重温信号链基础</li>
+  <li><a href="../reference/0001-tia-cheatsheet.html">TIA Cheatsheet</a> — TIA 设计的快速参考</li>
+</ul>
+
+<p style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.9rem;">
+  有任何不理解的概念或想深入的方向？<strong>随时问你的 AI 老师</strong>——我们可以深入 VOA 驱动电路设计、PID 环路参数整定、或者对比特定厂商的 VOA 数据手册。
+</p>
+
+<!-- ============================================ -->
+<!--  QUIZ JAVASCRIPT                             -->
+<!-- ============================================ -->
+<script>
+function revealAnswer(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.style.display = 'block';
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 5：Allegro 布线实战</title>
+  <link rel="stylesheet" href="../../assets/lesson.css">
+  <style>
+    .step { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.8rem; margin: 0.6rem 0; }
+    .step h3 { color: #1e40af; margin: 0 0 0.3rem 0; font-size: 1rem; }
+    .act { background: #fffbeb; border-left: 4px solid #d97706; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .info { background: #eff6ff; border-left: 4px solid #2563eb; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .warn { background: #fef2f2; border-left: 4px solid #dc2626; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .chk-list { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; }
+    .kbd { display: inline-block; background: #1e293b; color: #e2e8f0; border-radius: 4px; padding: 0.1em 0.5em; font-family: monospace; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+
+<h1>📅 Day 5 · Allegro 布线实战</h1>
+<p style="color: var(--text-secondary);">
+  预计用时 2 小时 · 完成 5 项检查清单后进入 Day 6
+</p>
+
+<blockquote>
+  <strong>本日目标</strong><br>
+  ✅ 会用 I 键走线、Backspace 回退、V 打孔<br>
+  ✅ 所有网络走完，没有飞线<br>
+  ✅ 会铺地铜（Shape → Add Rect）<br>
+  ✅ 会高亮网络检查走线（Shift+F5）
+</blockquote>
+
+<hr>
+
+<h2>任务 5.1：手工走线</h2>
+
+<div class="info">Allegro 中走线用的快捷键是 <kbd class="kbd" style="background:#92400e;">I</kbd>（Add Connect）。记住 I = "I connect"。</div>
+
+<div class="step">
+  <h3>▶ 5.1.1 设置约束规则（走线宽度）</h3>
+  <div class="info">在走线之前最好先设置好线宽规则，否则 Allegro 会用默认宽度（可能太细），走完再改就麻烦了。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Setup → Constraints → Electrical Constraints</kbd>（在 17.4 中可能是 Constraint Manager）</div>
+  <div class="act"><span class="chk">☐</span> 如果是 Constraint Manager：</div>
+  <ul>
+    <li>在左侧导航中选择 <strong>Physical → Net → All Layers</strong></li>
+    <li>右键 → <strong>Create → Physical CSet</strong> → 命名为 <code>ANALOG</code></li>
+    <li>将 Min Line Width 设为 <code>0.3 mm</code>（模拟信号走线）</li>
+    <li>Max Line Width 设为 <code>0.5 mm</code></li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 在 Net 列表中，找到你的模拟信号网络（如 SIG_IN、SIG_OUT）</div>
+  <div class="act"><span class="chk">☐</span> 在 Referenced Physical CSet 列中，选择刚创建的 <strong>ANALOG</strong></div>
+  <div class="info">💡 如果觉得设置约束太复杂，可以先跳过——默认规则也能走线，只是线宽是默认值。</div>
+</div>
+
+<div class="step">
+  <h3>🎯 5.1.2 开始走线（最重要的操作）</h3>
+  <div class="act"><span class="chk">☐</span> 按 <kbd class="kbd" style="background:#92400e;">I</kbd>（Add Connect）→ 光标变成十字</div>
+  <div class="act"><span class="chk">☐</span> 把鼠标移到一个焊盘上 → 焊盘上出现白色小方块后 → 点击左键</div>
+  <div class="act"><span class="chk">☐</span> 移动鼠标 → 一根线从焊盘延伸出来 → 到目标焊盘 → 再次左键</div>
+  <div class="act"><span class="chk">☐</span> 如果走歪了 → 按 <kbd>Backspace</kbd> 取消上一步</div>
+  <div class="act"><span class="chk">☐</span> 如果线走到一半需要换层 → 按 <kbd class="kbd" style="background:#92400e;">V</kbd> 打个过孔 → 继续走</div>
+  <div class="act"><span class="chk">☐</span> 走完后按 <kbd>F2</kbd>（Done）</div>
+  <div class="info">💡 可以先在空白区域练习走线、拐弯、Backspace 回退——不需要一开始就对着焊盘连。</div>
+</div>
+
+<div class="step">
+  <h3>▶ 5.1.3 走线顺序</h3>
+  <div class="info">建议的走线顺序（重要信号先走）：</div>
+  <ol>
+    <li><strong>模拟信号线</strong>（运放输入→输出）— 最关键的线，先走</li>
+    <li><strong>电源线</strong>（VCC 到去耦电容到运放引脚）— 电源线要走宽些</li>
+    <li><strong>地线</strong>（后面会用铜皮覆铜，可以不单独走地线）</li>
+    <li><strong>剩下的其他信号</strong></li>
+  </ol>
+  <div class="info">💡 对 TIA 电路：运放输入端的走线要尽量短（< 3 mm），反馈电阻 R<sub>f</sub> 和 C<sub>f</sub> 跨接在输入和输出之间。</div>
+</div>
+
+<div class="step">
+  <h3>▶ 5.1.4 走线实用技巧</h3>
+  <table>
+    <tr><th>操作</th><th>按键</th><th>说明</th></tr>
+    <tr><td>开始走线</td><td><kbd>I</kbd></td><td>Add Connect</td></tr>
+    <tr><td>完成走线</td><td><kbd>F2</kbd></td><td>Done</td></tr>
+    <tr><td>取消本次走线</td><td><kbd>F3</kbd></td><td>Cancel</td></tr>
+    <tr><td>回退上一步</td><td><kbd>Backspace</kbd></td><td>不退出走线模式，回到上一个拐点</td></tr>
+    <tr><td>打孔换层</td><td><kbd>V</kbd></td><td>Add Via</td></tr>
+    <tr><td>锁定方向</td><td>按住 <kbd>Shift</kbd></td><td>强制走水平或垂直</td></tr>
+    <tr><td>切换走线方式</td><td>走线时右键</td><td>Toggle：45 度角 / 直角 / 弧形走线</td></tr>
+    <tr><td>删除一段线</td><td><kbd>Delete</kbd></td><td>再点击要走删除的线</td></tr>
+  </table>
+  <div class="act"><span class="chk">☐</span> 练习以上每个操作至少 1 次</div>
+</div>
+
+<hr>
+
+<h2>任务 5.2：覆铜</h2>
+
+<div class="step">
+  <h3>▶ 5.2.1 铺地铜</h3>
+  <div class="info">覆铜（Copper Pour）就是把 PCB 上空白的区域填上铜皮，通常是 GND 网络。这样所有地焊盘通过铜皮连接，不用单独走地线。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Shape → Add Rect</kbd></p>
+  <div class="act"><span class="chk">☐</span> 在右侧 Options 面板中设置：</div>
+  <ul>
+    <li>Class：<strong>Etch</strong></li>
+    <li>Subclass：<strong>TOP</strong></li>
+    <li>Assign net：<strong>GND</strong></li>
+    <li>Shape type：<strong>Static Solid</strong>（静态实心铜皮）</li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 在板框内画一个矩形覆盖整个板面 → 左键拉出矩形 → 右键 → Done</div>
+  <div class="act"><span class="chk">☐</span> 你会看到铜皮自动铺满整个板框，地焊盘上出现"X"形连接标记</div>
+</div>
+
+<div class="step">
+  <h3>▶ 5.2.2 挖空敏感区域</h3>
+  <div class="info">在 TIA 运放的反相输入焊盘下方，我们需要挖掉铜皮——因为铜皮和焊盘之间的寄生电容会影响电路稳定性（Lesson 0004 讲过）。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Shape → Void → Circular</kbd></p>
+  <div class="act"><span class="chk">☐</span> 在运放输入焊盘周围画一个圆圈 → 左键点圆心 → 拖出半径 → 左键确定</div>
+  <div class="act"><span class="chk">☐</span> 铜皮上出现了一个圆洞，焊盘和铜皮之间有了间隙</div>
+  <div class="info">💡 如果铺的是动态铜皮（Dynamic Shape），可以用 Shape → Void → Auto 自动避让。</div>
+</div>
+
+<hr>
+
+<h2>任务 5.3：进阶操练</h2>
+
+<div class="step">
+  <h3>▶ 5.3.1 高亮网络检查走线</h3>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>Shift+F5</kbd>（Highlight）</div>
+  <div class="act"><span class="chk">☐</span> 在右侧 Options 面板中 → Find By Name → Net</div>
+  <div class="act"><span class="chk">☐</span> 输入你要高亮的网络名（如 SIG_IN）→ OK</div>
+  <div class="act"><span class="chk">☐</span> 那个网络的所有走线会变成高亮颜色，检查路径是否合理</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>Shift+F6</kbd>（Dehighlight）取消高亮</div>
+</div>
+
+<div class="step">
+  <h3>🎯 5.3.2 快捷键强化练习</h3>
+  <div class="info">下面这个序列要练到不用想就能按出来：</div>
+  <ol>
+    <li><kbd>I</kbd> → 走一小段线 → <kbd>V</kbd> → 打个孔 → 继续走 → <kbd>F2</kbd></li>
+    <li><kbd>M</kbd> → 移一下器件 → <kbd>R</kbd> → 旋转 → <kbd>F2</kbd></li>
+    <li><kbd>Delete</kbd> → 删除一段走歪的线 → <kbd>F2</kbd></li>
+    <li><kbd>Shift+F5</kbd> → 高亮 → <kbd>Shift+F6</kbd> → 取消</li>
+  </ol>
+  <div class="act"><span class="chk">☐</span> 每个序列重复 3 遍</div>
+</div>
+
+<hr>
+
+<h2>📋 Day 5 检查清单</h2>
+
+<div class="chk-list">
+  <ol>
+    <li><span class="chk">☐</span> <strong>会用 I 键走线</strong> — 不是点菜单 "Place → Line"，是按 I</li>
+    <li><span class="chk">☐</span> <strong>会用 Backspace 回退</strong> — 走歪了能回退，不需要退出重来</li>
+    <li><span class="chk">☐</span> <strong>会用 V 打孔</strong> — 走线中按 V 能换层</li>
+    <li><span class="chk">☐</span> <strong>所有网络已走完</strong> — PCB 上没有飞线（黄色虚线）</li>
+    <li><span class="chk">☐</span> <strong>会铺地铜 + 挖空</strong> — Shape → Add Rect + Shape → Void → Circular</li>
+  </ol>
+  <p style="text-align:center; margin:0.5rem 0 0 0;">
+    <strong>✅ 全部打勾 → 进入 Day 6（出 Gerber 投板文件！）</strong><br>
+    <strong>❌ 没打完 → 明天先补完</strong>
+  </p>
+</div>
+
+<blockquote>
+  <strong>今天的任务到此结束。</strong><br><br>
+  你今天在 PCB 上用铜线替代了飞线。最常用的 3 个 Allegro 快捷键（I、V、Backspace）你已经掌握。<br>
+  明天（Day 6）是投板前的最后一步：DRC 检查、丝印调整、生成 Gerber 文件。<br>
+  全部完成约 2 小时。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Day 5 of 7 · Study_TIA Cadence 学习营 · 2026
+</p>
+
+</body>
+</html>

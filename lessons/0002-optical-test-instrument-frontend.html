@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0002: 光通信测试仪表的前端接收设计</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .comparison-table td:first-child { font-weight: 600; white-space: nowrap; }
+    .spec-flow { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; margin: 1rem 0; }
+    .spec-flow p { margin: 0.4rem 0; }
+    .key-point { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .key-point strong { color: #166534; }
+    .step-list li { margin: 0.6rem 0; }
+  </style>
+</head>
+<body>
+
+<h1>光通信测试仪表的前端接收设计</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  Lesson 0002 · 光通信测试 · 预计用时 35 分钟
+</p>
+
+<blockquote>
+  <strong>本节目标</strong>
+  将上节学到的通用光电信号链知识，应用到<strong>光通信测试仪表</strong>的真实场景中。重点理解光功率计、光谱分析仪等仪表的接收前端与普通光接收机的区别，以及设计中面临的独特挑战。
+</blockquote>
+
+<h2>0. 先回顾一个关键概念：dBm</h2>
+
+<p>在进入正题前，先确认你对 <strong>dBm</strong> 的理解——这是光通信中最常用的功率单位，后面会大量用到。</p>
+
+<div class="key-point">
+  <strong>dBm 的定义</strong>：以 1 mW 为参考的功率对数表示。<br>
+  <code>P(dBm) = 10 x log10(P / 1 mW)</code>
+</div>
+
+<table>
+  <tr><th>光功率</th><th>dBm 值</th><th>场景</th></tr>
+  <tr><td>10 mW</td><td>+10 dBm</td><td>强光信号，激光器直接输出</td></tr>
+  <tr><td>1 mW</td><td>0 dBm</td><td>参考点</td></tr>
+  <tr><td>100 uW</td><td>-10 dBm</td><td>典型光接收机输入</td></tr>
+  <tr><td>1 uW</td><td>-30 dBm</td><td>较弱信号</td></tr>
+  <tr><td>1 nW</td><td>-60 dBm</td><td>极弱信号，接近光功率计极限</td></tr>
+  <tr><td>100 fW</td><td>-70 dBm</td><td>高灵敏度光功率计的下限</td></tr>
+</table>
+
+<div class="key-point">
+  <strong>为什么要用 dBm？</strong><br>
+  因为光功率的动态范围极大（从 mW 到 fW 跨 10 个数量级），用线性表示很困难。dBm 将乘法变成加法，让比较和计算变得直观。<br>
+  例如：功率每变化 10 倍 = 10 dB 变化。如果光功率从 -60 dBm 升到 -50 dBm，实际功率增加了 10 倍。
+</div>
+
+<h2>1. 测试仪表 vs 通信接收机：根本差异</h2>
+
+<p>光通信测试仪表的光电接收前端和通信系统中的光接收机，虽然都做"光电"转换，但设计哲学完全不同。这个差异是你理解后面内容的基础。</p>
+
+<h3>1.1 通信接收机是做什么的？</h3>
+
+<p>通信接收机（比如光纤到户的光猫里的接收模块）的目标是：<strong>正确恢复数据</strong>。它只需要区分"0"和"1"就够了。只要误码率（BER）达标，接收到的光功率精确值是 0.8 mW 还是 1.0 mW 并不重要。</p>
+
+<h3>1.2 测试仪表是做什么的？</h3>
+
+<p>测试仪表（如光功率计）的目标是：<strong>精确测量光功率的绝对值</strong>。它必须告诉用户："现在这个信号是 -23.45 dBm"。误差必须控制在很小范围内（通常 &plusmn; 0.1 ~ 0.2 dB）。</p>
+
+<table class="comparison-table">
+  <tr><th style="width:25%">维度</th><th style="width:37%">通信接收机</th><th style="width:38%">测试仪表前端</th></tr>
+  <tr>
+    <td>核心目标</td>
+    <td>正确恢复数据（BER 最小化）</td>
+    <td><strong>精确测量光功率</strong>（精度和线性度优先）</td>
+  </tr>
+  <tr>
+    <td>光功率范围</td>
+    <td>窄（接收机灵敏度附近 -28 ~ -8 dBm 约 20 dB）</td>
+    <td><strong>极宽</strong>（光功率计通常要求 +10 ~ -70 dBm，即 80 dB 动态范围）</td>
+  </tr>
+  <tr>
+    <td>带宽要求</td>
+    <td>必须覆盖信号速率（如 25 GHz 对应 25 Gbps 信号）</td>
+    <td>取决于测量需求（光功率计直流~kHz，光谱分析仪可能更宽）</td>
+  </tr>
+  <tr>
+    <td>线性度要求</td>
+    <td>中等（有限幅放大器 LA 和 CDR 可纠正非线性）</td>
+    <td><strong>极高线性度</strong>（直接决定测量精度）</td>
+  </tr>
+  <tr>
+    <td>校准</td>
+    <td>不需要校准</td>
+    <td>必须定期校准，有内部参考源</td>
+  </tr>
+  <tr>
+    <td>典型架构</td>
+    <td>PIN/APD + TIA + LA（限幅放大器）</td>
+    <td>PD + TIA + 可编程增益 + ADC + 校准</td>
+  </tr>
+</table>
+
+<div class="callout callout-info">
+  <strong>为什么这个差异重要？</strong><br>
+  因为设计目标决定设计取舍。通信接收机追求"够用就好"——灵敏度够、带宽够、线性度够。测试仪表追求"精准测量"——线性度必须极高、动态范围必须极宽、必须能校准。这导致同样的 TIA 电路，在两个场景下的设计思路完全不同。
+</div>
+
+<h2>2. 光通信测试中的光电二极管选型</h2>
+
+<h3>2.1 两个选择：PIN vs APD</h3>
+
+<p>光通信中常用的光电二极管有两种基本类型。它们的区别不是谁好谁坏，而是适用于不同场景。</p>
+
+<p><strong>PIN 光电二极管</strong>（P-Intrinsic-N 结构）：</p>
+<ul>
+  <li>结构中间有一层本征层（Intrinsic），增大了耗尽区宽度</li>
+  <li>量子效率高，响应速度快</li>
+  <li>偏置电压低（5~15 V 即可），电路简单</li>
+  <li>噪声低——因为没有倍增过程，不会引入额外噪声</li>
+</ul>
+
+<p><strong>APD（Avalanche Photodiode，雪崩光电二极管）</strong>：</p>
+<ul>
+  <li>在高反偏压下发生雪崩倍增效应，一个光子产生多个电子-空穴对</li>
+  <li>等效响应度比 PIN 高 M 倍（M = 10~100 倍）</li>
+  <li>但是！雪崩过程是随机的，会引入 excess noise（过剩噪声）</li>
+  <li>需要高偏压（50~300 V），温度敏感，需要温控补偿</li>
+  <li>高光功率下容易饱和</li>
+</ul>
+
+<table>
+  <tr><th>参数</th><th>PIN 光电二极管</th><th>APD（雪崩光电二极管）</th></tr>
+  <tr><td>响应度</td><td>0.8 ~ 1.0 A/W（典型）</td><td>等效响应度 x M（M=10~100）</td></tr>
+  <tr><td>偏置电压</td><td>低，5~15 V</td><td>高，50~300 V</td></tr>
+  <tr><td>噪声特性</td><td>低（无雪崩噪声）</td><td>有雪崩噪声（excess noise factor F）</td></tr>
+  <tr><td>带宽</td><td>宽（可达数十 GHz）</td><td>受限于倍增建立时间</td></tr>
+  <tr><td>动态范围</td><td>宽</td><td>窄（高功率时 APD 饱和）</td></tr>
+  <tr><td>温度敏感性</td><td>低</td><td>高（增益随温度显著变化）</td></tr>
+  <tr><td>测试仪表应用</td><td>光功率计、通用测量</td><td>高灵敏度 OTDR、微弱光检测</td></tr>
+</table>
+
+<div class="key-point">
+  <strong>关键直觉：为什么测试仪表优先选 PIN？</strong><br><br>
+  对比两个场景：<br><br>
+  假设你有一个 0.9 A/W 的 PIN 管和一个 M=50 的 APD。光功率为 1 nW（-60 dBm）：<br>
+  - PIN 输出电流：0.9 nA<br>
+  - APD 等效输出电流：0.9 nA x 50 = 45 nA（看起来好很多）<br><br>
+  但问题在于 APD 的 excess noise factor F(M) 会使噪声倍增更大。当 M=50 时，F(M) 通常在 3~5 之间，即噪声增加了 3~5 倍。<br>
+  <strong>信噪比 SNR 提升 = M / F(M) = 50 / 5 = 10 倍（20 dB）</strong>，确实有提升。<br><br>
+  然而对于测试仪表来说，APD 的增益随温度变化（每度变化约 1~2%）会引入额外的测量不确定度。而且 PIN 的线性度天然优于 APD。<br><br>
+  <strong>结论</strong>：除非你需要测 -50 dBm 以下的极弱信号，<strong>PIN 是更稳定、更精确的选择</strong>。
+</div>
+
+<h3>2.2 光电二极管的等效模型</h3>
+
+<p>你的模电基础应该还记得小信号等效模型。光电二极管在实际电路中不是理想器件，它有几个关键的寄生参数。理解这些参数对 TIA 设计至关重要：</p>
+
+<div class="figure">
+  <svg viewBox="0 0 650 220" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;">
+    <!-- Current source -->
+    <circle cx="50" cy="100" r="25" fill="none" stroke="#2563eb" stroke-width="2"/>
+    <text x="50" y="105" fill="#2563eb" font-size="11" font-family="sans-serif" text-anchor="middle">I<tspan dy="4" font-size="8">PD</tspan></text>
+    <!-- Diode symbol -->
+    <polygon points="100,70 100,130 130,100" fill="white" stroke="#1a1a2e" stroke-width="1.5"/>
+    <line x1="100" y1="70" x2="100" y2="130" stroke="#1a1a2e" stroke-width="1.5"/>
+    <!-- Cap CJ -->
+    <g transform="translate(160,65)">
+      <line x1="0" y1="0" x2="0" y2="70" stroke="#1a1a2e" stroke-width="1.5"/>
+      <line x1="0" y1="22" x2="20" y2="22" stroke="#1a1a2e" stroke-width="1.5"/>
+      <line x1="0" y1="48" x2="20" y2="48" stroke="#1a1a2e" stroke-width="1.5"/>
+      <text x="10" y="42" fill="#1a1a2e" font-size="10" font-family="sans-serif" text-anchor="middle">C<tspan dy="4" font-size="7">J</tspan></text>
+    </g>
+    <!-- Rshunt -->
+    <rect x="220" y="65" width="30" height="70" fill="white" stroke="#1a1a2e" stroke-width="1.5" rx="2"/>
+    <text x="235" y="105" fill="#1a1a2e" font-size="9" font-family="sans-serif" text-anchor="middle">R<tspan dy="4" font-size="7">sh</tspan></text>
+    <!-- Rs -->
+    <rect x="280" y="88" width="25" height="24" fill="white" stroke="#1a1a2e" stroke-width="1.5"/>
+    <text x="292" y="105" fill="#1a1a2e" font-size="9" font-family="sans-serif" text-anchor="middle">R<tspan dy="4" font-size="7">s</tspan></text>
+    <line x1="130" y1="100" x2="160" y2="100" stroke="#1a1a2e" stroke-width="1.5"/>
+    <line x1="180" y1="100" x2="220" y2="100" stroke="#1a1a2e" stroke-width="1.5"/>
+    <line x1="250" y1="100" x2="280" y2="100" stroke="#1a1a2e" stroke-width="1.5"/>
+    <line x1="305" y1="100" x2="350" y2="100" stroke="#1a1a2e" stroke-width="1.5"/>
+    <text x="360" y="105" fill="#16a34a" font-size="11" font-family="sans-serif">阳极 (A)</text>
+    <line x1="50" y1="125" x2="50" y2="190" stroke="#1a1a2e" stroke-width="1.5"/>
+    <line x1="50" y1="190" x2="350" y2="190" stroke="#1a1a2e" stroke-width="1.5"/>
+    <line x1="350" y1="100" x2="350" y2="190" stroke="#1a1a2e" stroke-width="1.5"/>
+    <text x="360" y="195" fill="#16a34a" font-size="11" font-family="sans-serif">阴极 (K)</text>
+    <text x="50" y="55" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">光电流源</text>
+    <text x="115" y="148" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">理想二极管</text>
+    <text x="170" y="148" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">结电容</text>
+    <text x="235" y="148" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">并联电阻</text>
+    <text x="292" y="148" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">串联电阻</text>
+  </svg>
+  <figcaption>图1：光电二极管小信号等效电路模型</figcaption>
+</div>
+
+<p>逐个解释每个元件的作用：</p>
+<ul>
+  <li><strong>光电流源 I<sub>PD</sub></strong>：这是有用的信号——光生电流，正比于光功率。</li>
+  <li><strong>理想二极管</strong>：表示 PN 结的单向导电性。</li>
+  <li><strong>结电容 C<sub>J</sub></strong>：这是 TIA 设计中<strong>最重要</strong>的寄生参数。PN 结本身就是一个电容器（耗尽层两侧的电荷层）。C<sub>J</sub> 的大小与 PD 的光敏面积成正比。对 InGaAs PIN 管，典型值 0.3~5 pF。</li>
+  <li><strong>并联电阻 R<sub>sh</sub></strong>（shunt resistance）：通常非常大（MOhm~GOhm 级），反映了耗尽层的漏电。在大多数 TIA 设计中可以忽略。</li>
+  <li><strong>串联电阻 R<sub>s</sub></strong>：半导体体电阻和接触电阻，通常很小（几十 Ohm），在低频设计中可以忽略。</li>
+</ul>
+
+<div class="key-point">
+  <strong>为什么 C<sub>J</sub> 这么重要？</strong><br><br>
+  因为 C<sub>J</sub> 会与 TIA 运放的输入构成一个<strong>极点</strong>，影响电路的相位裕度。C<sub>J</sub> 越大，稳定性问题越严重。<br><br>
+  一个经验法则：<strong>C<sub>J</sub> x R<sub>f</sub> 的乘积越大，带宽越窄，稳定性越差</strong>。这就是为什么大的 PD（大的光敏面 = 大的 C<sub>J</sub>）很难做高速 TIA。
+</div>
+
+<h2>3. TIA 增益方案：宽动态范围的核心挑战</h2>
+
+<h3>3.1 先理解问题的规模</h3>
+
+<p>光功率计需要测量的功率范围可达 80 dB（+10 dBm ~ -70 dBm）。这是什么概念？</p>
+
+<div class="key-point">
+  <strong>80 dB 动态范围意味着什么？</strong><br><br>
+  +10 dBm = 10 mW<br>
+  -70 dBm = 100 fW<br><br>
+  两者相差：10 mW / 0.1 pW = <strong>100,000,000,000 倍</strong>（10<sup>11</sup> 倍）<br><br>
+  如果你用一个固定的 R<sub>f</sub>，会怎样？
+</div>
+
+<p>假设你选择一个 R<sub>f</sub> = 10 kOhm，光电二极管响应度 R = 0.9 A/W：</p>
+<ul>
+  <li>+10 dBm（10 mW）：I<sub>PD</sub> = 9 mA，Vout = 9 mA x 10 kOhm = <strong>90 V</strong>（远超运放供电轨，肯定饱和）</li>
+  <li>-70 dBm（100 fW）：I<sub>PD</sub> = 0.09 fA，Vout = 0.09 fA x 10 kOhm = <strong>0.9 nV</strong>（远小于噪声，根本测不到）</li>
+</ul>
+
+<p>显然，一个固定的 R<sub>f</sub> 不可能同时覆盖这两个极端。你需要<strong>改变增益</strong>来适配不同的信号强度。这就是"自动增益切换"（Auto-Ranging）技术的由来。</p>
+
+<h3>3.2 Auto-Ranging 的工作原理</h3>
+
+<p>想象一下你在用万用表测电压——测量 1.5 V 的电池和 220 V 的市电，你需要转动档位旋钮选择不同的量程。光功率计的 Auto-Ranging 就是这个原理的自动化版本。</p>
+
+<div class="figure">
+  <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;">
+    <!-- Photodiode -->
+    <rect x="10" y="55" width="80" height="40" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="50" y="80" fill="#1e40af" font-size="12" font-family="sans-serif" text-anchor="middle">光电二极管</text>
+    <line x1="90" y1="75" x2="120" y2="75" stroke="#555" stroke-width="2"/>
+    <!-- Switch -->
+    <circle cx="128" cy="75" r="8" fill="white" stroke="#d97706" stroke-width="2"/>
+    <text x="128" y="79" fill="#d97706" font-size="8" font-family="sans-serif" text-anchor="middle">S</text>
+    <!-- Multiple Rf paths -->
+    <rect x="120" y="20" width="45" height="28" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="142" y="39" fill="#92400e" font-size="10" font-family="sans-serif" text-anchor="middle">Rf1</text>
+    <rect x="120" y="60" width="45" height="28" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="142" y="79" fill="#92400e" font-size="10" font-family="sans-serif" text-anchor="middle">Rf2</text>
+    <rect x="120" y="100" width="45" height="28" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="142" y="119" fill="#92400e" font-size="10" font-family="sans-serif" text-anchor="middle">Rf3</text>
+    <rect x="120" y="140" width="45" height="28" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="142" y="159" fill="#92400e" font-size="10" font-family="sans-serif" text-anchor="middle">Rf4</text>
+    <!-- TIA -->
+    <polygon points="200,30 200,170 290,100" fill="white" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="245" y="105" fill="#1a1a2e" font-size="15" font-family="sans-serif" text-anchor="middle">TIA</text>
+    <text x="205" y="65" fill="#1a1a2e" font-size="13">-</text>
+    <text x="205" y="145" fill="#1a1a2e" font-size="13">+</text>
+    <line x1="290" y1="100" x2="350" y2="100" stroke="#1a1a2e" stroke-width="2"/>
+    <!-- ADC -->
+    <rect x="350" y="70" width="70" height="60" rx="6" fill="#f3e8ff" stroke="#9333ea" stroke-width="2"/>
+    <text x="385" y="103" fill="#581c87" font-size="13" font-family="sans-serif" text-anchor="middle">ADC</text>
+    <line x1="420" y1="100" x2="450" y2="100" stroke="#1a1a2e" stroke-width="2"/>
+    <!-- MCU -->
+    <rect x="450" y="75" width="60" height="50" rx="6" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+    <text x="480" y="103" fill="#334155" font-size="11" font-family="sans-serif" text-anchor="middle">MCU</text>
+    <!-- MCU control arrow back to switch -->
+    <path d="M480,125 L480,185 L128,185 L128,83" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#ctrlArrow)"/>
+    <text x="310" y="200" fill="#d97706" font-size="11" font-family="sans-serif" text-anchor="middle">MCU 根据 ADC 结果自动切换 Rf</text>
+    <defs>
+      <marker id="ctrlArrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L10,5 L0,10" fill="none" stroke="#d97706" stroke-width="2"/>
+      </marker>
+    </defs>
+  </svg>
+  <figcaption>图2：多档位增益切换（Auto-Ranging）TIA 架构</figcaption>
+</div>
+
+<p>工作流程如下：</p>
+<ol class="step-list">
+  <li>MCU 先设置一个<strong>中等增益档位</strong>（如 R<sub>f</sub> = 1 MOhm）</li>
+  <li>ADC 读取输出电压</li>
+  <li>如果输出电压 <strong>接近满量程</strong>（比如 Vout > 0.9 x V<sub>REF</sub>），说明信号太强——MCU 切换到<strong>更低增益</strong>的档位</li>
+  <li>如果输出电压 <strong>太小</strong>（比如 Vout < 0.01 x V<sub>REF</sub>），说明信号太弱——MCU 切换到<strong>更高增益</strong>的档位</li>
+  <li>重复这个过程，直到找到最合适的档位</li>
+</ol>
+
+<p>典型的分档方案：</p>
+
+<table>
+  <tr><th>增益档位</th><th>R<sub>f</sub></th><th>适用功率范围</th><th>光电流范围</th></tr>
+  <tr><td>低增益</td><td>1~10 kOhm</td><td>+10 ~ -10 dBm</td><td>10 mA ~ 100 uA</td></tr>
+  <tr><td>中增益</td><td>100 kOhm ~ 1 MOhm</td><td>-10 ~ -30 dBm</td><td>100 uA ~ 1 uA</td></tr>
+  <tr><td>高增益</td><td>10~100 MOhm</td><td>-30 ~ -50 dBm</td><td>1 uA ~ 10 nA</td></tr>
+  <tr><td>超高增益</td><td>1~10 GOhm</td><td>-50 ~ -70 dBm</td><td>10 nA ~ 100 fA</td></tr>
+</table>
+
+<h3>3.3 这里有一个细节：为什么每个档位覆盖约 20 dB？</h3>
+
+<p>回顾 ADC 量化那一课：一个 16-bit ADC 的 LSB（最低有效位）是 V<sub>REF</sub> / 65536。如果 V<sub>REF</sub> = 3.3 V，则 LSB = 50 uV。为了获得合理的测量精度，你通常希望输入信号至少是 LSB 的几千倍。所以每个档位的"可用范围"大约为 20 dB（100 倍），这就是上表的设计依据。</p>
+
+<h3>3.4 高增益档位的工程挑战</h3>
+
+<div class="callout callout-warning">
+  <strong>高增益档位（R<sub>f</sub> > 100 MOhm）的四个主要问题</strong><br><br>
+  <strong>问题 1：PCB 漏电流</strong><br>
+  标准 FR4 PCB 板材的表面绝缘电阻并不是无穷大。在潮湿环境下，相邻走线之间的表面漏电流可能达到 10 pA 甚至更高。当你的高增益档位 R<sub>f</sub> = 1 GOhm 时，10 pA 的漏电流会产生 10 mV 的误差电压——这已经无法忽视了。<br><br>
+  <strong>问题 2：保护环（Guard Ring）</strong><br>
+  解决方法是在输入引脚周围画一圈与输入等电位的铜环（保护环），将漏电流引导走，而不是让它流入输入节点。<br><br>
+  <strong>问题 3：带宽骤降</strong><br>
+  R<sub>f</sub> = 1 GOhm 时，即便只有 0.1 pF 的寄生电容并联在 R<sub>f</sub> 上，-3 dB 带宽也只有 1/(2 x pi x 1G x 0.1p) = 1.6 kHz。<br><br>
+  <strong>问题 4：热噪声</strong><br>
+  1 GOhm 电阻在室温下的热噪声密度 = sqrt(4kTR) = sqrt(4 x 1.38E-23 x 300 x 1E9) ~ 4 uV/sqrt(Hz)。每 kHz 带宽的噪声约 126 uV，在高增益档位下已经不可忽略。
+</div>
+
+<h2>4. 噪声分析与灵敏度</h2>
+
+<h3>4.1 为什么噪声这么重要？</h3>
+
+<p>你已经知道 TIA 会把光电流 I<sub>PD</sub> 转换成电压 Vout = I<sub>PD</sub> x R<sub>f</sub>。<strong>但问题在于</strong>：TIA 自身也会产生噪声，这些噪声叠加到输出端，如果信号的幅度小于噪声，你就无法测量它。</p>
+
+<p>测试仪表中，接收前端的噪声决定了<strong>灵敏度下限</strong>——即能准确测量的最小光功率。噪声性能用 <strong>NEP（等效噪声功率）</strong> 来表征：</p>
+
+<pre>NEP = In_rms / R   [W/sqrt(Hz)]
+
+其中：
+  In_rms = TIA 输出总噪声折算到输入端的电流噪声 (A/sqrt(Hz))
+  R      = 光电二极管响应度 (A/W)
+</pre>
+
+<p>NEP 的意思很直观：如果光信号产生的光电流等于 In_rms，那么信号的 SNR 就是 1（0 dB），勉强可以分辨。实际中你通常需要 SNR >= 10（20 dB）以上才能精确测量。</p>
+
+<h3>4.2 TIA 中的噪声来源</h3>
+
+<p>TIA 的噪声有三个主要来源。理解它们帮你理解如何优化设计。我们逐个分析：</p>
+
+<p><strong>噪声源 1：反馈电阻 R<sub>f</sub> 的热噪声（Johnson-Nyquist noise）</strong></p>
+<ul>
+  <li>任何电阻都有热噪声，这是物理定律，无法消除</li>
+  <li>热噪声电压密度：Vn_Rf = sqrt(4 x k x T x R<sub>f</sub>)</li>
+  <li>式中 k = 1.38E-23（玻尔兹曼常数），T = 开尔文温度</li>
+  <li>将电压噪声折算到输入端（等效输入电流噪声）：In_Rf = sqrt(4kT / R<sub>f</sub>)</li>
+  <li><strong>关键规律</strong>：R<sub>f</sub> 越大，热噪声电压越大，但等效输入电流噪声反而越小！</li>
+</ul>
+
+<p><strong>噪声源 2：运放的电压噪声</strong></p>
+<ul>
+  <li>运放本身有一个"输入电压噪声密度"参数（通常以 nV/sqrt(Hz) 为单位标注在 datasheet 中）</li>
+  <li>在 TIA 电路中，这个电压噪声会被<strong>放大</strong>——因为运放反相输入端看到的阻抗很高</li>
+  <li>等效输入电流噪声：In_Vn ~ Vn x 2 x pi x C<sub>in</sub> x sqrt(f)</li>
+  <li><strong>关键规律</strong>：C<sub>in</sub>（运放输入电容 + PD 结电容）越大，这个噪声贡献越大。这也是为什么 C<sub>J</sub> 大的 PD 更难做低噪声 TIA。</li>
+</ul>
+
+<p><strong>噪声源 3：运放的电流噪声</strong></p>
+<ul>
+  <li>运放的输入端有偏置电流，这个电流存在散粒噪声（shot noise）</li>
+  <li>In_In = sqrt(2 x q x I<sub>b</sub>)</li>
+  <li><strong>关键规律</strong>：偏置电流 I<sub>b</sub> 越大的运放，电流噪声越大</li>
+</ul>
+
+<h3>4.3 具体计算实例</h3>
+
+<p>理论看完了，我们来算一个真实的例子。这是光功率计设计中的典型场景：</p>
+
+<div class="spec-flow">
+<p><strong>给定条件</strong>：</p>
+<p>PIN 光电二极管 R = 0.95 A/W @ 1550 nm，C<sub>J</sub> = 2 pF</p>
+<p>TIA 运放：OPA381（I<sub>b</sub> = 3 pA，GBW = 18 MHz，V<sub>n</sub> = 35 nV/sqrt(Hz)）</p>
+<p><strong>中增益档</strong>：R<sub>f</sub> = 1 MOhm，C<sub>f</sub> = 1 pF</p>
+</div>
+
+<p>现在一步步计算各个噪声源的贡献：</p>
+
+<p><strong>第一步：计算等效噪声带宽</strong></p>
+<p>TIA 的带宽由 R<sub>f</sub> 和 C<sub>f</sub> 决定（忽略运放 GBW 的限制，假设 C<sub>f</sub> 主导）：</p>
+<pre>f_p = 1 / (2 x pi x R<sub>f</sub> x C<sub>f</sub>) = 1 / (2 x 3.14 x 1E6 x 1E-12) = 159 kHz</pre>
+<p>对于一阶系统，等效噪声带宽 BW_eq = (pi/2) x f_p = 1.57 x 159 kHz = <strong>250 kHz</strong></p>
+
+<p><strong>第二步：计算各噪声源的 RMS 值</strong></p>
+
+<table>
+  <tr><th>噪声源</th><th>计算过程</th><th>结果</th><th>占比</th></tr>
+  <tr>
+    <td>R<sub>f</sub> 热噪声</td>
+    <td>In = sqrt(4kT/R<sub>f</sub>) x sqrt(BW_eq)<br>= sqrt(4 x 1.38E-23 x 300 / 1E6) x sqrt(250k)<br>= 1.29E-13 x 500</td>
+    <td>0.064 pA<sub>rms</sub></td>
+    <td>~4%</td>
+  </tr>
+  <tr>
+    <td>运放电压噪声</td>
+    <td>In = Vn x 2 x pi x C<sub>in</sub> x BW_eq<sup>1.5</sup> / sqrt(3)<br>= 35n x 6.28 x 2p x 250k<sup>1.5</sup> / 1.73<br>近似公式对一阶系统噪声积分</td>
+    <td>0.9 pA<sub>rms</sub></td>
+    <td>~74%</td>
+  </tr>
+  <tr>
+    <td>运放电流噪声</td>
+    <td>In = sqrt(2 x q x I<sub>b</sub>) x sqrt(BW_eq)<br>= sqrt(2 x 1.6E-19 x 3E-12) x sqrt(250k)<br>= 0.98E-15 x 500</td>
+    <td>0.27 pA<sub>rms</sub></td>
+    <td>~22%</td>
+  </tr>
+  <tr>
+    <td style="font-weight:700">总输入噪声</td>
+    <td>sqrt(0.064<sup>2</sup> + 0.9<sup>2</sup> + 0.27<sup>2</sup>)</td>
+    <td><strong>~1.2 pA<sub>rms</sub></strong></td>
+    <td>100%</td>
+  </tr>
+</table>
+
+<div class="callout callout-warning">
+  <strong>重要提示：噪声占比是条件相关的</strong><br><br>
+  上表中的百分比是<strong>在本例特定条件下</strong>（R<sub>f</sub> = 1 MOhm，C<sub>in</sub> = 2 pF + 运放输入电容，OPA381）的计算结果，<strong>不是放之四海而皆准的结论</strong>。<br><br>
+  不同条件下的主导噪声源：<br>
+  <ul>
+    <li><strong>R<sub>f</sub> &lt; 100 kOhm</strong>：反馈电阻热噪声通常是主导</li>
+    <li><strong>R<sub>f</sub> &gt; 1 MOhm, C<sub>in</sub> 较大</strong>：运放电压噪声经 C<sub>in</sub> 积分放大后可能成为主导（本例即此场景）</li>
+    <li><strong>R<sub>f</sub> 达 GOhm 级</strong>：运放电流噪声和 1/f 噪声开始显著</li>
+  </ul>
+  每个设计都应做完整的噪声预算，不应凭经验假设某个噪声源一定占主导。
+</div>
+
+<div class="key-point">
+  <strong>这个例子告诉我们什么？</strong><br><br>
+  很多人直觉上以为"R<sub>f</sub> 热噪声最大"，但在这个常见条件下，<strong>运放的电压噪声才是主角（74%）</strong>。<br><br>
+  运放电压噪声本身不大（35 nV/sqrt(Hz)），但经过 C<sub>in</sub> 的"积分放大"后，等效到输入端的电流噪声变得很大。<br><br>
+  这就解释了为什么低噪声 TIA 设计需要同时关注：<strong>低 V<sub>n</sub> 的运放 + 低 C<sub>in</sub>（即小的 PD 结电容）</strong>，而不只是盯着偏置电流看。
+</div>
+
+<h3>4.4 灵敏度计算</h3>
+
+<p>有了总输入噪声，我们就可以计算 NEP 和灵敏度了：</p>
+
+<pre>I_n_total = 1.2 pA_rms（上表结果）<br>BW_eq = 250 kHz（第一步计算的等效噪声带宽）
+
+NEP = 1.2 pA / 0.95 A/W = <strong>1.26 pW/sqrt(Hz)</strong>
+
+用 dBm 表示（参考 1 mW，归一化到 1 Hz 带宽）：
+NEP_dBm = 10 x log10(1.26E-12 / 1E-3) = <strong>-89 dBm</strong>
+
+现在，如果测量带宽为 1 kHz（不是 250 kHz）：
+  - 实际噪声带宽由你设置的测量滤波器决定
+  - 灵敏度 = -89 dBm + 10 x log10(1000) = -89 + 30 = <strong>-59 dBm</strong>
+
+这表示在 1 kHz 测量带宽下，你可以测量到的最低光功率约为 -59 dBm（此时 SNR = 1，0 dB）。
+实际应用中你可能需要 SNR >= 10（20 dB），所以可用灵敏度约为 -59 - 20 = <strong>-39 dBm</strong>（10 kHz 带宽下）。
+</pre>
+
+<div class="key-point">
+  <strong>这里有一个重要的权衡：带宽 vs 灵敏度</strong><br><br>
+  测量带宽越窄，落入带宽内的噪声越少，灵敏度越高。<br>
+  测量带宽越宽，响应速度越快，但灵敏度降低。<br><br>
+  这就是为什么光功率计通常有<strong>"慢速/高精度"和"快速/低精度"</strong>两种模式：<br>
+  - 慢速模式：窄带宽滤波，高灵敏度，适合测量弱光<br>
+  - 快速模式：宽带宽，适合测量快速变化的光信号
+</div>
+
+<h2>5. 为什么测试仪表必须做校准？</h2>
+
+<p>你已经知道光电信号链中有很多非理想因素。通信接收机可以容忍这些非理想性，但测试仪表不行。</p>
+
+<p><strong>测试仪表 vs 通信接收机的本质区别：</strong></p>
+<ul>
+  <li><strong>通信接收机</strong>只需要判断"这是 0 还是 1"。即使 TIA 的增益有 10% 的误差，只要不导致误判就没问题。限幅放大器（LA）会把信号整形为标准的数字电平。</li>
+  <li><strong>测试仪表</strong>必须回答——"光功率精确是多少？"如果 TIA 的增益误差 1%，测量结果就误差 1%。这对于高精度测量是不可接受的。</li>
+</ul>
+
+<p><strong>所以测试仪表必须做校准，补偿以下几个误差源：</strong></p>
+
+<ol class="step-list">
+  <li><strong>光电二极管的响应度误差</strong>：同一型号的 PD，响应度可能有 &plusmn; 5% 的个体差异</li>
+  <li><strong>TIA 的增益误差</strong>：R<sub>f</sub> 电阻本身有精度误差（1% 或 0.1%）</li>
+  <li><strong>ADC 的偏移和增益误差</strong>：ADC 本身的非线性</li>
+  <li><strong>温度漂移</strong>：PD 的响应度和暗电流、TIA 的增益都会随温度变化</li>
+</ol>
+
+<p><strong>典型的校准方案：</strong></p>
+
+<ul>
+  <li><strong>内部参考源</strong>：仪表内置一个稳定的参考光源（如带温控的激光器），每次开机或定期对光接收链路进行自校准。这样即使电路参数漂移，测量结果仍能溯源到内部参考。</li>
+  <li><strong>多点校准表</strong>：出厂时在每个增益档位下，用一系列已知光功率点（由标准光功率计标定）建立 ADC 数字码到光功率的映射表，并在测量时插值使用。</li>
+  <li><strong>温度补偿</strong>：在仪表内放置温度传感器，实测温度变化时通过查表补偿 PD 和 TIA 的温度系数。</li>
+</ul>
+
+<h2>6. 动手练习</h2>
+
+<div class="quiz-question">
+  <p><strong>练习 1：设计增益档位方案</strong></p>
+  <p>你的光功率计设计需要测量 -60 dBm 到 +5 dBm 的范围。PD 响应度 R = 0.9 A/W，ADC 为 16-bit，VREF = 3.3 V。请设计合理的增益档位方案。</p>
+  <p style="font-size:0.9rem;color:#555;margin-top:0.3rem;">提示：先计算最大和最小光电流，然后确定 Rf 使 Vout 在合理范围内。</p>
+  <div class="quiz-answer">
+    <strong>解题过程</strong>：<br><br>
+    <strong>Step 1：计算光电流范围</strong><br>
+    最低功率 -60 dBm = 1 nW -> IPD = 0.9 nA<br>
+    最高功率 +5 dBm = 3.16 mW -> IPD = 2.84 mA<br><br>
+    <strong>Step 2：确定 ADC 最佳输入范围</strong><br>
+    16-bit ADC, VREF = 3.3 V<br>
+    留 10% headroom，Vout 最大 ~ 3.0 V<br>
+    最小 Vout 应 > 几百个 LSB，设为 ~5 mV（约 100 LSB）<br><br>
+    <strong>Step 3：设计档位</strong><br>
+    低增益：Rf = 1 kOhm -> Vout 范围 0.9 mV ~ 2.84 V（太弱的光信号测不到）<br>
+    需要 4 个档位，每个间隔 20 dB：<br><br>
+    * 低增益：Rf = 1 kOhm -> 覆盖 ~ -10 ~ +5 dBm<br>
+    * 中增益：Rf = 100 kOhm -> 覆盖 ~ -30 ~ -10 dBm<br>
+    * 高增益：Rf = 10 MOhm -> 覆盖 ~ -50 ~ -30 dBm<br>
+    * 超高增益：Rf = 1 GOhm -> 覆盖 ~ -60 ~ -50 dBm<br><br>
+    <strong>注意</strong>：超高增益档需要保护环和低漏电流 PCB 设计。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>练习 2：验证灵敏度是否够用</strong></p>
+  <p>你需要测量一个 -50 dBm 的 1550 nm 光信号，PIN 响应度 0.95 A/W。TIA 设计的等效输入噪声为 1.2 pA<sub>rms</sub>（在 250 kHz 带宽下）。你希望在 10 kHz 测量带宽下 SNR >= 20 dB。方案是否可行？</p>
+  <div class="quiz-answer">
+    <strong>解题过程</strong>：<br><br>
+    <strong>Step 1：计算信号电流</strong><br>
+    -50 dBm = 10 nW<br>
+    IPD = 0.95 A/W x 10 nW = 9.5 nA<br><br>
+    <strong>Step 2：计算 10 kHz 带宽下的噪声</strong><br>
+    噪声密度 = 1.2 pA / sqrt(250k) = 0.0024 pA/sqrt(Hz) = 2.4 fA/sqrt(Hz)<br>
+    10 kHz 带宽下的噪声 = 2.4 fA/sqrt(Hz) x sqrt(10k) = 0.24 pA_rms<br><br>
+    <strong>Step 3：计算 SNR</strong><br>
+    SNR（电流）= 20 x log10(9.5 nA / 0.24 pA) = 20 x log10(39.6) = <strong>32 dB</strong><br><br>
+    <strong>结论</strong>：32 dB >> 20 dB 要求，方案可行且有余量。<br>
+    如果进一步提高测量带宽到 100 kHz：<br>
+    SNR = 20 x log10(9.5 nA / 0.76 pA) = 20 x log10(12.5) = <strong>22 dB</strong>——刚好满足。
+  </div>
+</div>
+
+<h2>7. 推荐资源</h2>
+
+<ul>
+  <li><strong>应用笔记</strong>：<a href="https://www.ti.com/lit/an/sboa268/sboa268.pdf" target="_blank">TI SBOA268: 跨阻放大器设计指南</a></li>
+  <li><strong>应用笔记</strong>：<a href="https://www.ti.com/lit/an/sboa274/sboa274.pdf" target="_blank">TI SBOA274: 跨阻放大器噪声分析</a></li>
+  <li><strong>参考书</strong>：<em>Optical Fiber Communications</em> — Gerd Keiser（第 6 章：光接收机）</li>
+  <li><strong>参考文档</strong>：<a href="../reference/0001-tia-cheatsheet.html">跨阻放大器速查表</a></li>
+</ul>
+
+<blockquote>
+  <strong>接下来想深入哪个方向？</strong>
+  <ol>
+    <li><strong>稳定性分析</strong>：TIA 自激振荡的根本原因，相位裕度计算，反馈电容 C<sub>f</sub> 的精确确定方法</li>
+    <li><strong>低噪声设计实战</strong>：PCB 布局技巧（保护环、屏蔽、地平面分割），具体运放型号的选型对比</li>
+    <li><strong>Sigma-Delta ADC 在高精度光功率计中的应用</strong>：过采样原理、数字滤波、有效分辨率提升</li>
+    <li><strong>APD 偏压控制与温度补偿</strong>：光通信测试中 APD 的高压偏置设计、温度补偿回路</li>
+  </ol>
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Lesson 0002 · Study_TIA 教学工坊 · 针对光通信测试仪表研发场景
+</p>
+
+<script>
+  document.querySelectorAll('.quiz-question').forEach(function(q) {
+    q.addEventListener('click', function() {
+      var answer = this.querySelector('.quiz-answer');
+      if (answer) answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+</script>
+
+</body>
+</html>

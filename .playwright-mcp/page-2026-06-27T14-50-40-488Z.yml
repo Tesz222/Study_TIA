@@ -1,0 +1,68 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - link "OSI Laser Diode, Inc." [ref=e6] [cursor=pointer]:
+        - /url: https://www.laserdiode.com
+        - img "OSI Laser Diode, Inc." [ref=e7]
+      - img "50 Years Celebration" [ref=e9]
+      - generic [ref=e10]:
+        - link "Home" [ref=e12] [cursor=pointer]:
+          - /url: https://www.laserdiode.com
+        - text: "|"
+        - link "Contact Us" [ref=e14] [cursor=pointer]:
+          - /url: https://www.laserdiode.com/our_company/contact-us
+    - generic [ref=e15]:
+      - list:
+        - listitem [ref=e16]:
+          - generic [ref=e18]: Our Company
+        - listitem [ref=e19]:
+          - generic [ref=e21]: Standard Products
+        - listitem [ref=e22]:
+          - generic [ref=e24]: Custom & OEM Solutions
+    - generic [ref=e25]:
+      - link "Light Sensing Solutions - For over 40 years OSI Optoelectronics has developed and manufactured OEM and custom solutions for leading technologies and industries." [ref=e27] [cursor=pointer]:
+        - /url: https://www.laserdiode.com/standard_products/capabilities-overview
+        - img "Light Sensing Solutions - For over 40 years OSI Optoelectronics has developed and manufactured OEM and custom solutions for leading technologies and industries." [ref=e28]
+      - link "New Products" [ref=e30] [cursor=pointer]:
+        - /url: https://www.laserdiode.com/standard_products/new-products
+    - list [ref=e34]:
+      - listitem [ref=e35]:
+        - generic [ref=e36]:
+          - paragraph [ref=e37]
+          - paragraph [ref=e38]
+        - generic [ref=e39]:
+          - paragraph [ref=e40]
+          - paragraph [ref=e41]:
+            - text: LDPW SERIES PINFET TELECORDIA RELIABILITY REPORT
+            - text: IS NOW AVAILABLE
+        - generic [ref=e42]:
+          - paragraph [ref=e43]
+          - paragraph [ref=e44]:
+            - link ">> CLICK HERE TO REQUEST ACCESS" [ref=e45] [cursor=pointer]:
+              - /url: our_company/contact-us
+  - paragraph [ref=e47]:
+    - text: OSI LaserDiode © 2021 All Rights Reserved |
+    - link "Terms of Use" [ref=e48] [cursor=pointer]:
+      - /url: https://www.laserdiode.com/page/terms-of-use
+    - text: "|"
+    - link "Privacy Policy" [ref=e49] [cursor=pointer]:
+      - /url: https://www.laserdiode.com/page/privacy-policy
+    - text: "|"
+    - link "Cookies Policy" [ref=e50] [cursor=pointer]:
+      - /url: https://www.laserdiode.com/page/cookies-policy
+  - generic: Powered byOneTrust
+  - generic [ref=e51]:
+    - link "Close Banner" [ref=e54] [cursor=pointer]:
+      - /url: "#"
+    - generic [ref=e55]:
+      - generic [ref=e57]:
+        - paragraph [ref=e58]: We Respect Your Privacy.
+        - paragraph [ref=e59]:
+          - text: We use cookies to personalize content, to provide social media features, and to analyze our traffic. We also share information about your use of our site with our social media and analytics partners.
+          - link "Cookies Policy" [ref=e60] [cursor=pointer]:
+            - /url: http://laserdiode.com/pages/cookies-policy
+      - generic [ref=e61]:
+        - link "✓Accept Cookies" [ref=e64] [cursor=pointer]:
+          - /url: "#"
+        - link "❯ Cookie Settings" [ref=e67] [cursor=pointer]:
+          - /url: "#"

@@ -1,0 +1,24 @@
+[     397ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://www.ti.com/document-viewer/SBOA268:0
+[     754ms] TypeError: Cannot read properties of undefined (reading 'en-US')
+    at https://www.ti.com/assets/js/@ticom/header-content/1.latest/en/js/header-responsive.js:66:28573
+[     802ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://cm.g.doubleclick.net/pixel?tealium_cookie_sync=true&google_nid=tealium_dmp&google_cm&tealium_vid=019f098f38e700161343470c4dce0506f002a06700bd8&tealium_account=ti&tealium_profile=main:0
+[     833ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://c.amazon-adsystem.com/aat/amzn.js:0
+[     913ms] [LOG] %c EvalError
+    at Ua (https://www.ti.com/Dl82I3Ui/init.js:2:24937)
+    at ac (https://www.ti.com/Dl82I3Ui/init.js:2:27845)
+    at https://www.ti.com/Dl82I3Ui/init.js:2:195803
+    at https://www.ti.com/Dl82I3Ui/init.js:2:195911
+    at https://www.ti.com/Dl82I3Ui/init.js:2:196260
+    at https://www.ti.com/Dl82I3Ui/init.js:2:196263 @ https://www.ti.com/Dl82I3Ui/init.js:1
+[    1068ms] TypeError: Cannot read properties of undefined (reading 'en-US')
+    at https://www.ti.com/assets/js/@ticom/header-content/1.latest/en/js/header-responsive.js:66:28573
+[    1242ms] [LOG] TrafficAgent: Initializing storage protection for internal items. @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[    1243ms] [LOG] Client code is required to start Traffic Agent. Please provide it in the script tag or as a query param. @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[    1245ms] [LOG] Starting TrafficAgent for client code: KA-86773-5 @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[    1499ms] [ERROR] Refused to apply style from 'https://www.ti.com/assets/js/@ticom/header-components/2.latest/ui-components.css' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled. @ https://www.ti.com/document-viewer/SBOA268:0
+[    6946ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://ad.doubleclick.net/ccm/s/collect?auid=834602018.1782571815&gtm=45be66p0h2v9102670282za200zb877924380zd877924380xec:0
+[    6948ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://www.ti.com/cartmodel/mini-cart?includeItems=false&locale=en-US:0
+[    6979ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://id.rlcdn.com/464526.gif:0
+[    7399ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://www.ti.com/cartmodel/mini-cart?currency=USD&includeItems=true&locale=en-US&cartType=PAID:0
+[    7436ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://dsum-sec.casalemedia.com/rum?cm_dsp_id=18&expiry=1798383014&external_user_id=4af1dd7e-6d21-4a3a-bc7f-22f91fef4230:0
+[    7441ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://pixel.rubiconproject.com/tap.php?nid=5578&put=4af1dd7e-6d21-4a3a-bc7f-22f91fef4230&v=1181926:0

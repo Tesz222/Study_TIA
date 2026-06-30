@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 7：综合盲走 + Cross-probe + 结业</title>
+  <link rel="stylesheet" href="../../assets/lesson.css">
+  <style>
+    .step { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.8rem; margin: 0.6rem 0; }
+    .step h3 { color: #1e40af; margin: 0 0 0.3rem 0; font-size: 1rem; }
+    .act { background: #fffbeb; border-left: 4px solid #d97706; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .info { background: #eff6ff; border-left: 4px solid #2563eb; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .warn { background: #fef2f2; border-left: 4px solid #dc2626; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .final-test { background: #f0fdf4; border: 2px solid #16a34a; border-radius: 10px; padding: 1rem; margin: 1rem 0; }
+    .final-test h3 { color: #166534; margin-top: 0; }
+    .chk-list { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; }
+    .kbd { display: inline-block; background: #1e293b; color: #e2e8f0; border-radius: 4px; padding: 0.1em 0.5em; font-family: monospace; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+
+<h1>📅 Day 7 · 综合盲走 + Cross-probe + 结业</h1>
+<p style="color: var(--text-secondary);">
+  预计用时 2 小时 · 今天是毕业日！
+</p>
+
+<blockquote>
+  <strong>本日目标</strong><br>
+  ✅ 会 Cross-probe 在 OrCAD 和 Allegro 之间交互定位<br>
+  ✅ 45 分钟内盲走完整流程<br>
+  ✅ 知道遇到问题去哪里查（F1 帮助、Cadence 社区、EDA365）<br>
+  ✅ 快捷键形成肌肉记忆
+</blockquote>
+
+<hr>
+
+<h2>任务 7.1：Cross-probe 交互定位</h2>
+
+<div class="info">Cross-probe 是 Cadence 最强大的功能之一——在 OrCAD 原理图上点选一个器件，Allegro PCB 上自动高亮并定位到对应的器件。反过来也同理。</div>
+
+<div class="step">
+  <h3>▶ 7.1.1 准备工作</h3>
+  <div class="act"><span class="chk">☐</span> 打开 OrCAD 中的原理图文件（Day 3 做的 .dsn）</div>
+  <div class="act"><span class="chk">☐</span> 打开 Allegro 中的 PCB 文件（Day 6 做的 .brd）</div>
+  <div class="act"><span class="chk">☐</span> 两个窗口并排显示（左右各一半）</div>
+</div>
+
+<div class="step">
+  <h3>▶ 7.1.2 从 OrCAD 定位到 Allegro</h3>
+  <div class="act"><span class="chk">☐</span> 在 OrCAD 中<strong>选中</strong>一个器件（点击运放 U1）</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>Alt+Ctrl+F11</kbd>（或点击工具栏的 Cross-probe 图标——一个带双向箭头的大头针）</div>
+  <div class="act"><span class="chk">☐</span> 看 Allegro — 它会自动将 U1 移动到屏幕中央并高亮</div>
+  <div class="act"><span class="chk">☐</span> 也可以在 OrCAD 中<strong>框选</strong>多个器件 → Cross-probe → Allegro 同时高亮这组器件</div>
+</div>
+
+<div class="step">
+  <h3>▶ 7.1.3 从 Allegro 定位到 OrCAD</h3>
+  <div class="act"><span class="chk">☐</span> 在 Allegro 中选中一个器件（点击它）</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Tools → Cross-probe</kbd>（或点击相同的 Cross-probe 图标）</div>
+  <div class="act"><span class="chk">☐</span> 看 OrCAD — 自动定位到对应器件</div>
+  <div class="act"><span class="chk">☐</span> 在 Allegro 中按 <kbd>Shift+F5</kbd> 高亮一个网络 → 再 Cross-probe → OrCAD 中对应的网络被高亮</div>
+  <div class="info">💡 在检查 PCB 走线时非常有用：在 Allegro 中看到一根走线，想知道它在原理图上是哪个信号，高亮 → Cross-probe 即可。</div>
+</div>
+
+<hr>
+
+<div class="final-test">
+<h2>🎯 任务 7.2：盲走挑战（毕业考试）</h2>
+
+<div class="info">这是最后也是最关键的任务。<strong>不翻教程、不查笔记</strong>，从零开始完成以下电路设计。</div>
+
+<p><strong>考试要求</strong>：</p>
+<ul>
+  <li>全程用快捷键，尽量不使用鼠标点击菜单</li>
+  <li>遇到卡住的地方，先凭记忆解决，实在想不起来可以看一眼教程再继续</li>
+  <li>计时，目标 45 分钟内完成</li>
+</ul>
+
+<p><strong>考试电路：单通道 TIA 前放</strong></p>
+<pre style="font-size:0.85rem;">
+BOM：
+  PIN 光电二极管 x1（2 pins，用 DIODE 符号代替）
+  OPA381 x1（SOIC-8）
+  100k 电阻 x1（R0603）
+  0.68pF 电容 x1（C0402）
+  0.1uF 电容 x2（C0402）
+  10uF 电容 x1（C0805）
+  连接器 x1（HEADER 2，2 pins）
+</pre>
+
+<h3>✅ OrCAD 部分（20 分钟内）</h3>
+<div class="act"><span class="chk">☐</span> 新建 Project → Analog or Mixed A/D</div>
+<div class="act"><span class="chk">☐</span> 按 <kbd>P</kbd> 放置所有器件（OPA381、DIODE、R、C、HEADER）</div>
+<div class="act"><span class="chk">☐</span> 按 <kbd>W</kbd> 走线连接</div>
+<div class="act"><span class="chk">☐</span> 按 <kbd>F</kbd>/<kbd>G</kbd> 加电源和地</div>
+<div class="act"><span class="chk">☐</span> 按 <kbd>N</kbd> 给输入输出标网络名</div>
+<div class="act"><span class="chk">☐</span> 修改 PCB Footprint（Ctrl+E）</div>
+<div class="act"><span class="chk">☐</span> 跑 DRC（Tools → Design Rules Check）→ 0 Error</div>
+<div class="act"><span class="chk">☐</span> 生成网表（Tools → Create Netlist）</div>
+
+<h3>✅ Allegro 部分（25 分钟内）</h3>
+<div class="act"><span class="chk">☐</span> 新 Board → Cross-section 配 4 层板</div>
+<div class="act"><span class="chk">☐</span> 画板框 30x20 mm</div>
+<div class="act"><span class="chk">☐</span> 导入网表（File → Import → Logic）</div>
+<div class="act"><span class="chk">☐</span> 按 <kbd>M</kbd> / <kbd>R</kbd> 摆放器件</div>
+<div class="act"><span class="chk">☐</span> 按 <kbd>I</kbd> 走线</div>
+<div class="act"><span class="chk">☐</span> 铺地铜（Shape → Add Rect → GND）</div>
+<div class="act"><span class="chk">☐</span> DRC → 0</div>
+<div class="act"><span class="chk">☐</span> 出 Gerber + 钻孔</div>
+
+<p style="font-size:1.1rem; text-align:center;"><strong>🏆 完成以上所有步骤 → 你毕业了！</strong></p>
+</div>
+
+<hr>
+
+<h2>任务 7.3：建立自学能力（最后一课）</h2>
+
+<div class="info">毕业后你不再是初学者了。但 Cadence 功能庞大，越学越深。这一课教你怎么自己继续学。</div>
+
+<div class="step">
+  <h3>📖 7.3.1 学会用 Help（F1）</h3>
+  <div class="act"><span class="chk">☐</span> 打开 Allegro → 按 <kbd>F1</kbd></div>
+  <div class="act"><span class="chk">☐</span> 在 Help 中搜索 <code>Routing</code> → 打开第一条结果</div>
+  <div class="act"><span class="chk">☐</span> 学会在 Help 中通过 <strong>Search</strong> 查找关键字</div>
+  <div class="info">💡 Cadence 的帮助文档极为详尽，95% 的操作问题都可以在 Help 中找到答案。</div>
+</div>
+
+<div class="step">
+  <h3>📖 7.3.2 学会用 online 资源</h3>
+  <table>
+    <tr><th>资源</th><th>网址</th><th>用途</th></tr>
+    <tr><td>Cadence 官方社区</td><td>community.cadence.com</td><td>官方论坛，搜索"PCB Design"板块，有大量问答</td></tr>
+    <tr><td>EDA365</td><td>eda365.com</td><td>国内最大的 Cadence 中文论坛</td></tr>
+    <tr><td>EMA Design Automation</td><td>ema-eda.com/resources/</td><td>免费 OrCAD/Allegro 教程、视频</td></tr>
+    <tr><td>Cadence 官方博客</td><td>cadence.com/blogs</td><td>新功能介绍、技巧分享</td></tr>
+    <tr><td>B站</td><td>搜索"Allegro 入门"</td><td>大量中文视频教程</td></tr>
+  </table>
+  <div class="act"><span class="chk">☐</span> 把以上网址添加到浏览器书签中</div>
+</div>
+
+<div class="step">
+  <h3>📖 7.3.3 下一阶段学习方向</h3>
+  <div class="info">七天学完你已经掌握了从原理图到 PCB 投板的完整流程。如果想继续深入，以下几个方向：</div>
+  <table>
+    <tr><th>方向</th><th>学习内容</th><th>建议学习顺序</th></tr>
+    <tr><td>封装制作</td><td>用 PCB Librarian 创建焊盘和封装</td><td>⭐ 第一优先（工作中最常用）</td></tr>
+    <tr><td>Constraint Manager</td><td>差分对、等长走线、阻抗控制</td><td>⭐ 第二优先（高速信号必备）</td></tr>
+    <tr><td>SKILL 脚本</td><td>用 SKILL 语言自动化重复操作</td><td>🔶 进阶</td></tr>
+    <tr><td>Signal Integrity</td><td>Sigrity 仿真</td><td>🔶 进阶</td></tr>
+    <tr><td>PSpice 仿真</td><td>在 OrCAD 中做电路仿真</td><td>🔶 进阶（模拟工程师推荐）</td></tr>
+  </table>
+</div>
+
+<hr>
+
+<h2>📋 Day 7 检查清单</h2>
+
+<div class="chk-list">
+  <ol>
+    <li><span class="chk">☐</span> <strong>会 Cross-probe</strong> — OrCAD 和 Allegro 之间交互定位</li>
+    <li><span class="chk">☐</span> <strong>盲走挑战完成</strong> — 45 分钟内从零到 Gerber（可以不完美，但不能卡死）</li>
+    <li><span class="chk">☐</span> <strong>知道 3 个自学资源</strong> — F1 Help、community.cadence.com、EDA365</li>
+    <li><span class="chk">☐</span> <strong>快捷键已形成肌肉记忆</strong> — 不看键盘能按出 P/W/N/F/G/I/O/R/M/R/I/V</li>
+  </ol>
+</div>
+
+<hr>
+
+<h2>🎉 结业证书</h2>
+
+<div style="border: 3px double #1e40af; border-radius: 15px; padding: 1.5rem; text-align:center; margin:1rem 0;">
+  <p style="font-size:1.5rem; color:#1e40af; margin:0;">🏆 结业证书</p>
+  <p style="font-size:1rem; margin:0.5rem 0;">经过 7~14 天的学习</p>
+  <p style="font-size:1.2rem; font-weight:600; margin:0.3rem 0;">你已掌握 Cadence OrCAD + Allegro 的核心技能</p>
+  <hr style="width:60%;">
+  <table style="margin:0 auto; text-align:left;">
+    <tr><td>✅</td><td>能独立画原理图并生成网表</td></tr>
+    <tr><td>✅</td><td>能独立做 PCB 布局布线</td></tr>
+    <tr><td>✅</td><td>能出 Gerber 投板文件</td></tr>
+    <tr><td>✅</td><td>会 Cross-probe 交互检查</td></tr>
+    <tr><td>✅</td><td>遇到问题知道去哪里查</td></tr>
+  </table>
+  <hr style="width:60%;">
+  <p style="font-size:0.85rem; color:#555;">Study_TIA 教学工坊 · 2026</p>
+</div>
+
+<blockquote>
+  <strong>最后的话</strong><br><br>
+  <strong>最难的是前三天</strong>——快捷键记不住、菜单找不到、封装匹配报错。但你坚持下来了。<br><br>
+  从今天开始，你拥有了一个全新的能力：把电路图纸变成真正的 PCB。<br><br>
+  工作中每遇到一个新功能，记住三步法：<br>
+  1. 按 <kbd>F1</kbd> 在 Help 中搜关键字<br>
+  2. 去 community.cadence.com 翻论坛问答<br>
+  3. 去 EDA365 问中文问题<br><br>
+  祝你板板一次成功！<br>
+  到此，Cadence 七天学习营毕业。🎉
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Day 7 of 7 · Study_TIA Cadence 学习营 · 2026
+</p>
+
+</body>
+</html>

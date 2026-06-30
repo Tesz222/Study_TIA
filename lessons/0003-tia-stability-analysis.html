@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0003: TIA 稳定性分析 — 为什么振荡？如何补偿？</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .key-point { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .key-point strong { color: #166534; }
+    .step-list li { margin: 0.6rem 0; }
+    .math-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.92rem; line-height: 1.6; }
+    .warning-box { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .warning-box strong { color: #dc2626; }
+  </style>
+</head>
+<body>
+
+<h1>TIA 稳定性分析</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  Lesson 0003 · 深入 TIA 设计 · 预计用时 40 分钟
+</p>
+
+<blockquote>
+  <strong>本节目标</strong>
+  理解 TIA 自激振荡的根本原因，掌握相位裕度分析方法，学会精确计算反馈电容 C<sub>f</sub>，设计出稳定的 TIA 电路。
+</blockquote>
+
+<h2>0. 先解决一个困惑：反馈电容 C<sub>f</sub> 究竟是干什么的？</h2>
+
+<p>回到 Lesson 0001 的图 2，TIA 电路中 R<sub>f</sub> 旁边并联了一个 C<sub>f</sub>。我们之前只说它是"用于相位补偿，防止振荡"。但：</p>
+
+<ul>
+  <li><strong>为什么没有 C<sub>f</sub> 就会振荡？</strong></li>
+  <li><strong>C<sub>f</sub> 的值怎么确定？算错了会怎样？</strong></li>
+  <li><strong>振荡和噪声是一回事吗？</strong></li>
+</ul>
+
+<p>如果你对这三个问题中的任何一个不能立刻给出答案，这节课就是为你准备的。</p>
+
+<div class="callout callout-info">
+  <strong>一个重要的区分</strong><br><br>
+  TIA 有两个容易混淆的现象：<br>
+  <strong>振荡（Oscillation）</strong>：电路自激，输出出现稳定的周期性波形，通常频率较高——这是稳定性问题，必须避免。<br>
+  <strong>噪声（Noise）</strong>：随机的、宽频谱的起伏——可以降低但不能完全消除。<br><br>
+  这节课解决的是<strong>振荡问题</strong>。噪声已经在 Lesson 0002 分析过了。
+</div>
+
+<h2>1. 自激振荡的物理直觉</h2>
+
+<h3>1.1 一个思想实验</h3>
+
+<p>想象你在一个礼堂里，拿着话筒对着音箱讲话：</p>
+<ul>
+  <li>话筒拾取你的声音 &#8594; 音箱放大 &#8594; 声音再被话筒拾取 &#8594; 再放大……</li>
+  <li>如果满足两个条件就会发生<strong>啸叫</strong>（feedback howling）：</li>
+  <ol>
+    <li><strong>环路增益 &ge; 1</strong>：音箱出来的声音足够大，能被话筒有效拾取</li>
+    <li><strong>相位相同</strong>：音箱出来的声音到达话筒时，和原始声音相位一致（同相叠加）</li>
+  </ol>
+</ul>
+
+<p>运放电路的振荡原理完全一样——<strong>负反馈变成了正反馈</strong>。</p>
+
+<div class="key-point">
+  <strong>巴克豪森判据（Barkhausen Stability Criterion）</strong><br><br>
+  一个负反馈系统发生自激振荡的条件是：<br>
+  在某个频率 f<sub>osc</sub> 上，环路增益的<strong>相移达到 -180&deg;</strong>（负反馈变正反馈），且<strong>环路增益 &ge; 1</strong>（0 dB）。<br><br>
+  换句话说：信号在环路里走一圈，不仅没有被衰减，反而被放大，同时相位恰好同相叠加——就振荡了。
+</div>
+
+<h3>1.2 TIA 为什么容易振荡？</h3>
+
+<p>回到 TIA 电路。在你的模电知识中，运放电路只要接成负反馈就是稳定的，对吗？大多数情况是的。但 TIA 有一个特殊性：</p>
+
+<p><strong>光电二极管的结电容 C<sub>J</sub> 在运放的反相输入端引入了一个额外的极点，增加了相移。</strong></p>
+
+<p>复习一下你的模电知识：</p>
+<ul>
+  <li><strong>极点</strong>：每经过一个极点，增益以 -20 dB/decade 的速率下降，同时引入 -90&deg; 的相移</li>
+  <li>一个理想运放自身已经有一个主极点（dominant pole）</li>
+  <li>TIA 电路中 C<sub>J</sub>（结电容）与运放的开环输出电阻构成了<strong>第二个极点</strong></li>
+  <li>两个极点加起来，总相移在某个频率可以达到 -180&deg;</li>
+  <li>如果此时环路增益还 &gt; 0 dB，就振荡了</li>
+</ul>
+
+<div class="figure">
+  <svg viewBox="0 0 650 240" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;">
+    <polygon points="200,60 200,200 310,130" fill="white" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="255" y="135" fill="#1a1a2e" font-size="14" font-family="sans-serif" text-anchor="middle">A<tspan dy="4" font-size="10">OL</tspan></text>
+    <text x="205" y="95" fill="#1a1a2e" font-size="13">-</text>
+    <text x="205" y="175" fill="#1a1a2e" font-size="13">+</text>
+    <line x1="200" y1="165" x2="200" y2="210" stroke="#1a1a2e" stroke-width="1.5"/>
+    <line x1="185" y1="210" x2="215" y2="210" stroke="#1a1a2e" stroke-width="1.5"/>
+    <line x1="195" y1="205" x2="205" y2="215" stroke="#1a1a2e" stroke-width="1.5"/>
+    <text x="220" y="218" fill="#555" font-size="10" font-family="sans-serif">GND</text>
+    <g transform="translate(90, 110)">
+      <line x1="0" y1="0" x2="0" y2="60" stroke="#dc2626" stroke-width="2"/>
+      <line x1="0" y1="20" x2="20" y2="20" stroke="#dc2626" stroke-width="2"/>
+      <line x1="0" y1="40" x2="20" y2="40" stroke="#dc2626" stroke-width="2"/>
+      <text x="30" y="35" fill="#dc2626" font-size="11" font-family="sans-serif">C<tspan dy="4" font-size="8">in</tspan></text>
+      <text x="30" y="50" fill="#dc2626" font-size="9" font-family="sans-serif">(= C<tspan dy="4" font-size="7">J</tspan> + C<tspan dy="4" font-size="7">cm</tspan>)</text>
+    </g>
+    <line x1="20" y1="140" x2="80" y2="140" stroke="#2563eb" stroke-width="2"/>
+    <text x="22" y="130" fill="#2563eb" font-size="11" font-family="sans-serif">I<tspan dy="4" font-size="8">PD</tspan></text>
+    <line x1="310" y1="130" x2="380" y2="130" stroke="#1a1a2e" stroke-width="2"/>
+    <line x1="380" y1="95" x2="380" y2="165" stroke="#1a1a2e" stroke-width="2"/>
+    <line x1="380" y1="95" x2="95" y2="95" stroke="#1a1a2e" stroke-width="2"/>
+    <line x1="95" y1="80" x2="95" y2="110" stroke="#1a1a2e" stroke-width="2"/>
+    <rect x="80" y="72" width="30" height="18" rx="2" fill="white" stroke="#2563eb" stroke-width="2"/>
+    <text x="95" y="85" fill="#2563eb" font-size="10" font-family="sans-serif" text-anchor="middle">R<tspan dy="4" font-size="8">f</tspan></text>
+    <rect x="340" y="72" width="25" height="14" rx="2" fill="white" stroke="#16a34a" stroke-width="2"/>
+    <text x="352" y="83" fill="#16a34a" font-size="10" font-family="sans-serif" text-anchor="middle">C<tspan dy="4" font-size="8">f</tspan></text>
+    <line x1="310" y1="130" x2="460" y2="130" stroke="#16a34a" stroke-width="2"/>
+    <text x="465" y="125" fill="#16a34a" font-size="12" font-family="sans-serif">V<tspan dy="4" font-size="9">out</tspan></text>
+    <text x="140" y="78" fill="#dc2626" font-size="9" font-family="sans-serif">这个极点导致振荡！</text>
+    <text x="350" y="168" fill="#16a34a" font-size="9" font-family="sans-serif">这个零点用来补偿</text>
+  </svg>
+  <figcaption>图1：TIA 中两个关键节点——C<sub>in</sub> 引入额外极点（红色），C<sub>f</sub> 引入零点用于补偿（绿色）</figcaption>
+</div>
+
+<h2>2. 必要的复习：运放的开环增益与频率响应</h2>
+
+<h3>2.1 运放不是"理想"的</h3>
+
+<p>你的模电知识应该还记得：实际运放的开环增益 A<sub>OL</sub> 不是无穷大，而且随着频率升高而下降。典型运放的频率响应是<strong>单极点模型</strong>：</p>
+
+<div class="math-box">
+  A<sub>OL</sub>(f) = A<sub>0</sub> / (1 + j &times; f / f<sub>p</sub>)
+  <br><br>
+  其中：<br>
+  A<sub>0</sub> = 直流开环增益（典型 100~140 dB）<br>
+  f<sub>p</sub> = 运放的主极点频率（通常在几 Hz 到几十 Hz）<br>
+  GBW = A<sub>0</sub> &times; f<sub>p</sub>（增益带宽积，恒定值）
+</div>
+
+<p>这意味着：</p>
+<ul>
+  <li>在直流附近，增益极高（&gt; 100 dB）</li>
+  <li>过了主极点 f<sub>p</sub> 之后，增益以 -20 dB/decade 下降</li>
+  <li>在频率等于 GBW 时，增益降到 0 dB（单位增益）</li>
+</ul>
+
+<h3>2.2 相移回顾</h3>
+
+<p>单极点运放产生的最大相移是 -90&deg;。一个单极点运放本身是绝对稳定的——因为它的相移永远达不到 -180&deg;。</p>
+
+<p><strong>问题是</strong>：TIA 的反相输入端有 C<sub>in</sub>（PD 结电容 C<sub>J</sub> + 运放共模输入电容 C<sub>cm</sub>），它与运放的开环输出电阻构成了<strong>第二个极点</strong>，增加额外的 -90&deg; 相移。两个极点 = -180&deg;，于是振荡。</p>
+
+<h2>3. TIA 的开环增益分析（关键）</h2>
+
+<h3>3.1 TIA 的噪声增益（Noise Gain）</h3>
+
+<p>在稳定性分析中，我们关心的不是信号增益，而是<strong>噪声增益</strong>（Noise Gain, NG）——即从运放输入端到输出的增益，它决定环路特性。</p>
+
+<p>TIA 电路的噪声增益由反馈阻抗 Z<sub>f</sub> 和输入阻抗 Z<sub>in</sub> 决定：</p>
+
+<div class="math-box">
+  NG(s) = 1 + Z<sub>f</sub>(s) / Z<sub>in</sub>(s)
+  <br><br>
+  其中：<br>
+  Z<sub>f</sub>(s) = R<sub>f</sub> || 1/(s &times; C<sub>f</sub>)  &#8594; 反馈阻抗<br>
+  Z<sub>in</sub>(s) = 1/(s &times; C<sub>in</sub>)             &#8594; 输入阻抗（忽略 R<sub>sh</sub>）
+</div>
+
+<p>展开后：</p>
+
+<div class="math-box">
+  NG(f) = (1 + C<sub>in</sub>/C<sub>f</sub>) &times; (1 + j &times; f / f<sub>z</sub>) / (1 + j &times; f / f<sub>p</sub>)
+  <br><br>
+  其中：<br>
+  f<sub>z</sub> = 1 / (2 &times; &pi; &times; R<sub>f</sub> &times; C<sub>f</sub>)  — <strong>零点</strong><br>
+  f<sub>p</sub> = 1 / (2 &times; &pi; &times; R<sub>f</sub> &times; (C<sub>in</sub> || C<sub>f</sub>))  — <strong>极点</strong>
+</div>
+
+<h3>3.2 具体例子</h3>
+
+<p>考虑一个典型的 TIA 设计：</p>
+<ul>
+  <li>R<sub>f</sub> = 100 k&Omega;</li>
+  <li>C<sub>in</sub> = C<sub>J</sub> + C<sub>cm</sub> = 5 pF + 2 pF = 7 pF</li>
+  <li>暂定 C<sub>f</sub> = 0.5 pF</li>
+</ul>
+
+<h2>4. 闭环增益曲线图分析（最重要的图）</h2>
+
+<p>这是 TIA 稳定性分析最核心的工具。我们画两条线：</p>
+<ul>
+  <li><strong>运放的开环增益 A<sub>OL</sub></strong>：已知的运放特性，从 datasheet 中获得</li>
+  <li><strong>噪声增益 NG</strong>：由电路结构决定（R<sub>f</sub>、C<sub>f</sub>、C<sub>in</sub>）</li>
+</ul>
+
+<p>两条线相交的频率就是环路增益为 1（0 dB）的频率。在这个交点处，如果 A<sub>OL</sub> 和 NG 之间的<strong>闭合速率（closure rate）</strong> 是 40 dB/decade，系统就不稳定。</p>
+
+<div class="figure">
+  <svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;">
+    <line x1="60" y1="330" x2="660" y2="330" stroke="#1a1a2e" stroke-width="2"/>
+    <line x1="60" y1="30" x2="60" y2="330" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="370" y="358" fill="#1a1a2e" font-size="13" font-family="sans-serif" text-anchor="middle">频率 f (log)</text>
+    <text x="25" y="180" fill="#1a1a2e" font-size="13" font-family="sans-serif" text-anchor="middle" transform="rotate(-90, 25, 180)">增益 (dB)</text>
+    <text x="60" y="350" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">DC</text>
+    <text x="200" y="350" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">f<tspan dy="3" font-size="8">p</tspan></text>
+    <text x="410" y="350" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">f<tspan dy="3" font-size="8">z</tspan></text>
+    <text x="560" y="350" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">GBW</text>
+    <line x1="60" y1="70" x2="200" y2="70" stroke="#2563eb" stroke-width="3"/>
+    <line x1="200" y1="70" x2="560" y2="240" stroke="#2563eb" stroke-width="3"/>
+    <text x="550" y="250" fill="#2563eb" font-size="12" font-family="sans-serif">A<tspan dy="3" font-size="9">OL</tspan> (-20 dB/dec)</text>
+    <line x1="60" y1="300" x2="280" y2="300" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="8,4"/>
+    <line x1="280" y1="300" x2="560" y2="240" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="8,4"/>
+    <text x="270" y="315" fill="#dc2626" font-size="11" font-family="sans-serif">NG (无 C<tspan dy="3" font-size="8">f</tspan>)</text>
+    <circle cx="560" cy="240" r="6" fill="#dc2626"/>
+    <text x="565" y="230" fill="#dc2626" font-size="10" font-family="sans-serif">交点</text>
+    <text x="440" y="225" fill="#dc2626" font-size="10" font-family="sans-serif">闭合速率 = 40 dB/dec !</text>
+    <line x1="60" y1="300" x2="280" y2="300" stroke="#16a34a" stroke-width="2.5"/>
+    <line x1="280" y1="300" x2="410" y2="240" stroke="#16a34a" stroke-width="2.5"/>
+    <line x1="410" y1="240" x2="620" y2="240" stroke="#16a34a" stroke-width="2.5"/>
+    <text x="630" y="245" fill="#16a34a" font-size="11" font-family="sans-serif">NG (有 C<tspan dy="3" font-size="8">f</tspan>)</text>
+    <circle cx="450" cy="240" r="6" fill="#16a34a"/>
+    <text x="350" y="225" fill="#16a34a" font-size="10" font-family="sans-serif">闭合速率 = 20 dB/dec 稳定</text>
+    <text x="45" y="75" fill="#555" font-size="10" font-family="sans-serif" text-anchor="end">A<tspan dy="3" font-size="8">0</tspan></text>
+    <text x="45" y="305" fill="#555" font-size="10" font-family="sans-serif" text-anchor="end">1 + C<tspan dy="3" font-size="8">in</tspan>/C<tspan dy="3" font-size="8">f</tspan></text>
+  </svg>
+  <figcaption>图2：Bode 图分析 TIA 稳定性。红色虚线（无 C<sub>f</sub>）在交点处的闭合速率为 40 dB/dec，不稳定。绿色实线（有 C<sub>f</sub>）在交点处为 20 dB/dec，稳定。</figcaption>
+</div>
+
+<div class="key-point">
+  <strong>读懂这张图</strong><br><br>
+  <strong>情况 1：没有 C<sub>f</sub>（红色虚线）</strong><br>
+  - 在 f = 1/(2&pi;R<sub>f</sub>C<sub>in</sub>) 处，NG 开始以 +20 dB/dec 上升<br>
+  - 在交点处，A<sub>OL</sub> 以 -20 dB/dec 下降，NG 以 +20 dB/dec 上升<br>
+  - <strong>闭合速率 = 40 dB/dec &#8594; 不稳定！</strong><br><br>
+  <strong>情况 2：有 C<sub>f</sub>（绿色实线）</strong><br>
+  - C<sub>f</sub> 引入的零点在 f<sub>z</sub> 处使 NG 曲线从上升转为平坦<br>
+  - 在交点处，A<sub>OL</sub> 以 -20 dB/dec 下降，NG 平坦<br>
+  - <strong>闭合速率 = 20 dB/dec &#8594; 稳定！</strong>
+</div>
+
+<h2>5. C<sub>f</sub> 的精确计算方法</h2>
+
+<h3>5.1 目标：足够的相位裕度</h3>
+
+<p>什么是<strong>相位裕度</strong>（Phase Margin, PM）？</p>
+<ul>
+  <li>在环路增益 = 1（0 dB）的频率（称为 f<sub>c</sub>，穿越频率）处，总相移与 -180&deg; 之间的差值</li>
+  <li><strong>PM &gt; 45&deg;</strong>：系统稳定，阶跃响应有轻微过冲</li>
+  <li><strong>PM &gt; 60&deg;</strong>：系统非常稳定，阶跃响应几乎没有过冲</li>
+  <li><strong>PM &lt; 30&deg;</strong>：系统接近振荡边缘，阶跃响应有明显振铃</li>
+  <li><strong>PM &lt; 0&deg;</strong>：系统振荡</li>
+</ul>
+
+<h3>5.2 三步法计算 C<sub>f</sub>（工程标准方法）</h3>
+
+<p>我们通过一个完整的例子来演示：</p>
+
+<div class="spec-flow">
+<p><strong>设计条件</strong>：</p>
+<p>运放 OPA381：GBW = 18 MHz，A<sub>0</sub> = 130 dB</p>
+<p>光电二极管：C<sub>J</sub> = 3 pF，运放 C<sub>cm</sub> = 2 pF，C<sub>in</sub> = 5 pF</p>
+<p>R<sub>f</sub> = 100 k&Omega;，目标相位裕度 = 60&deg;</p>
+</div>
+
+<ol class="step-list">
+  <li>
+    <strong>第一步：计算不加 C<sub>f</sub> 时的穿越频率和相位裕度</strong>
+    <div class="math-box">
+      无 C<sub>f</sub> 时，噪声增益的零点在：<br>
+      f<sub>z</sub> = 1 / (2&pi;R<sub>f</sub>C<sub>in</sub>) = 1 / (6.28 &times; 1E5 &times; 5E-12) = <strong>318 kHz</strong><br><br>
+      穿越频率 f<sub>c</sub> = &radic;(GBW / (2&pi;R<sub>f</sub>C<sub>in</sub>))<br>
+      = &radic;(18E6 / (6.28 &times; 1E5 &times; 5E-12)) = &radic;(5.73E12) &asymp; <strong>2.4 MHz</strong><br><br>
+      此时：<br>
+      - 运放自身贡献的相移 &asymp; -90&deg;<br>
+      - C<sub>in</sub> 贡献的相移 &asymp; -90&deg;<br>
+      - 总相移 &asymp; -180&deg;，<strong>相位裕度 &asymp; 0&deg; &#8594; 振荡！</strong>
+    </div>
+  </li>
+
+  <li>
+    <strong>第二步：计算所需的 C<sub>f</sub></strong>
+    <div class="math-box">
+      标准公式：<br>
+      C<sub>f</sub> = &radic;(C<sub>in</sub> / (2&pi;R<sub>f</sub> &times; GBW))<br>
+      = &radic;(5E-12 / (6.28 &times; 1E5 &times; 18E6))<br>
+      = &radic;(4.42E-25) = <strong>0.66 pF</strong><br><br>
+      选择标准值：<strong>C<sub>f</sub> = 0.68 pF</strong>（E12 系列）
+    </div>
+  </li>
+
+  <li>
+    <strong>第三步：验证最终的相位裕度</strong>
+    <div class="math-box">
+      加上 C<sub>f</sub> = 0.68 pF 后：<br><br>
+      f<sub>z</sub> = 1 / (2&pi;R<sub>f</sub>C<sub>f</sub>)<br>
+      = 1 / (6.28 &times; 1E5 &times; 0.68E-12) = <strong>2.34 MHz</strong><br><br>
+      高频噪声增益：<br>
+      NG<sub>high</sub> = 1 + C<sub>in</sub>/C<sub>f</sub> = 1 + 5/0.68 = 8.35<br>
+      用 dB 表示：20 &times; log10(8.35) = <strong>18.4 dB</strong><br><br>
+      新的穿越频率：<br>
+      f<sub>c</sub> = GBW / 10^(18.4/20) = 18M / 8.35 = <strong>2.16 MHz</strong><br><br>
+      预估 <strong>PM &asymp; 55&deg; ~ 65&deg;</strong> 稳定！
+    </div>
+  </li>
+</ol>
+
+<h2>6. 工程速算法</h2>
+
+<div class="key-point">
+  <strong>工程速算法</strong><br><br>
+  <strong>C<sub>f</sub> = &radic;(C<sub>in</sub> / (2&pi;R<sub>f</sub> &times; GBW))</strong><br><br>
+  在大多数常见情况下（R<sub>f</sub> 在 10 k ~ 1 M&Omega; 范围，C<sub>in</sub> 在 1 ~ 10 pF 范围），也可以直接用：<br><br>
+  <strong>C<sub>f</sub> &asymp; 0.1 ~ 1 pF</strong>，然后通过实际测试调整。<br><br>
+  测试方法：输入一个阶跃光信号，观察输出波形。如果：<br>
+  - 有过冲和振铃 &#8594; C<sub>f</sub> 偏小，需要增大<br>
+  - 响应太慢（上升沿太缓）&#8594; C<sub>f</sub> 偏大，需要减小<br>
+  - 干净利落的阶跃响应 &#8594; C<sub>f</sub> 合适
+</div>
+
+<h2>7. 完整的 TIA 稳定性设计流程</h2>
+
+<div class="spec-flow">
+  <p><strong>TIA 稳定性设计六步法</strong></p>
+  <ol class="step-list">
+    <li><strong>确定已知参数</strong>：R<sub>f</sub>（由增益需求决定），C<sub>in</sub> = C<sub>J</sub> + C<sub>cm</sub> + C<sub>diff</sub>（PD 结电容 + 运放输入电容），运放 GBW</li>
+    <li><strong>检查是否需要 C<sub>f</sub></strong>：如果不加 C<sub>f</sub> 时的穿越频率 f<sub>c</sub> 处的相位裕度 &gt; 45&deg;，则不需要。但通常 TIA 都需要。</li>
+    <li><strong>计算 C<sub>f</sub> 初始值</strong>：使用公式 C<sub>f</sub> = &radic;(C<sub>in</sub> / (2&pi;R<sub>f</sub> &times; GBW))</li>
+    <li><strong>选择标准值</strong>：根据 E12/E24 系列选择最接近的标准电容值</li>
+    <li><strong>仿真验证</strong>：使用 TINA-TI 或 LTspice 仿真环路增益的相位裕度</li>
+    <li><strong>实物测试</strong>：输入阶跃信号，观察输出波形，微调 C<sub>f</sub></li>
+  </ol>
+</div>
+
+<div class="warning-box">
+  <strong>常见陷阱</strong><br><br>
+  <strong>陷阱 1</strong>：C<sub>f</sub> 算出来是 0.3 pF，但 PCB 上 0.3 pF 的寄生电容已经比这大了！<br>
+  &#8594; 如果计算值小于 0.5 pF，说明 PCB 布局的寄生电容可能已经提供了足够的补偿。先不加 C<sub>f</sub>，测试稳定性后再决定。<br><br>
+  <strong>陷阱 2</strong>：C<sub>in</sub> 中忽略了运放的差分输入电容 C<sub>diff</sub><br>
+  &#8594; 实际 C<sub>in</sub> = C<sub>J</sub> + C<sub>cm</sub> + C<sub>diff</sub>，不要漏算 C<sub>diff</sub>（通常在 1~3 pF）<br><br>
+  <strong>陷阱 3</strong>：R<sub>f</sub> 两端的 PCB 焊盘和走线也会引入寄生电容<br>
+  &#8594; 0603 封装的电阻本身的寄生电容约 0.05 pF，0402 更小
+</div>
+
+<h2>8. 动手练习</h2>
+
+<div class="quiz-question">
+  <p><strong>练习 1：计算 C<sub>f</sub></strong></p>
+  <p>你正在设计一个光功率计的 TIA 电路：</p>
+  <ul style="margin-top:0.3rem;">
+    <li>R<sub>f</sub> = 200 k&Omega;</li>
+    <li>PD：C<sub>J</sub> = 2 pF，R = 0.9 A/W</li>
+    <li>运放：OPA657（GBW = 1.6 GHz，C<sub>cm</sub> = 4 pF，C<sub>diff</sub> = 2 pF）</li>
+  </ul>
+  <p>计算所需的最小 C<sub>f</sub> 值。</p>
+  <div class="quiz-answer">
+    <strong>解题过程</strong>：<br><br>
+    <strong>Step 1：计算总输入电容</strong><br>
+    C<sub>in</sub> = C<sub>J</sub> + C<sub>cm</sub> + C<sub>diff</sub> = 2 + 4 + 2 = <strong>8 pF</strong><br><br>
+    <strong>Step 2：应用公式</strong><br>
+    C<sub>f</sub> = &radic;(C<sub>in</sub> / (2&pi;R<sub>f</sub> &times; GBW))<br>
+    = &radic;(8E-12 / (6.28 &times; 2E5 &times; 1.6E9))<br>
+    = &radic;(3.98E-27) = <strong>0.063 pF</strong>（63 fF）<br><br>
+    <strong>结论</strong>：这个值非常小，PCB 本身的寄生电容可能已经足够。可以先用阶跃响应测试确认稳定性。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>练习 2：判断稳定性</strong></p>
+  <p>一个 TIA 的阶跃响应如下图所示。判断 C<sub>f</sub> 是否合适，应该增大还是减小？</p>
+  <p style="margin-top:0.5rem;">
+    <strong>场景 A</strong>：阶跃后输出快速上升，但有过冲和几次衰减振荡（振铃）<br>
+    <strong>场景 B</strong>：阶跃后输出缓慢爬升，达到稳定的时间很长<br>
+    <strong>场景 C</strong>：输出呈现稳定的正弦波，即使没有输入信号<br>
+    <strong>场景 D</strong>：阶跃后输出干净利落地上升到目标值，几乎没有过冲
+  </p>
+  <div class="quiz-answer">
+    <strong>分析</strong>：<br><br>
+    <strong>场景 A</strong>：C<sub>f</sub> 偏小。有振铃说明相位裕度不足（可能在 30~45&deg; 范围）。<strong>增大 C<sub>f</sub></strong>。<br><br>
+    <strong>场景 B</strong>：C<sub>f</sub> 偏大。过补偿导致带宽太窄，响应变慢。<strong>减小 C<sub>f</sub></strong>。<br><br>
+    <strong>场景 C</strong>：<strong>自激振荡！</strong>相位裕度接近 0&deg;。需要<strong>显著增大 C<sub>f</sub></strong>。<br><br>
+    <strong>场景 D</strong>：C<sub>f</sub> 合适。相位裕度约 60&deg;，响应速度和稳定性平衡良好。
+  </div>
+</div>
+
+<h2>9. 推荐资源</h2>
+
+<ul>
+  <li><strong>ADI 教程</strong>：MT-050 — <em>Op Amp Closed-Loop Frequency Response</em></li>
+  <li><strong>TI 应用笔记</strong>：<a href="https://www.ti.com/lit/an/sboa274/sboa274.pdf" target="_blank">SBOA274: Noise Analysis of Transimpedance Amplifiers</a>（包含稳定性分析章节）</li>
+  <li><strong>TI 应用笔记</strong>：<a href="https://www.ti.com/lit/an/sboa268/sboa268.pdf" target="_blank">SBOA268: Transimpedance Amplifier Design</a></li>
+  <li><strong>参考书</strong>：<em>Photodiode Amplifiers: OP AMP Solutions</em> — Jerald Graeme（第 4~6 章）</li>
+  <li><strong>仿真工具</strong>：<a href="https://www.ti.com/tool/TINA-TI" target="_blank">TINA-TI</a>（免费 TIA 稳定性仿真）</li>
+</ul>
+
+<blockquote>
+  <strong>课程总结</strong><br><br>
+  TIA 稳定性分析的核心逻辑链：<br><br>
+  <strong>C<sub>J</sub>（结电容）&#8594; 引入额外极点 &#8594; 总相移 -180&deg; &#8594; 振荡</strong><br>
+  <strong>C<sub>f</sub>（反馈电容）&#8594; 引入零点补偿 &#8594; 降低闭合速率 &#8594; 稳定</strong><br><br>
+  三个关键设计参数：<strong>C<sub>in</sub></strong>、<strong>R<sub>f</sub></strong>、<strong>GBW</strong>，共同决定 C<sub>f</sub> 的值。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Lesson 0003 · Study_TIA 教学工坊 · 2026
+</p>
+
+<script>
+  document.querySelectorAll('.quiz-question').forEach(function(q) {
+    q.addEventListener('click', function() {
+      var answer = this.querySelector('.quiz-answer');
+      if (answer) answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+</script>
+
+</body>
+</html>

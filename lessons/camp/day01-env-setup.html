@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 1：环境准备 + 界面熟悉 + 快捷键初识</title>
+  <link rel="stylesheet" href="../../assets/lesson.css">
+  <style>
+    .step { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.8rem; margin: 0.6rem 0; }
+    .step h3 { color: #1e40af; margin: 0 0 0.3rem 0; font-size: 1rem; }
+    .act { background: #fffbeb; border-left: 4px solid #d97706; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .info { background: #eff6ff; border-left: 4px solid #2563eb; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .chk-list { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; }
+    .kbd { display: inline-block; background: #1e293b; color: #e2e8f0; border-radius: 4px; padding: 0.1em 0.5em; font-family: monospace; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+
+<h1>📅 Day 1 · 环境准备 + 界面熟悉 + 快捷键初识</h1>
+<p style="color: var(--text-secondary);">
+  预计用时 1~1.5 小时 · 完成 4 项检查清单后进入 Day 2
+</p>
+
+<blockquote>
+  <strong>本日目标</strong><br>
+  ✅ 能正确选择 Product Choices 并启动 OrCAD Capture 和 Allegro PCB Designer<br>
+  ✅ 知道 File → Change Product 可以切换产品特性<br>
+  ✅ 在空白的原理图页上盲按出 P / W / F / G / N / I / O / R 这 8 个快捷键
+</blockquote>
+
+<hr>
+
+<h2>任务 1.1：启动 OrCAD Capture 并选对 Product Choice</h2>
+
+<div class="step">
+  <h3>▶ 1.1.1 找到 OrCAD Capture CIS</h3>
+  <div class="info">Cadence 17.4 在桌面没有快捷方式，必须从开始菜单启动。</div>
+  <div class="act"><span class="chk">☐</span> 点击 Windows <strong>开始</strong> 按钮（或按键盘 Windows 键）</div>
+  <div class="act"><span class="chk">☐</span> 在搜索框中输入 <strong>Capture CIS</strong></div>
+  <div class="act"><span class="chk">☐</span> 看到 <strong>OrCAD Capture CIS</strong> 或 <strong>Capture CIS</strong> 图标后，点击打开</div>
+  <div class="act"><span class="chk">☐</span> 如果找不到，在开始菜单中找 Cadence 文件夹：<strong>Cadence → Release 17.4 → OrCAD Capture CIS</strong></div>
+</div>
+
+<div class="step">
+  <h3>⚠ 1.1.2 第一次启动：Product Choices 弹窗</h3>
+  <div class="info">第一次打开时，会弹出一个叫 <strong>Cadence Product Choices</strong> 的窗口，里面列了很多选项。<br>这是 Cadence 让你选择以哪个产品模式运行——原理图、仿真、还是 PCB 布局。</div>
+  <div class="act"><span class="chk">☐</span> 在列表中<strong>找到 "OrCAD Capture CIS"</strong> 这一行（列表可能很长，往下翻）</div>
+  <div class="act"><span class="chk">☐</span> 点击选中它</div>
+  <div class="act"><span class="chk">☐</span> 在窗口左下方找到 <strong>Use as default</strong> 复选框，<strong>勾选上</strong></div>
+  <div class="act"><span class="chk">☐</span> 点击 <strong>OK</strong></div>
+  <div class="info">💡 勾选 Use as default 后，下次打开就不会再弹这个窗口了。如果想换，看下一步。</div>
+</div>
+
+<div class="step">
+  <h3>▶ 1.1.3 验证：确认进入了 OrCAD Capture 主界面</h3>
+  <div class="act"><span class="chk">☐</span> 确认看到以下界面元素：</div>
+  <ul>
+    <li>顶部：菜单栏（File / Edit / View / Place / Tools / Reports / Help）</li>
+    <li>左侧：项目管理器（Project Manager）树形结构</li>
+    <li>中间：灰色的原理图编辑区域（目前是空的）</li>
+    <li>底部：Session Log 窗口</li>
+  </ul>
+  <div class="info">💡 如果界面全是英文，不要慌——Cadence 业界标准就是英文界面，中文版反而查不到资料。</div>
+</div>
+
+<div class="step">
+  <h3>▶ 1.1.4 学会切换产品特性（非常重要）</h3>
+  <div class="info">如果哪天你需要用到 PSpice 仿真功能，或者想从 OrCAD 模式切换到 Allegro 模式，不需要重装软件。</div>
+  <div class="act"><span class="chk">☐</span> 在 OrCAD 菜单栏上点击 <strong>File → Change Product</strong></div>
+  <div class="act"><span class="chk">☐</span> 你会再次看到 Product Choices 窗口（和第一次启动时一样）</div>
+  <div class="act"><span class="chk">☐</span> 浏览一下各选项，找到 "OrCAD PSpice Designer" 在哪一行</div>
+  <div class="act"><span class="chk">☐</span> 不要切换，点击 <strong>Cancel</strong> 退出</div>
+  <div class="info">💡 记住这个路径：File → Change Product。以后如果你需要仿真或切换 Allegro 模式，就用它。</div>
+</div>
+
+<hr>
+
+<h2>任务 1.2：启动 Allegro PCB Editor</h2>
+
+<div class="step">
+  <h3>▶ 1.2.1 找到 Allegro PCB Designer</h3>
+  <div class="act"><span class="chk">☐</span> 开始菜单 → 搜索 <strong>Allegro PCB Designer</strong></div>
+  <div class="act"><span class="chk">☐</span> 或找：<strong>Cadence → Release 17.4 → PCB Editor</strong></div>
+</div>
+
+<div class="step">
+  <h3>⚠ 1.2.2 Product Choices（Allegro 版）</h3>
+  <div class="act"><span class="chk">☐</span> 弹窗后，选择 <strong>Allegro PCB Designer</strong></div>
+  <div class="act"><span class="chk">☐</span> 在 <strong>Options</strong> 区域中，<strong>把能勾的全勾上</strong>（避免后续提示 License 不足）</div>
+  <div class="act"><span class="chk">☐</span> 勾选 <strong>Use as default</strong></div>
+  <div class="act"><span class="chk">☐</span> 点击 OK</div>
+</div>
+
+<div class="step">
+  <h3>▶ 1.2.3 浏览 Allegro 主界面</h3>
+  <div class="act"><span class="chk">☐</span> 确认进入 Allegro PCB Editor 主界面</div>
+  <div class="act"><span class="chk">☐</span> 浏览菜单栏：<strong>Setup、Display、Manufacture、Tools</strong>——这几个是以后最常用的</div>
+  <div class="act"><span class="chk">☐</span> 观察右侧的 Options 面板和底部的命令栏（以后会经常看这里）</div>
+  <div class="act"><span class="chk">☐</span> 观察完毕后，直接关掉——不需要保存（File → Exit，不保存）</div>
+</div>
+
+<hr>
+
+<h2>任务 1.3：快捷键初识（最重要的 8 个键）</h2>
+
+<div class="info">Cadence 设计哲学：<strong>键盘比鼠标快 3~5 倍</strong>。高手不用点菜单，全程键盘。今天先记住 8 个最基础的。</div>
+
+<div class="step">
+  <h3>▶ 1.3.1 回到 OrCAD 并新建一个空白页</h3>
+  <div class="act"><span class="chk">☐</span> 如果 OrCAD 刚才关掉了，重新打开（已勾选 Use as default，不会弹窗了）</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>Ctrl+N</kbd>（新建）→ 在 File Name 中输入 <code>EMPTY</code> → OK</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>I</kbd>（放大）几次，看到灰色编辑区域</div>
+  <div class="info">按 I 是 Zoom In（放大），按 O 是 Zoom Out（缩小）。和一般软件不一样，OrCAD 用 I/O 而不是 +/-。</div>
+</div>
+
+<div class="step">
+  <h3>🎯 1.3.2 练习 8 个快捷键（每个按键重复 3 遍）</h3>
+
+  <p><strong>第一组：放置类（P / W / F / G / N）</strong></p>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>P</kbd> → 弹出 Place Part 窗口 → 随便选一个器件 → 放下来 → 按 <kbd>Esc</kbd> 退出</div>
+  <div class="info"><kbd>P</kbd> = Place Part（放置器件）。记住：P = Part。</div>
+
+  <div class="act"><span class="chk">☐</span> 按 <kbd>W</kbd> → 光标变成十字 → 在页面上点两下画一条线 → 按 <kbd>Esc</kbd> 退出</div>
+  <div class="info"><kbd>W</kbd> = Place Wire（走线/导线）。记住：W = Wire。</div>
+
+  <div class="act"><span class="chk">☐</span> 按 <kbd>F</kbd> → 弹出一个窗口 → 选 VCC 符号 → 放下来 → <kbd>Esc</kbd></div>
+  <div class="info"><kbd>F</kbd> = Place Power（电源符号）。不用记理由，记住 F 就行。</div>
+
+  <div class="act"><span class="chk">☐</span> 按 <kbd>G</kbd> → 选 GND（或 0/SOURCE）符号 → 放下来 → <kbd>Esc</kbd></div>
+  <div class="info"><kbd>G</kbd> = Place Ground（地符号）。G = Ground。</div>
+
+  <div class="act"><span class="chk">☐</span> 按 <kbd>N</kbd> → 弹出 Net Alias 窗口 → 输入 <code>TEST</code> → 放在一根线上 → <kbd>Esc</kbd></div>
+  <div class="info"><kbd>N</kbd> = Place Net Alias（网络别名/网标）。N = Net。</div>
+
+  <p><strong>第二组：导航和编辑类（I / O / R）</strong></p>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>I</kbd>（放大）→ 按 <kbd>O</kbd>（缩小）→ 重复 3 次</div>
+  <div class="act"><span class="chk">☐</span> 选中一个器件 → 按 <kbd>R</kbd>（旋转）→ 看它转了 90 度</div>
+  <div class="info"><kbd>I</kbd> = Zoom In, <kbd>O</kbd> = Zoom Out, <kbd>R</kbd> = Rotate。</div>
+</div>
+
+<div class="step">
+  <h3>🎯 1.3.3 连续操作练习</h3>
+  <div class="act"><span class="chk">☐</span> 按以下顺序连续操作，<strong>不碰鼠标</strong>：</div>
+  <ol>
+    <li><kbd>P</kbd> 放一个电阻 → <kbd>Esc</kbd></li>
+    <li><kbd>R</kbd> 旋转它</li>
+    <li><kbd>W</kbd> 在电阻两端画两条线 → <kbd>Esc</kbd></li>
+    <li><kbd>F</kbd> 放一个电源符号到一条线上 → <kbd>Esc</kbd></li>
+    <li><kbd>G</kbd> 放一个地符号到另一条线上 → <kbd>Esc</kbd></li>
+  </ol>
+  <div class="info">💡 第一次用鼠标点菜单可能需要 10 秒，按快捷键只要 1 秒。练习 3 遍后，你的手就会记住。</div>
+</div>
+
+<div class="step">
+  <h3>🎯 1.3.4 记忆口诀</h3>
+  <div class="info">
+    <p style="font-size:1rem; font-weight:600; text-align:center;">
+      P 放器件 W 走线，N 标网名 F 电源<br>
+      G 接地，R 旋转，I 放大 O 缩小<br>
+      八个按键记心间，从此不点工具栏
+    </p>
+  </div>
+</div>
+
+<hr>
+
+<h2>📋 Day 1 检查清单</h2>
+
+<div class="chk-list">
+  <ol>
+    <li><span class="chk">☐</span> <strong>能正确选择 Product Choices</strong>——Capture 选 OrCAD Capture CIS，Allegro 选 Allegro PCB Designer，都勾了 Use as default</li>
+    <li><span class="chk">☐</span> <strong>知道 File → Change Product</strong>——打开看过，知道在哪里切换产品特性</li>
+    <li><span class="chk">☐</span> <strong>成功打开过 Allegro PCB Designer</strong>——选对了 Product Choice，看过了界面</li>
+    <li><span class="chk">☐</span> <strong>在空白页上盲按出 P/W/F/G/N/I/O/R</strong>——不看键盘、不点鼠标、按出来就是对的</li>
+  </ol>
+  <p style="text-align:center; margin:0.5rem 0 0 0;">
+    <strong>✅ 全部打勾 → 进入 Day 2</strong><br>
+    <strong>❌ 没打完 → 明天先补完再学 Day 2</strong>
+  </p>
+</div>
+
+<hr>
+
+<h2>常见问题</h2>
+
+<table>
+  <tr><th>问题</th><th>原因</th><th>解决方法</th></tr>
+  <tr><td>Product Choices 窗口选错了</td><td>手快点错了选项</td><td>打开 File → Change Product，重新选正确的</td></tr>
+  <tr><td>勾了 Use as default，但想换产品特性</td><td>改了主意</td><td>File → Change Product 可以重新选，取消勾选 Use as default</td></tr>
+  <tr><td>按 P 没反应</td><td>输入法在中文模式</td><td>切到英文输入法（按 Shift 切换）</td></tr>
+  <tr><td>找不到 DISCRETE.olb</td><td>库路径没加载</td><td>在 Place Part 窗口点 Add Library，到 <code>tools\capture\library\</code> 下找</td></tr>
+</table>
+
+<blockquote>
+  <strong>今天的任务到此结束。</strong><br><br>
+  只做 4 件事：启动 Capture → 选对选项 → 启动 Allegro → 按 8 个键。<br>
+  就这么多。不多不少。全部完成大约 1 小时。<br><br>
+  如果今天的 4 项检查清单全部打勾了，你已经完成了环境准备，明天可以开始真正画原理图了！
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Day 1 of 7 · Study_TIA Cadence 学习营 · 2026
+</p>
+
+</body>
+</html>

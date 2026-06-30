@@ -1,0 +1,106 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e6]:
+      - generic:
+        - banner
+      - generic [ref=e9]:
+        - button "toggle menu" [ref=e10] [cursor=pointer]:
+          - img [ref=e11]
+        - link "Analog Devices" [ref=e13] [cursor=pointer]:
+          - /url: https://www.analog.com/en/index.html
+          - img [ref=e14]
+        - complementary [ref=e16]:
+          - button "search" [ref=e17] [cursor=pointer]:
+            - img [ref=e18]
+          - button "cart" [disabled] [ref=e21]:
+            - img [ref=e23]
+  - main [ref=e25]:
+    - article [ref=e29]:
+      - generic [ref=e31]:
+        - generic [ref=e32]: This is a 404 Error
+        - alert [ref=e33]: This is a 404 Error - Ahhh, Technology. We can’t find that page. - We can’t seem to find that page. Please use the navigation to reach what you are looking for - Get Help
+        - generic [ref=e34]: Ahhh, Technology. We can’t find that page.
+        - generic [ref=e35]: We can’t seem to find that page. Please use the navigation to reach what you are looking for.
+        - link "gethelp Get Help" [ref=e36] [cursor=pointer]:
+          - /url: /en/support.html
+          - img "gethelp" [ref=e37]
+          - generic [ref=e38]: Get Help
+  - contentinfo [ref=e39]:
+    - contentinfo [ref=e44]:
+      - generic [ref=e45]:
+        - link "Analog Devices" [ref=e47] [cursor=pointer]:
+          - /url: https://www.analog.com/en/index.html
+          - img [ref=e48]
+        - heading "About Analog Devices" [level=2] [ref=e52]
+        - heading "Find Help" [level=2] [ref=e54]
+        - generic [ref=e55]:
+          - heading "myAnalog" [level=2] [ref=e56]
+          - paragraph [ref=e57]: Interested in the latest news and articles about ADI products, design tools, training, and events?
+          - link "Sign Up Now" [ref=e58] [cursor=pointer]:
+            - /url: https://my.analog.com/en/app/
+            - text: Go to myAnalog
+        - generic [ref=e59]:
+          - generic [ref=e61]:
+            - button "myAnalog" [ref=e62] [cursor=pointer]:
+              - img [ref=e63]
+            - button "Log In" [ref=e74] [cursor=pointer]:
+              - generic: Log In
+              - text: "|"
+              - generic: Sign up
+          - button "ENG $ USD" [ref=e75] [cursor=pointer]:
+            - generic [ref=e76]:
+              - img [ref=e77]
+              - generic [ref=e80]: ENG
+            - generic [ref=e81]:
+              - generic [ref=e82]: $
+              - generic [ref=e83]: USD
+        - list [ref=e84]:
+          - generic:
+            - listitem [ref=e85]:
+              - link "EZ" [ref=e86] [cursor=pointer]:
+                - /url: https://ez.analog.com/
+                - img "EZ" [ref=e87]
+            - listitem [ref=e88]:
+              - link "Linkedin" [ref=e89] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/analog-devices
+                - img "Linkedin" [ref=e90]
+            - listitem [ref=e91]:
+              - link "Instagram" [ref=e92] [cursor=pointer]:
+                - /url: https://www.instagram.com/analogdevices/?hl=en
+                - img "Instagram" [ref=e93]
+            - listitem [ref=e94]:
+              - link "Youtube" [ref=e95] [cursor=pointer]:
+                - /url: https://www.youtube.com/c/analogdevicesinc
+                - img "Youtube" [ref=e96]
+            - listitem [ref=e97]:
+              - link "Facebook" [ref=e98] [cursor=pointer]:
+                - /url: https://www.facebook.com/AnalogDevicesInc
+                - img "Facebook" [ref=e99]
+            - listitem [ref=e100]:
+              - link "Twitter" [ref=e101] [cursor=pointer]:
+                - /url: https://twitter.com/adi_news
+                - img "Twitter" [ref=e102]
+      - generic [ref=e103]:
+        - list [ref=e104]:
+          - generic:
+            - listitem [ref=e105]:
+              - link "Legal and Risk" [ref=e106] [cursor=pointer]:
+                - /url: https://www.analog.com/en/who-we-are/legal-and-risk-oversight.html
+            - listitem [ref=e107]:
+              - link "Accessibility" [ref=e108] [cursor=pointer]:
+                - /url: https://www.analog.com/en/who-we-are/legal-and-risk-oversight/accessibility-statement.html
+            - listitem [ref=e109]:
+              - link "Privacy Policy" [ref=e110] [cursor=pointer]:
+                - /url: https://www.analog.com/en/who-we-are/legal-and-risk-oversight/data-privacy/privacy-policy.html
+            - listitem [ref=e111]:
+              - link "Privacy Settings" [ref=e112] [cursor=pointer]:
+                - /url: https://www.analog.com/en/lp/001/privacy-settings.html
+            - listitem [ref=e113]:
+              - link "Cookie Settings" [ref=e114] [cursor=pointer]:
+                - /url: https://www.analog.com/en/who-we-are/legal-and-risk-oversight/data-privacy/cookie-notice.html
+        - list [ref=e115]:
+          - listitem [ref=e116]:
+            - link "IPC Link":
+              - /url: https://beian.miit.gov.cn/
+              - text: 沪ICP备09046653号-1
+        - generic [ref=e117]: ©2026 Analog Devices, Inc. All Rights Reserved

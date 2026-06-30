@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0008: 铁氧体磁珠 — 精密信号链的电源噪声防线</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .z-diagram {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin: 1.2rem 0;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .z-diagram svg text { font-family: 'Inter', sans-serif; }
+    .callout-compare {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .compare-col {
+      flex: 1;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .compare-col h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.3rem;
+      text-align: center;
+    }
+    .compare-col.bead h4 { color: var(--accent-dark); }
+    .compare-col.ind h4 { color: #b45309; }
+    .compare-col p { font-size: 0.85rem; margin: 0.3rem 0; }
+    @media (max-width: 600px) {
+      .callout-compare { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>铁氧体磁珠 — 精密信号链的电源噪声防线</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  光电检测信号链 · Lesson 0008
+</p>
+
+<blockquote>
+  <strong>关键洞察</strong>
+  <p>铁氧体磁珠看似不起眼，但它是精密模拟电路中<em>最容易被误用</em>的元件之一。把磁珠当成电感用，或者把电感当成磁珠用——这类错误在甚至专业工程师的设计中也不少见。本节课后，你将能<strong>看一眼就知道该用磁珠还是电感</strong>。</p>
+</blockquote>
+
+<!-- ============================================ -->
+<!--  SECTION 1: WHAT IS A FERRITE BEAD          -->
+<!-- ============================================ -->
+<h2>1. 什么是铁氧体磁珠</h2>
+
+<p>铁氧体磁珠（Ferrite Bead / Ferrite Chip Bead）本质上是一个<strong>单匝电感器</strong>——一段穿过铁氧体材料的导体。但它的行为与电感截然不同：</p>
+
+<ul>
+  <li><strong>低频时</strong>（通常 &lt;1 MHz）：表现为低值电感（几十 nH） + 极低电阻（DCR），接近短路</li>
+  <li><strong>高频时</strong>（通常在 10~100 MHz 区间）：铁氧体材料的磁损耗将高频能量转化为热量，表现为纯电阻</li>
+  <li><strong>在谐振频率以上</strong>：阻抗呈容性，滤波效果迅速下降</li>
+</ul>
+
+<div class="z-diagram">
+<pre>
+Z (Ω)
+  │
+  │          ┌────────────────── R(ω) — 磁损耗电阻占主导
+  │         ╱
+  │        ╱
+  │       ╱
+  │      ╱   X(ω) — 感抗占主导（低频段）
+  │     ╱
+  │    ╱
+  │   ╱
+  │  ╱
+  │ ╱
+  └───────────────────────────────→ f (Hz)
+       f₁          f₂
+  （感抗=电阻）  （谐振频率）
+
+f₁ ≈ f_res / 4  — 磁珠的交叉频率
+f₂ = f_res      — 谐振频率，之后呈容性
+</pre>
+<p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 0.3rem;">图1: 铁氧体磁珠的阻抗-频率特性示意。R(ω) 和 X(ω) 的交点通常在 10~50 MHz。</p>
+</div>
+
+<h3>1.1 材料分类</h3>
+<table>
+  <tr><th>类型</th><th>适用频率</th><th>μ<sub>i</sub> (初始磁导率)</th><th>典型应用</th></tr>
+  <tr><td>NiZn 铁氧体</td><td>1 MHz ~ 数百 MHz</td><td>100~1500</td><td>信号线 EMI、高频电源噪声</td></tr>
+  <tr><td>MnZn 铁氧体</td><td>10 kHz ~ 10 MHz</td><td>2000~15000</td><td>低频共模扼流圈、电源输入滤波</td></tr>
+</table>
+<p>电路板上的贴片磁珠几乎全是 <strong>NiZn</strong> 材料——因为你关心的噪声通常在 10 MHz 以上（开关电源纹波、数字电路辐射）。</p>
+
+<!-- ============================================ -->
+<!--  SECTION 2: BEAD vs INDUCTOR               -->
+<!-- ============================================ -->
+<h2>2. 磁珠 vs 电感 — 核心区别</h2>
+
+<p>这是最重要的区分，值得花时间理解透彻：</p>
+
+<div class="callout-compare">
+
+<div class="compare-col bead">
+  <h4>铁氧体磁珠</h4>
+  <p><strong>工作原理</strong>：磁损耗 → 热量</p>
+  <p><strong>高频行为</strong>：电阻性（吸收能量）</p>
+  <p><strong>Q 值</strong>：低（故意制造损耗）</p>
+  <p><strong>直流压降</strong>：低（DCR 通常 &lt;0.5 Ω）</p>
+  <p><strong>谐振</strong>：有（之后变容性，需避开）</p>
+  <p><strong>额定电流</strong>：受限于发热 + 饱和</p>
+  <p><strong>典型用途</strong>：电源噪声滤波、信号线 EMI 抑制</p>
+</div>
+
+<div class="compare-col ind">
+  <h4>电感器</h4>
+  <p><strong>工作原理</strong>：磁场储能 → 感抗</p>
+  <p><strong>高频行为</strong>：电抗性（反射能量）</p>
+  <p><strong>Q 值</strong>：高（追求低损耗）</p>
+  <p><strong>直流压降</strong>：低（DCR 通常 &lt;0.1 Ω）</p>
+  <p><strong>谐振</strong>：有（自谐振频率，之后变容性）</p>
+  <p><strong>额定电流</strong>：受限于磁饱和</p>
+  <p><strong>典型用途</strong>：DC-DC 储能、LC 谐振、低通滤波</p>
+</div>
+
+</div>
+
+<div class="callout callout-warning">
+  <strong>⚠ 工程直觉 — 一句话记住</strong>
+  <p><em>磁珠消耗高频噪声（R），电感阻挡高频噪声（X<sub>L</sub>）。</em><br>
+  用在电源轨上：如果负载电流大且变化快（如 FPGA 内核供电），用电感；如果负载是小信号模拟电路（TIA、ADC），用磁珠。<br>
+  <strong>把磁珠用在大电流数字电源轨上</strong>（如 >500 mA）是你最容易犯的错——饱和后磁珠失效，噪声全通。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 3: KEY SPECIFICATIONS             -->
+<!-- ============================================ -->
+<h2>3. 关键参数 — 读数据手册</h2>
+
+<p>以一颗典型贴片磁珠（如 <strong>BLM18PG121SN1</strong>，Murata 0603）为例：</p>
+
+<table>
+  <tr><th>参数</th><th>数值</th><th>工程含义</th></tr>
+  <tr>
+    <td>Z @ 100 MHz</td><td>120 Ω (±25%)</td>
+    <td>磁珠的"型号标称值"。120 Ω 是最常见的规格之一。注意这只是单频点数据，不代表全频段表现。</td>
+  </tr>
+  <tr>
+    <td>DCR</td><td>0.15 Ω 最大</td>
+    <td>直流电阻。DCR × I<sup>2</sup> = 自热功耗。在精密电路中，DCR × I 也是电源压降。</td>
+  </tr>
+  <tr>
+    <td>额定电流</td><td>300 mA</td>
+    <td>超过此电流磁珠进入饱和，阻抗急降→滤波失效。降额使用：<strong>实际电流 ≤ 70% 额定值</strong>。</td>
+  </tr>
+  <tr>
+    <td>f<sub>res</sub></td><td>~300 MHz</td>
+    <td>谐振频率。在此频率以上磁珠呈容性。如果你的噪声频率接近该点，需换更高 f<sub>res</sub> 的磁珠。</td>
+  </tr>
+</table>
+
+<h3>3.1 阻抗曲线</h3>
+
+<p>数据手册中最重要的图是 <strong>Z vs Frequency</strong> 曲线。读图要点：</p>
+
+<ul>
+  <li><strong>低频段</strong>（&lt;10 MHz）：Z ≈ X<sub>L</sub>，主要由电感分量贡献。可估算 L ≈ Z / (2πf)</li>
+  <li><strong>中频段</strong>（10~100 MHz）：R(ω) 开始赶上 X<sub>L</sub>，磁损耗机制启动</li>
+  <li><strong>高频段</strong>（&gt;f<sub>res</sub>）：寄生电容（绕组间 + 对地）主导，Z 开始下降</li>
+  <li><strong>有效抑制频段</strong>：Z ≥ 标称值 × 0.7 的频率范围——磁珠真正有用的区间</li>
+</ul>
+
+<div class="callout callout-info">
+  <strong>🔗 与你已学的连接</strong>
+  <p>在 Lesson 0004（TIA PCB 布局）中我们讨论了电源去耦。磁珠 + 电容组成 π 型滤波器（<em>磁珠→电容→负载</em>），是 TIA 和 ADC 电源轨上最常用的去耦结构。磁珠在 10~100 MHz 提供高阻，电容在 1 kHz~10 MHz 提供低阻抗路径，两者互补。你可以在参考的<a href="../reference/0001-tia-cheatsheet.html">TIA Cheatsheet</a>中看到它的位置。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 4: APPLICATION IN SIGNAL CHAIN     -->
+<!-- ============================================ -->
+<h2>4. 信号链中的磁珠应用</h2>
+
+<h3>4.1 TIA 电源轨滤波</h3>
+
+<div class="z-diagram">
+<pre>
++3.3V 模拟电源
+   │
+   │ ┌─────[磁珠]─────┬───── 到 TIA V+
+   │ │                │
+   │ │   ┌── ──┐      │
+   │ └───┤10µF │  ┌───┤100nF
+   │     └── ──┘  │   └────┘
+   │   电解/钽    │
+   │             └──── 到 GND
+   │
+  GND
+</pre>
+<p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 0.3rem;">图2: 标准 π 型滤波器（磁珠 + 电容对）。高频噪声→磁珠吸收→电容对提供低阻抗参考。</p>
+</div>
+
+<p>设计要点：</p>
+<ul>
+  <li><strong>电容对</strong>：10 µF（电解/MLCC）处理低频纹波 + 100 nF（MLCC）提供高频低阻抗</li>
+  <li><strong>磁珠位置</strong>：靠近电源输入端，电容靠近运放电源引脚</li>
+  <li><strong>磁珠选型</strong>：TIA 消耗电流通常很小（&lt;10 mA），选 100~600 Ω @ 100 MHz 的 NiZn 磁珠</li>
+  <li><strong>切忌</strong>：不要在所有电源轨上用同一款磁珠。模拟 vs 数字电源轨，噪声频谱不同，选型不同</li>
+</ul>
+
+<h3>4.2 ADC 参考电压去耦</h3>
+
+<p>ADC 的参考电压（V<sub>REF</sub>）是信号链中<strong>最敏感</strong>的节点——V<sub>REF</sub> 上的任何噪声都会直接进入测量结果：</p>
+
+<ul>
+  <li>16-bit ADC @ 3.3V V<sub>REF</sub>：1 LSB = 50 µV —— 参考电压上的噪声必须远小于此</li>
+  <li>推荐结构：LDO → 磁珠（100 Ω @ 100 MHz）→ 10 µF + 100 nF → V<sub>REF</sub> 引脚</li>
+  <li>也可用 0 Ω 电阻预留位，调试时可换磁珠比较效果</li>
+</ul>
+
+<h3>4.3 数字-模拟电源隔离</h3>
+
+<p>混合信号 PCB（你的仪表中必然存在——MCU + TIA + ADC）上的经典问题是：</p>
+
+<ul>
+  <li>数字电路（MCU、DSP）在时钟沿产生大量高频噪声（几十~几百 MHz）</li>
+  <li>这些噪声通过<strong>共用电源轨</strong>耦合到模拟电路</li>
+  <li>解法：模拟电源域与数字电源域之间用磁珠隔离——磁珠提供 AC 隔离而 DC 连通</li>
+</ul>
+
+<div class="callout callout-success">
+  <strong>💡 工程直觉</strong>
+  <p>在混合信号 PCB 的布局中，你可以在模拟电源的入口处放一个 <strong>0 Ω 电阻</strong> 的 PCB 封装（与磁珠同焊盘 0603/0805）。原型调试时先用 0 Ω，测量噪声底。如果发现模拟电源噪声过大（用示波器在 TIA 输出端看），再换上合适阻抗的磁珠。这是最严谨的调试方法。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 5: SELECTION GUIDE                -->
+<!-- ============================================ -->
+<h2>5. 选型指南</h2>
+
+<table>
+  <tr><th>场景</th><th>推荐阻抗 @ 100 MHz</th><th>DCR 上限</th><th>额定电流</th><th>注意事项</th></tr>
+  <tr>
+    <td>TIA 模拟电源</td><td>100~600 Ω</td><td>&lt;1 Ω</td><td>≥ 2× I<sub>supply</sub></td>
+    <td>低噪声优先，电流通常很小</td>
+  </tr>
+  <tr>
+    <td>ADC V<sub>REF</sub></td><td>100~300 Ω</td><td>&lt;0.5 Ω</td><td>≥ 2× I<sub>REF</sub></td>
+    <td>V<sub>REF</sub> 电流极小（µA 级）</td>
+  </tr>
+  <tr>
+    <td>MCU 数字电源</td><td>30~100 Ω</td><td>&lt;0.2 Ω</td><td>≥ 1.5× I<sub>DD</sub></td>
+    <td>数字电源电流大，谨防饱和</td>
+  </tr>
+  <tr>
+    <td>信号线 EMI</td><td>60~1000 Ω</td><td>不限</td><td>取决于信号电流</td>
+    <td>注意信号带宽——不要滤掉有用信号</td>
+  </tr>
+  <tr>
+    <td>VOA 驱动高压电源</td><td>100~300 Ω</td><td>&lt;2 Ω</td><td>≥ 2× I<sub>drive</sub></td>
+    <td>高压隔离需注意爬电距离</td>
+  </tr>
+</table>
+
+<div class="callout callout-warning">
+  <strong>⚠ 磁珠的"死穴"</strong>
+  <p><strong>饱和</strong>：当通过磁珠的直流电流超过其额定值时，铁氧体材料进入磁饱和，磁导率骤降→阻抗消失→滤波失效。<br>
+  <strong>温度漂移</strong>：铁氧体材料的磁导率随温度升高而下降。85°C 时阻抗可能只有室温下的 60%。<br>
+  <strong>自谐振</strong>：在 f<sub>res</sub> 以上磁珠变成电容——如果你试图滤除 500 MHz 噪声却用了 f<sub>res</sub>=200 MHz 的磁珠，反而会引入更多问题。</p>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 6: COMMON MISTAKES                -->
+<!-- ============================================ -->
+<h2>6. 常见错误</h2>
+
+<h3>错误 1：磁珠串联在低阻抗大电流电源轨上</h3>
+<p>例如在 FPGA 内核供电（1.1V / 5A）上串一只 600 Ω 磁珠。<br>
+<strong>后果</strong>：磁珠饱和失效，噪声全通。如果 DCR=0.1 Ω，5A 电流产生 0.5 V 压降，FPGA 可能欠压复位。<br>
+<strong>正确做法</strong>：大电流用 LC 滤波器（电感 + 电容）或直接 LDO。</p>
+
+<h3>错误 2：磁珠前后不加电容</h3>
+<p>磁珠单独使用无法形成 π 型滤波器，高频噪声通过分布电容耦合过去。<br>
+<strong>正确做法</strong>：磁珠两侧各对地加一个 MLCC，形成 T 型或 π 型滤波器。</p>
+
+<h3>错误 3：模拟和数字电源共用一颗磁珠</h3>
+<p>数字噪声通过磁珠后仍然可以耦合到模拟侧——共用的电源回路是噪声通道。<br>
+<strong>正确做法</strong>：模拟和数字供电从源端分开，各自独立磁珠 + 电容滤波。</p>
+
+<h3>错误 4：磁珠接地不当</h3>
+<p>磁珠用于隔离两个地平面时（"铁氧体隔离"），高频电流通过磁珠的寄生电容耦合过去，反而可能放大噪声。<br>
+<strong>正确做法</strong>：不要在信号地之间串磁珠。要隔离用分割地平面 + 桥接。</p>
+
+<!-- ============================================ -->
+<!--  SECTION 7: QUIZ                             -->
+<!-- ============================================ -->
+<h2>7. 练习与自测</h2>
+
+<div class="quiz-question">
+  <p><strong>问题 1</strong>：铁氧体磁珠在 100 MHz 时的阻抗为 600 Ω。你打算用它来滤除 30 MHz 的开关噪声。以下哪个判断正确？</p>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    A. 600 Ω @ 100 MHz 意味着它在 30 MHz 时阻抗约为 180 Ω，效果可能不够
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    B. 可以，磁珠在所有频率下阻抗都是 600 Ω
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    C. 30 MHz 是低频，应该用电感而不是磁珠
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q1')">
+    D. 30 MHz 已经超出磁珠的工作范围
+  </div>
+  <div id="q1" class="quiz-answer">
+    <strong>答案：A</strong><br>
+    磁珠的标称阻抗只在其测试频率（100 MHz）下有效。在 30 MHz 时，磁珠主要呈现感抗（X<sub>L</sub>），R(ω) 磁损耗机制尚未完全启动。典型阻抗曲线显示 30 MHz 处的 Z 约为 100 MHz 时的 30~50%。如果 600 Ω 是峰值频率的阻抗，30 MHz 处可能只有 ~180 Ω 甚至更低。此时应考虑选用更低频段优化的磁珠（如标称 120 Ω @ 30 MHz 的型号），或者用 LC 滤波器。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>问题 2</strong>：你的 TIA 电路供电电流为 5 mA，选择以下哪颗磁珠最合适？</p>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    A. 120 Ω @ 100 MHz, DCR=1.5 Ω, 额定电流=50 mA
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    B. 120 Ω @ 100 MHz, DCR=0.05 Ω, 额定电流=2 A
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    C. 600 Ω @ 100 MHz, DCR=0.3 Ω, 额定电流=200 mA
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q2')">
+    D. 10 Ω @ 100 MHz, DCR=0.01 Ω, 额定电流=3 A
+  </div>
+  <div id="q2" class="quiz-answer">
+    <strong>答案：C</strong><br>
+    TIA 供电电流只有 5 mA，所以额定电流不是约束条件（A/B/C/D 都满足 70% 降额规则）。关键是在 DCR 和阻抗之间平衡——A 的 DCR 高达 1.5 Ω，5 mA 下压降 7.5 mV 可能尚可接受，但 600 Ω 的磁珠提供更好的噪声抑制。C（600 Ω / 0.3 Ω / 200 mA）是这里的最优解。D 的 10 Ω 阻抗基本上没有滤波效果。记住：<strong>TIA 这种小信号电路上，磁珠的阻抗越大越好（在电流允许范围内）</strong>。
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p><strong>问题 3</strong>：以下哪种情况适合使用铁氧体磁珠而不是电感？</p>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    A. 3.3 V 数字 I/O 电源轨，负载电流 2 A
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    B. LDO 输出到 TIA V+ 引脚的去耦
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    C. 1.2 V FPGA 内核供电，负载电流 3 A
+  </div>
+  <div class="quiz-option" onclick="revealAnswer('q3')">
+    D. DC-DC 转换器的输出储能
+  </div>
+  <div id="q3" class="quiz-answer">
+    <strong>答案：B</strong><br>
+    LDO → TIA 的电源轨是典型的<strong>小电流模拟电源</strong>场景：电流小（~5 mA）、对高频噪声敏感。磁珠吸收噪声、不反射噪声，不会在模拟电源上引入谐振峰。A 和 C 电流太大，磁珠会饱和；D 是储能用途，需要电感的磁场储能特性。复习第 2 节的磁珠 vs 电感对比。
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!--  SECTION 8: SUMMARY                         -->
+<!-- ============================================ -->
+<h2>8. 小结</h2>
+
+<ul>
+  <li><strong>磁珠 = 高频电阻</strong>：它将高频噪声转化为热量，不同于电感的反射机制</li>
+  <li><strong>NiZn 铁氧体</strong>是 PCB 贴片磁珠的默认材料，有效范围 1~数百 MHz</li>
+  <li><strong>π 型滤波器</strong>（磁珠 + 电容对）是模拟电源轨的标准去耦结构</li>
+  <li><strong>电流</strong>是选型的第一约束：超过额定值 → 饱和 → 滤波失效</li>
+  <li><strong>磁珠不是电感</strong>：大电流电源用 LC 滤波器，小电流模拟电源用磁珠</li>
+  <li><strong>读曲线而非读标签</strong>：只看 100 MHz 标称阻抗不够，要看完整的 Z-f 曲线</li>
+</ul>
+
+<!-- ============================================ -->
+<!--  RESOURCES                                  -->
+<!-- ============================================ -->
+<h2>9. 延伸资源</h2>
+
+<ul>
+  <li><a href="https://www.murata.com/en-us/products/emiconfun/emc/2014/12/01/en-20141201-p1">Murata: What is a Ferrite Bead?</a> — Murata 官方技术文章，直观易懂</li>
+  <li><a href="https://www.analog.com/en/technical-articles/ferrite-beads-demystified.html">Analog Devices: Ferrite Beads Demystified</a> — ADI 工程师对磁珠的深度分析</li>
+  <li><a href="https://www.ti.com/lit/an/slyt695/slyt695.pdf">TI: Ferrite Bead Selection for Power Supplies</a> — TI 应用笔记，侧重电源场景</li>
+  <li><a href="../lessons/0004-tia-pcb-layout.html">Lesson 0004: TIA PCB Layout</a> — 回顾 PCB 布局中的电源去耦策略</li>
+  <li><a href="../reference/0001-tia-cheatsheet.html">TIA Cheatsheet</a> — 快速参考 TIA 设计要点</li>
+</ul>
+
+<p style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.9rem;">
+  铁氧体磁珠是小到容易被忽视、但大到能毁掉一整条信号链性能的元件。理解了它，你的电源完整性设计就多了一层防护。有不清晰的概念或想深入的方向？随时开口。
+</p>
+
+<script>
+function revealAnswer(id) {
+  var el = document.getElementById(id);
+  if (el) el.style.display = 'block';
+}
+</script>
+
+</body>
+</html>

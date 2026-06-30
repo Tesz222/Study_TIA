@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 2：OrCAD 原理图基础（上）— 画第一个电路</title>
+  <link rel="stylesheet" href="../../assets/lesson.css">
+  <style>
+    .step { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.8rem; margin: 0.6rem 0; }
+    .step h3 { color: #1e40af; margin: 0 0 0.3rem 0; font-size: 1rem; }
+    .act { background: #fffbeb; border-left: 4px solid #d97706; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .info { background: #eff6ff; border-left: 4px solid #2563eb; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .chk-list { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; }
+    .kbd { display: inline-block; background: #1e293b; color: #e2e8f0; border-radius: 4px; padding: 0.1em 0.5em; font-family: monospace; font-size: 0.9em; }
+    .kbd-orange { background: #92400e; color: #fef3c7; }
+  </style>
+</head>
+<body>
+
+<h1>📅 Day 2 · OrCAD 原理图基础（上）</h1>
+<p style="color: var(--text-secondary);">
+  预计用时 1~1.5 小时 · 完成 7 项检查清单后进入 Day 3
+</p>
+
+<blockquote>
+  <strong>本日目标</strong><br>
+  ✅ 能创建一个 Project<br>
+  ✅ 会按 P 放器件、W 走线、R 旋转、F/G 加电源地、N 加网标<br>
+  ✅ 画出一个完整的同相放大电路，无 DRC 错误
+</blockquote>
+
+<hr>
+
+<h2>任务 2.1：创建项目并放置第一个元件</h2>
+
+<div class="step">
+  <h3>▶ 2.1.1 新建 Project</h3>
+  <div class="act"><span class="chk">☐</span> 打开 OrCAD Capture（如果没开的话）</div>
+  <div class="act"><span class="chk">☐</span> <kbd>File → New → Project</kbd></div>
+  <div class="act"><span class="chk">☐</span> 在弹出的对话框中：</div>
+  <ul>
+    <li>Name：输入 <code>DAY2_PRACTICE</code></li>
+    <li>Location：选一个你方便找的文件夹（建议新建一个 <code>Cadence_Learning</code> 文件夹）</li>
+    <li>选中 <strong>Analog or Mixed A/D</strong> → OK</li>
+  </ul>
+  <div class="info">💡 Analog or Mixed A/D 这个选项意味着该 Project 支持 PSpice 仿真（如果以后用到的话）。画原理图选这个没错。</div>
+  <div class="act"><span class="chk">☐</span> 确认项目管理器（左侧）中出现了 <code>DAY2_PRACTICE.dsn</code>（原理图文件）</div>
+</div>
+
+<div class="step">
+  <h3>▶ 2.1.2 放置一个运放（LM358）</h3>
+  <div class="info">我们先用 Cadence 标准库中的 LM358（双运放），它足够简单。</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd class="kbd-orange">P</kbd>（Place Part）</div>
+  <div class="act"><span class="chk">☐</span> 在弹出的 Place Part 窗口中，点击 <strong>Add Library</strong> 按钮（文件夹图标）</div>
+  <div class="act"><span class="chk">☐</span> 找到 <code>C:\Cadence\SPB_17.4\tools\capture\library\opamp.olb</code> 并打开</div>
+  <div class="act"><span class="chk">☐</span> 在 Part List 中搜索 <code>LM358</code></div>
+  <div class="act"><span class="chk">☐</span> 双击 LM358 → 把它放到原理图页上（再点一下左键确定位置）</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>R</kbd> 旋转几次，调整方向</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>Esc</kbd> 退出放置模式</div>
+  <div class="info">💡 LM358 是双运放（Parts per Package = 2），所以页面上显示两个器件：U1A 和 U1B。但我们只需要一个，删掉 U1B 或用它做另一个通道。</div>
+</div>
+
+<div class="step">
+  <h3>▶ 2.1.3 放置电阻和电容</h3>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>P</kbd> 打开 Place Part</div>
+  <div class="act"><span class="chk">☐</span> 点击 Add Library → 找到并加载 <code>DISCRETE.olb</code>（在同样的 library 文件夹下）</div>
+  <div class="act"><span class="chk">☐</span> 在 Part List 中找到 <code>R</code>（电阻）→ 双击 → 放 4 个 → <kbd>Esc</kbd></div>
+  <div class="act"><span class="chk">☐</span> 重复操作，找到 <code>C</code>（电容）→ 放 2 个 → <kbd>Esc</kbd></div>
+  <div class="act"><span class="chk">☐</span> 放完后按 <kbd>I</kbd> 放大检查，确认所有器件都在页面上</div>
+</div>
+
+<hr>
+
+<h2>任务 2.2：走线连接 + 电源地 + 网标</h2>
+
+<div class="step">
+  <h3>▶ 2.2.1 布线（Wire）</h3>
+  <div class="info">先认识一下 LM358 的引脚（以 DIP-8 封装为例）：<br>
+  Pin 1 = OUT_A（A 路输出）、Pin 2 = -IN_A（A 路反相输入）、Pin 3 = +IN_A（A 路同相输入）<br>
+  Pin 4 = VEE（负电源，这里接 GND）、Pin 8 = VCC（正电源）</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd class="kbd-orange">W</kbd>（Place Wire），光标变成十字</div>
+  <div class="act"><span class="chk">☐</span> 点击 LM358 的 Pin 3（同相输入端）→ 把线引出来 → 在需要拐弯的地方点左键 → 连到 R1 的一端</div>
+  <div class="act"><span class="chk">☐</span> 继续连接以下网络（建议按这个顺序）：</div>
+  <ul>
+    <li>R1 另一端 → 悬空（这是输入信号端口）</li>
+    <li>Pin 2 → R2 一端（反馈电阻）</li>
+    <li>R2 另一端 → Pin 1（输出）</li>
+    <li>Pin 1 → 另一个电阻 R3 → 输出端（悬空）</li>
+    <li>Pin 3 到 GND 之间加 R4（偏置电阻）</li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 走线时按住 <kbd>Shift</kbd> 可以锁定水平/垂直方向</div>
+  <div class="act"><span class="chk">☐</span> 全部走完后按 <kbd>Esc</kbd> 退出走线模式</div>
+  <div class="act"><span class="chk">☐</span> 放大检查：每个连接点应该有 <strong>红色小圆点</strong>。如果没有，说明线没连上。</div>
+</div>
+
+<div class="step">
+  <h3>▶ 2.2.2 加电源和地</h3>
+  <div class="act"><span class="chk">☐</span> 按 <kbd class="kbd-orange">F</kbd>（Place Power）</div>
+  <div class="act"><span class="chk">☐</span> 在 Library 列表中找到 <code>SOURCE</code> 库 → 选 <code>VCC</code> → 放到 LM358 的 Pin 8（VCC）旁边</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>W</kbd> 将 VCC 符号连到 Pin 8</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd class="kbd-orange">G</kbd>（Place Ground）</div>
+  <div class="act"><span class="chk">☐</span> 在 Library 中选 <code>SOURCE</code> → 选 <code>0</code>（/GND 符号）→ 放两个：一个到 Pin 4（VEE），一个到 R4 接地端</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>W</kbd> 连好接地线</div>
+</div>
+
+<div class="step">
+  <h3>▶ 2.2.3 标注网络名（Net Alias）</h3>
+  <div class="info">网络名就是给导线起名字。没有名字的线用系统自动名（N0001、N0002），有了名字才好阅读和后续检查。</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd class="kbd-orange">N</kbd>（Place Net Alias）</div>
+  <div class="act"><span class="chk">☐</span> 输入 <code>SIG_IN</code> → 点击靠近 R1 输入端的线（网络名会标在这根线上）</div>
+  <div class="act"><span class="chk">☐</span> 再次按 <kbd>N</kbd> → 输入 <code>SIG_OUT</code> → 点击 R3 输出端的线</div>
+  <div class="act"><span class="chk">☐</span> 再次按 <kbd>N</kbd> → 输入 <code>+5V</code> → 点击 VCC 符号上的线</div>
+  <div class="info">💡 注意：网络名不要有空格，不要以数字开头，尽量用下划线代替空格。</div>
+</div>
+
+<hr>
+
+<h2>任务 2.3：修改参数并保存</h2>
+
+<div class="step">
+  <h3>▶ 2.3.1 修改器件值（Value）</h3>
+  <div class="act"><span class="chk">☐</span> <strong>双击</strong> R1（电阻符号上双击）</div>
+  <div class="act"><span class="chk">☐</span> 在弹出的 Property Editor 窗口中，找到 <strong>Value</strong> 属性，把默认值改为 <code>10k</code></div>
+  <div class="act"><span class="chk">☐</span> 对其他 3 个电阻也做同样操作：R2=100k、R3=1k、R4=10k</div>
+  <div class="act"><span class="chk">☐</span> 双击两个电容，Value 改为 <code>0.1uF</code>（去耦电容）</div>
+  <div class="info">💡 可以按住 Ctrl 选中多个器件，右键 → Edit Properties（或按 <kbd>Ctrl+E</kbd>），在一张表里批量修改。</div>
+</div>
+
+<div class="step">
+  <h3>▶ 2.3.2 修改 PCB Footprint</h3>
+  <div class="info">PCB Footprint 告诉 Allegro"这个器件在 PCB 上长什么样"。这一步可以不做，但为了后面的 Day 4 做准备，建议现在设好。</div>
+  <div class="act"><span class="chk">☐</span> 选中 R1 → <kbd>Ctrl+E</kbd> → 找到 <strong>PCB Footprint</strong> 属性 → 改为 <code>R0603</code></div>
+  <div class="act"><span class="chk">☐</span> 对其他电阻和电容做同样操作（R0603 或 R0402、C0402）</div>
+  <div class="act"><span class="chk">☐</span> 选中 LM358 → PCB Footprint 改为 <code>DIP8</code>（通孔封装）或 <code>SOIC8</code>（贴片封装）</div>
+</div>
+
+<div class="step">
+  <h3>▶ 2.3.3 保存</h3>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>Ctrl+S</kbd> 保存（养成随时保存的习惯！）</div>
+</div>
+
+<hr>
+
+<h2>📋 Day 2 检查清单</h2>
+
+<div class="chk-list">
+  <ol>
+    <li><span class="chk">☐</span> <strong>成功创建 Project</strong> — 选了 Analog or Mixed A/D，生成了 .dsn 文件</li>
+    <li><span class="chk">☐</span> <strong>会按 P 加 Add Library 加载库</strong> — 知道怎么加载 opamp.olb 和 DISCRETE.olb</li>
+    <li><span class="chk">☐</span> <strong>会按 W 走线</strong> — 知道红色圆点表示连接成功</li>
+    <li><span class="chk">☐</span> <strong>会按 F/G 加电源和地</strong> — VCC 和 0 符号放置正确</li>
+    <li><span class="chk">☐</span> <strong>会按 N 修改网络名</strong> — SIG_IN、SIG_OUT 标注成功</li>
+    <li><span class="chk">☐</span> <strong>会按 R 旋转器件</strong> — 能调方向</li>
+    <li><span class="chk">☐</span> <strong>会双击修改 Value</strong> — 电阻值改成了 10k/100k/1k</li>
+  </ol>
+  <p style="text-align:center; margin:0.5rem 0 0 0;">
+    <strong>✅ 全部打勾 → 进入 Day 3</strong><br>
+    <strong>❌ 没打完 → 明天先补完再学 Day 3</strong>
+  </p>
+</div>
+
+<hr>
+
+<h2>补充：同相放大器电路参考</h2>
+
+<pre style="font-size:0.85rem;">
+                    +5V (F)
+                      │
+                     ┌┴┐
+                     │  │ C1 (0.1uF)
+                     └┬┘
+                      │
+    R1 (10k)     ┌────┴────┐
+  SIG_IN ──┬──R1──┤3 +IN   │
+           │      │         │
+           └──R4──┤2 -IN  1├──┬─── R3 (1k) ─── SIG_OUT
+             10k  │   LM358 │  │
+                  │     8   │  │
+        GND (G)───┤4 VEE  VCC├─┘
+                  └─────────┘  │
+                               └──── R2 (100k) ───┐
+                                                  │
+                           GND ───────────────────┘
+</pre>
+
+<blockquote>
+  <strong>今天的任务到此结束。</strong><br><br>
+  你画出了你的第一个 OrCAD 原理图（虽然很简单）。<br>
+  关键是学会了 5 个最常用的快捷键：P、W、F、G、N。<br>
+  明天（Day 3）会在今天的基础上学习创建设备符号、DRC 检查和生成网表。<br>
+  全部完成大约 1~1.5 小时。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Day 2 of 7 · Study_TIA Cadence 学习营 · 2026
+</p>
+
+</body>
+</html>

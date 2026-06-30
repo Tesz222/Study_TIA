@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0001: 光电信号链 — 光→电流→电压→数字</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+
+<h1>📡 光电信号链</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  Lesson 0001 · 光电检测 · 预计用时 20 分钟
+</p>
+
+<blockquote>
+  <strong>💡 本节核心</strong>
+  理解从光信号到数字信号的完整转换链路：<br>
+  <strong>光</strong> → <strong>电流</strong>（光电二极管）→ <strong>电压</strong>（跨阻放大器 TIA）→ <strong>数字</strong>（ADC 采样）
+</blockquote>
+
+<h2>1. 第一环：光 → 电流（光电二极管）</h2>
+
+<h3>1.1 光电效应基础</h3>
+
+<p>当光子能量 <code>E = hν</code> 大于半导体材料的禁带宽度 <code>E<sub>g</sub></code> 时，光子被吸收并产生电子-空穴对。这就是 <strong>内光电效应</strong>（photoelectric effect）。</p>
+
+<pre>E = h · f = hc / λ
+
+其中：
+  h  = 6.626×10⁻³⁴ J·s  （普朗克常数）
+  c  = 3×10⁸ m/s        （光速）
+  λ  = 波长（m）
+  f  = 频率（Hz）
+</pre>
+
+<div class="figure">
+  <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%;">
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1a1a2e" stroke-width="1.5"/>
+      </marker>
+    </defs>
+    <!-- Light rays -->
+    <g stroke="#d97706" stroke-width="2" opacity="0.7">
+      <line x1="20" y1="60" x2="80" y2="60"/>
+      <line x1="15" y1="80" x2="80" y2="80"/>
+      <line x1="20" y1="100" x2="80" y2="100"/>
+      <line x1="10" y1="70" x2="80" y2="70"/>
+      <line x1="10" y1="90" x2="80" y2="90"/>
+    </g>
+    <text x="40" y="45" fill="#d97706" font-size="11" font-family="sans-serif">光 hν</text>
+    <!-- Photodiode -->
+    <g transform="translate(100, 50)">
+      <polygon points="0,50 50,0 50,100" fill="none" stroke="#1a1a2e" stroke-width="2"/>
+      <line x1="50" y1="0" x2="80" y2="0" stroke="#1a1a2e" stroke-width="2"/>
+      <line x1="50" y1="100" x2="80" y2="100" stroke="#1a1a2e" stroke-width="2"/>
+      <line x1="80" y1="50" x2="160" y2="50" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow)"/>
+    </g>
+    <text x="120" y="145" fill="#1a1a2e" font-size="14" font-family="sans-serif" text-anchor="middle">光电二极管</text>
+    <text x="175" y="45" fill="#2563eb" font-size="12" font-family="sans-serif">I<tspan dy="4" font-size="9">PD</tspan><tspan dy="-4" font-size="12"> (μA)</tspan></text>
+    <text x="220" y="75" fill="#1a1a2e" font-size="13" font-family="sans-serif">I<tspan dy="4" font-size="10">PD</tspan><tspan dy="-4" font-size="13"> = R · P</tspan></text>
+    <text x="220" y="95" fill="#555" font-size="11" font-family="sans-serif">R = 响应度 (A/W)</text>
+    <text x="220" y="115" fill="#555" font-size="11" font-family="sans-serif">P = 光功率 (W)</text>
+  </svg>
+  <figcaption>图1：光电二极管将入射光转换为光电流</figcaption>
+</div>
+
+<h3>1.2 关键参数</h3>
+
+<table>
+  <tr><th>参数</th><th>符号</th><th>说明</th><th>典型值</th></tr>
+  <tr><td>响应度</td><td><code>R</code></td><td>单位光功率产生的光电流</td><td>0.3~0.6 A/W @ 635nm</td></tr>
+  <tr><td>暗电流</td><td><code>I<sub>D</sub></code></td><td>无光照时的漏电流</td><td>nA ~ pA 级</td></tr>
+  <tr><td>结电容</td><td><code>C<sub>J</sub></code></td><td>影响频率响应速度</td><td>2~50 pF</td></tr>
+  <tr><td>带宽</td><td><code>f<sub>c</sub></code></td><td>可用频率上限</td><td>与 C<sub>J</sub> 和负载相关</td></tr>
+  <tr><td>响应波长范围</td><td><code>λ</code></td><td>能有效响应的光谱区间</td><td>Si: 400~1100 nm</td></tr>
+</table>
+
+<blockquote>
+  <strong>🔑 关键认知</strong>
+  光电二极管的输出是 <strong>电流</strong>，不是电压。这个电流通常非常微弱（μA ~ nA 级），不能直接被 ADC 采样，必须经过 I-V 转换。
+</blockquote>
+
+<h2>2. 第二环：电流 → 电压（跨阻放大器 TIA）</h2>
+
+<h3>2.1 为什么需要 TIA</h3>
+
+<p>光电二极管的输出是电流，但 ADC 需要电压输入。我们需要一个 <strong>跨阻放大器</strong>（Transimpedance Amplifier, TIA）来完成 I-V 转换。其核心是一个运放 + 反馈电阻的结构：</p>
+
+<div class="figure">
+  <svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%;">
+    <defs>
+      <marker id="arrow2" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1a1a2e" stroke-width="1.5"/>
+      </marker>
+    </defs>
+    <line x1="10" y1="125" x2="55" y2="125" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow2)"/>
+    <text x="12" y="115" fill="#2563eb" font-size="11" font-family="sans-serif">I<tspan dy="3" font-size="8">PD</tspan></text>
+    <polygon points="55,35 55,215 175,125" fill="white" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="43" y="80" fill="#1a1a2e" font-size="13" font-family="sans-serif">-</text>
+    <text x="43" y="180" fill="#1a1a2e" font-size="13" font-family="sans-serif">+</text>
+    <line x1="50" y1="170" x2="50" y2="210" stroke="#1a1a2e" stroke-width="1.5"/>
+    <line x1="35" y1="210" x2="65" y2="210" stroke="#1a1a2e" stroke-width="1.5"/>
+    <line x1="45" y1="205" x2="55" y2="215" stroke="#1a1a2e" stroke-width="1.5"/>
+    <text x="75" y="228" fill="#555" font-size="10" font-family="sans-serif">GND</text>
+    <!-- Feedback path -->
+    <line x1="175" y1="125" x2="230" y2="125" stroke="#1a1a2e" stroke-width="2"/>
+    <line x1="230" y1="95" x2="230" y2="155" stroke="#1a1a2e" stroke-width="2"/>
+    <line x1="230" y1="95" x2="105" y2="95" stroke="#1a1a2e" stroke-width="2"/>
+    <line x1="105" y1="75" x2="105" y2="95" stroke="#1a1a2e" stroke-width="2"/>
+    <rect x="90" y="68" width="30" height="18" fill="white" stroke="#1a1a2e" stroke-width="1.5" rx="2"/>
+    <!-- Cf -->
+    <rect x="180" y="62" width="25" height="14" fill="white" stroke="#1a1a2e" stroke-width="1.5" rx="2"/>
+    <text x="183" y="73" fill="#1a1a2e" font-size="9" font-family="sans-serif">C<tspan dy="3" font-size="7">f</tspan></text>
+    <text x="82" y="82" fill="#1a1a2e" font-size="10" font-family="sans-serif">R<tspan dy="3" font-size="7">f</tspan></text>
+    <!-- Output -->
+    <line x1="175" y1="125" x2="270" y2="125" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="275" y="120" fill="#16a34a" font-size="12" font-family="sans-serif">V<tspan dy="3" font-size="9">out</tspan></text>
+    <!-- Equation -->
+    <text x="290" y="130" fill="#1a1a2e" font-size="14" font-family="sans-serif">V<tspan dy="3" font-size="10">out</tspan><tspan dy="-3" font-size="14"> = -I</tspan><tspan dy="3" font-size="10">PD</tspan><tspan dy="-3" font-size="14"> · R</tspan><tspan dy="3" font-size="10">f</tspan></text>
+  </svg>
+  <figcaption>图2：跨阻放大器（TIA）将光电流转换为电压</figcaption>
+</div>
+
+<h3>2.2 TIA 工作原理</h3>
+
+<p>运放的"虚短"（virtual short）特性使反相输入端保持在地电位（同相端接地）。因此光电流 <code>I<sub>PD</sub></code> 全部流过反馈电阻 <code>R<sub>f</sub></code>，在输出端产生电压：</p>
+
+<pre>Vout = -I<sub>PD</sub> x R<sub>f</sub>
+
+举例：
+  I<sub>PD</sub> = 10 μA    （中等光照下的光电流）
+  R<sub>f</sub>  = 100 kΩ   （反馈电阻）
+
+  Vout = -10 μA x 100 kΩ = -1 V
+</pre>
+
+<div class="callout callout-info">
+  <strong>📐 设计要点</strong>
+  <ul>
+    <li><strong>R<sub>f</sub></strong> 决定增益：R<sub>f</sub> 越大，相同光照下输出电压越高</li>
+    <li><strong>C<sub>f</sub></strong> 并联在 R<sub>f</sub> 上用于相位补偿，防止振荡</li>
+    <li>运放选择需关注：<strong>输入偏置电流</strong>（应远小于 I<sub>PD</sub>）、<strong>GBW</strong>（增益带宽积）</li>
+  </ul>
+</div>
+
+<h3>2.3 噪声考虑</h3>
+
+<p>TIA 电路中主要的噪声来源：</p>
+<ul>
+  <li><strong>反馈电阻热噪声</strong>：<code>v<sub>n</sub>² = 4kTR<sub>f</sub></code> — R<sub>f</sub> 越大，噪声越大</li>
+  <li><strong>运放电压噪声</strong>：被电路增益放大</li>
+  <li><strong>运放电流噪声</strong>：流过 R<sub>f</sub> 产生电压噪声</li>
+</ul>
+
+<blockquote>
+  <strong>🔑 关键认知</strong>
+  TIA 是整个信号链的"心脏"——它决定了信噪比和带宽。增益（R<sub>f</sub>）和带宽之间存在根本性的 trade-off：高增益 → 大 R<sub>f</sub> → 更多热噪声 + 更窄带宽。
+</blockquote>
+
+<h2>3. 第三环：模拟电压 → 数字信号（ADC 采样）</h2>
+
+<h3>3.1 ADC 的核心概念</h3>
+
+<p><strong>模数转换器</strong>（Analog-to-Digital Converter, ADC）将连续的模拟电压离散化为有限比特的数字量。</p>
+
+<table>
+  <tr><th>参数</th><th>符号</th><th>说明</th></tr>
+  <tr><td>分辨率</td><td>N bits</td><td>将满量程分成 2<sup>N</sup> 个量化层级</td></tr>
+  <tr><td>参考电压</td><td>V<sub>REF</sub></td><td>ADC 的满量程电压范围</td></tr>
+  <tr><td>量化步长（LSB）</td><td>V<sub>LSB</sub></td><td>V<sub>REF</sub> / 2<sup>N</sup> — 能分辨的最小电压变化</td></tr>
+  <tr><td>采样率</td><td>f<sub>s</sub></td><td>每秒采样的次数 (SPS)</td></tr>
+</table>
+
+<pre>数字输出码 = round( V<sub>in</sub> / V<sub>REF</sub> x 2<sup>N</sup> )
+
+举例（12-bit ADC, V<sub>REF</sub> = 3.3 V）：
+  V<sub>in</sub> = 1.0 V
+  数字码 = round(1.0 / 3.3 x 4096) = round(1241.2) = <strong>1241</strong>
+  二进制：0100 1101 1001
+</pre>
+
+<h3>3.2 采样定理（Nyquist）</h3>
+
+<div class="callout callout-warning">
+  <strong>⚠️ 必须遵守</strong>
+  采样率 f<sub>s</sub> 必须 ≥ 2 x 信号最高频率 f<sub>max</sub>，否则会发生 <strong>混叠（aliasing）</strong>，即高频成分折叠到低频段，产生无法恢复的失真。
+</div>
+
+<h3>3.3 ADC 常见架构</h3>
+
+<table>
+  <tr><th>类型</th><th>速度</th><th>精度</th><th>典型应用</th></tr>
+  <tr><td>逐次逼近型 SAR</td><td>中速 (MSPS)</td><td>8~18 bit</td><td>工业采集、PLC 模拟量输入</td></tr>
+  <tr><td>Σ-Δ（Delta-Sigma）</td><td>低速 (~kSPS)</td><td>16~24 bit</td><td>高精度测量、称重传感器</td></tr>
+  <tr><td>流水线型 Pipeline</td><td>高速 (GSPS)</td><td>8~16 bit</td><td>示波器、射频接收机</td></tr>
+  <tr><td>闪存型 Flash</td><td>超高速</td><td>≤8 bit</td><td>高速通信、雷达</td></tr>
+</table>
+
+<h2>4. 完整信号链总览</h2>
+
+<div class="figure">
+  <svg viewBox="0 0 700 130" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%;">
+    <defs>
+      <marker id="a3" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L10,5 L0,10" fill="none" stroke="#555" stroke-width="1.5"/>
+      </marker>
+    </defs>
+    <rect x="10" y="35" width="100" height="50" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="60" y="65" fill="#1e40af" font-size="13" font-family="sans-serif" text-anchor="middle" font-weight="600">光信号</text>
+    <line x1="110" y1="60" x2="150" y2="60" stroke="#555" stroke-width="2" marker-end="url(#a3)"/>
+    <rect x="150" y="35" width="100" height="50" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="200" y="58" fill="#92400e" font-size="12" font-family="sans-serif" text-anchor="middle" font-weight="600">I<tspan dy="3" font-size="9">PD</tspan><tspan dy="-3" font-size="12"> 电流</tspan></text>
+    <text x="200" y="73" fill="#92400e" font-size="10" font-family="sans-serif" text-anchor="middle">μA ~ nA</text>
+    <line x1="250" y1="60" x2="290" y2="60" stroke="#555" stroke-width="2" marker-end="url(#a3)"/>
+    <rect x="290" y="35" width="100" height="50" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+    <text x="340" y="58" fill="#166534" font-size="12" font-family="sans-serif" text-anchor="middle" font-weight="600">V<tspan dy="3" font-size="9">out</tspan><tspan dy="-3" font-size="12"> 电压</tspan></text>
+    <text x="340" y="73" fill="#166534" font-size="10" font-family="sans-serif" text-anchor="middle">V 级</text>
+    <line x1="390" y1="60" x2="430" y2="60" stroke="#555" stroke-width="2" marker-end="url(#a3)"/>
+    <rect x="430" y="35" width="100" height="50" rx="8" fill="#f3e8ff" stroke="#9333ea" stroke-width="2"/>
+    <text x="480" y="58" fill="#581c87" font-size="12" font-family="sans-serif" text-anchor="middle" font-weight="600">ADC 采样</text>
+    <text x="480" y="73" fill="#581c87" font-size="10" font-family="sans-serif" text-anchor="middle">N-bit 数字</text>
+    <line x1="530" y1="60" x2="570" y2="60" stroke="#555" stroke-width="2" marker-end="url(#a3)"/>
+    <rect x="570" y="35" width="100" height="50" rx="8" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+    <text x="620" y="65" fill="#334155" font-size="13" font-family="sans-serif" text-anchor="middle" font-weight="600">MCU/PLC</text>
+    <text x="60" y="108" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">光电二极管</text>
+    <text x="200" y="108" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">光电效应</text>
+    <text x="340" y="108" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">跨阻放大器 TIA</text>
+    <text x="480" y="108" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">SAR / Σ-Δ ADC</text>
+    <text x="620" y="108" fill="#555" font-size="10" font-family="sans-serif" text-anchor="middle">数字处理</text>
+  </svg>
+  <figcaption>图3：完整光电信号链 — 从光子到数字的世界</figcaption>
+</div>
+
+<h2>5. 动手练习：参数计算</h2>
+
+<div class="quiz-question">
+  <p>📝 <strong>练习 1</strong>：你有一个光电二极管，响应度 R = 0.5 A/W，接收到 50 μW 的光功率。你使用 TIA 的 R<sub>f</sub> = 200 kΩ。求：</p>
+  <ol style="margin-top:0.5rem;">
+    <li>光电流 I<sub>PD</sub> 是多少？</li>
+    <li>TIA 输出电压 V<sub>out</sub> 是多少？</li>
+    <li>如果使用 12-bit ADC，V<sub>REF</sub> = 3.3 V，这个电压对应的数字码是多少？</li>
+  </ol>
+  <div class="quiz-answer">
+    <strong>答案</strong>：<br>
+    ① I<sub>PD</sub> = 0.5 x 50x10⁻⁶ = <strong>25 μA</strong><br>
+    ② V<sub>out</sub> = 25 μA x 200 kΩ = <strong>5 V</strong>（注意 5V 已超 3.3V 参考电压，需要降低增益或使用分压/衰减）<br>
+    ③ 如果实际输入 ADC 为 2.5 V（经衰减），数字码 = round(2.5 / 3.3 x 4096) = <strong>3103</strong>
+  </div>
+</div>
+
+<div class="quiz-question">
+  <p>📝 <strong>练习 2</strong>：概念检查</p>
+  <p style="font-weight:normal; margin-top:0.3rem;">为什么光电二极管输出的是电流而不是电压？TIA 中运放的作用是什么？</p>
+  <div class="quiz-answer">
+    <strong>答案</strong>：光电二极管本质上是一个电流源——光生载流子在外加反偏电压下形成漂移电流。TIA 中的运放利用"虚短"特性将输入电流精确地引导到反馈电阻上，从而产生与电流成正比的电压输出。如果没有 TIA，直接用电阻负载测量电压会受结电容影响，导致严重的带宽和线性度问题。
+  </div>
+</div>
+
+<h2>6. 推荐资源</h2>
+
+<ul>
+  <li><strong>书籍</strong>：<em>Photodiode Amplifiers: OP AMP Solutions</em> — Jerald Graeme（ADI 专家，TIA 设计的权威参考）</li>
+  <li><strong>应用笔记</strong>：<a href="https://www.ti.com/lit/an/sboa268/sboa268.pdf" target="_blank">TI SBOA268: 跨阻放大器设计指南</a></li>
+  <li><strong>应用笔记</strong>：<a href="https://www.ti.com/lit/an/sboa274/sboa274.pdf" target="_blank">TI SBOA274: 跨阻放大器噪声分析</a></li>
+  <li><strong>参考文档</strong>：<a href="../reference/0001-tia-cheatsheet.html">跨阻放大器速查表</a>（本工坊的参考文档）</li>
+</ul>
+
+<h2>7. 下一步</h2>
+
+<p>学完本节后，你对完整的光电信号链有了清晰的理解。后续可以深入的方向：</p>
+<ul>
+  <li>TIA 的稳定性分析（相位裕度、C<sub>f</sub> 计算）</li>
+  <li>噪声分析与 SNR 优化</li>
+  <li>Σ-Δ ADC 的过采样原理</li>
+  <li>PLC 模拟量输入模块的实际电路分析</li>
+</ul>
+
+<blockquote>
+  <strong>❓ 有任何疑问？</strong>
+  随时问我！可以现在就提出你不理解的地方，我会针对性地调整下一节课的内容。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Lesson 0001 · Study_TIA 教学工坊 · 2026
+</p>
+
+<script>
+  document.querySelectorAll('.quiz-question').forEach(q => {
+    q.addEventListener('click', function() {
+      var answer = this.querySelector('.quiz-answer');
+      if (answer) {
+        answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

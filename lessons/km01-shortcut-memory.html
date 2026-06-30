@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>快捷键记忆：OrCAD + Allegro 核心快捷键</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .key-point { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .shortcut-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.8rem; margin: 0.5rem 0; }
+    .shortcut-card code { font-size: 1.1rem; font-weight: 700; color: #1e40af; background: #dbeafe; padding: 0.2em 0.5em; border-radius: 4px; }
+    .group-title { color: #166534; font-weight: 600; font-size: 1rem; margin: 1rem 0 0.3rem 0; border-bottom: 2px solid #86efac; padding-bottom: 0.3rem; }
+    .mnemonic { color: #dc2626; font-size: 0.85rem; }
+    .practice-box { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 0.8rem; margin: 0.5rem 0; }
+    .table-fit td { padding: 0.3rem 0.6rem; font-size: 0.9rem; }
+    .table-fit td:first-child code { background: #dbeafe; padding: 0.15em 0.4em; border-radius: 4px; font-weight: 700; color: #1e40af; }
+  </style>
+</head>
+<body>
+
+<h1>快捷键记忆：OrCAD + Allegro 核心快捷键</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  Lesson KM01 · 工具效率 · 预计用时 15 分钟 + 日常练习
+</p>
+
+<blockquote>
+  <strong>记忆目标</strong>
+  掌握 OrCAD Capture 和 Allegro PCB Editor 中最高频使用的快捷键，按功能分组记忆，配合练习肌肉记忆。目标是：<strong>不看菜单，不碰鼠标——纯键盘操作 80% 的常用操作</strong>。
+</blockquote>
+
+<h2>OrCAD 快捷键（共 8 个核心键）</h2>
+
+<div class="group-title">放置类 — 按字母联想（P / W / N / F / G）</div>
+
+<table class="table-fit">
+  <tr><td><code>P</code></td><td><strong>Place Part</strong></td><td>放置器件</td><td>P = Part</td></tr>
+  <tr><td><code>W</code></td><td><strong>Place Wire</strong></td><td>走线</td><td>W = Wire</td></tr>
+  <tr><td><code>N</code></td><td><strong>Place Net Alias</strong></td><td>标注网络名</td><td>N = Net</td></tr>
+  <tr><td><code>F</code></td><td><strong>Place Power</strong></td><td>放置电源符号</td><td>F = Force/Power</td></tr>
+  <tr><td><code>G</code></td><td><strong>Place Ground</strong></td><td>放置地符号</td><td>G = Ground</td></tr>
+</table>
+
+<div class="group-title">编辑与导航类</div>
+
+<table class="table-fit">
+  <tr><td><code>R</code></td><td><strong>Rotate</strong></td><td>旋转器件（放置时按）</td><td>R = Rotate</td></tr>
+  <tr><td><code>I</code></td><td><strong>Zoom In</strong></td><td>放大</td><td>I = In</td></tr>
+  <tr><td><code>O</code></td><td><strong>Zoom Out</strong></td><td>缩小</td><td>O = Out</td></tr>
+  <tr><td><code>E</code></td><td><strong>Zoom Edit</strong> / Ctrl+E 打开属性</td><td>编辑器件属性</td><td>E = Edit</td></tr>
+</table>
+
+<div class="shortcut-card">
+  <code>P</code> <code>W</code> <code>N</code> <code>F</code> <code>G</code>
+  <p style="margin:0.3rem 0 0 0; font-size:0.85rem;">记忆口诀：<strong>"P 放器件 W 走线，N 标网名 F/G 电源地"</strong></p>
+</div>
+
+<div class="shortcut-card">
+  <code>I</code> <code>O</code> <code>R</code>
+  <p style="margin:0.3rem 0 0 0; font-size:0.85rem;">记忆口诀：<strong>"I 放大 O 缩小，R 旋转少不了"</strong></p>
+</div>
+
+<hr>
+<h2>Allegro 快捷键（核心 10 键 + 功能键 6 个）</h2>
+
+<div class="group-title">最最核心 — 布局布线的灵魂（M / I / R / V / Delete）</div>
+
+<table class="table-fit">
+  <tr><td><code>M</code></td><td><strong>Move</strong></td><td>移动器件/走线</td><td>M = Move</td></tr>
+  <tr><td><code>I</code></td><td><strong>Add Connect</strong></td><td>走线（核心操作！）</td><td>I 像"I connect"</td></tr>
+  <tr><td><code>R</code></td><td><strong>Rotate</strong></td><td>旋转</td><td>R = Rotate</td></tr>
+  <tr><td><code>V</code></td><td><strong>Add Via</strong></td><td>走线中打孔</td><td>V = Via</td></tr>
+  <tr><td><code>Delete</code></td><td><strong>Delete</strong></td><td>删除</td><td>Delete 键</td></tr>
+</table>
+
+<div class="shortcut-card">
+  <code>M</code> <code>I</code> <code>R</code> <code>V</code> <code>Delete</code>
+  <p style="margin:0.3rem 0 0 0; font-size:0.85rem;">记忆口诀：<strong>"M 移动 I 走线，R 旋转 V 打孔，删掉 Delete 不手软"</strong></p>
+</div>
+
+<div class="group-title">功能键 — 视图与测量（F5 / F6 / F7 / F3 / F4）</div>
+
+<table class="table-fit">
+  <tr><td><code>F5</code></td><td><strong>Zoom In</strong></td><td>放大</td><td>和 OrCAD 的 I 对应</td></tr>
+  <tr><td><code>F6</code></td><td><strong>Zoom Out</strong></td><td>缩小</td><td></td></tr>
+  <tr><td><code>F7</code></td><td><strong>Zoom Fit</strong></td><td>全屏显示全部</td><td>F7 = Full view</td></tr>
+  <tr><td><code>F3</code></td><td><strong>Show Measure</strong></td><td>测量间距</td><td>F3 放在第三个位置</td></tr>
+  <tr><td><code>F4</code></td><td><strong>Toggle Grid</strong></td><td>开关栅格</td><td>F4 = Four grid</td></tr>
+</table>
+
+<div class="shortcut-card">
+  <code>F5</code> <code>F6</code> <code>F7</code> <code>F3</code> <code>F4</code>
+  <p style="margin:0.3rem 0 0 0; font-size:0.85rem;">记忆口诀：<strong>"F5 放大 F6 缩，F7 全屏 F3 量，F4 栅格开关忙"</strong></p>
+</div>
+
+<div class="group-title">高亮与刷新</div>
+
+<table class="table-fit">
+  <tr><td><code>Shift+F5</code></td><td><strong>Highlight</strong></td><td>高亮网络/器件</td><td>Shift+F5 和 F5（放大）在同一侧</td></tr>
+  <tr><td><code>Shift+F6</code></td><td><strong>Dehighlight</strong></td><td>取消高亮</td><td></td></tr>
+  <tr><td><code>Ctrl+F5</code></td><td><strong>Refresh</strong></td><td>刷新显示</td><td></td></tr>
+  <tr><td><code>`</code>（波浪号）</td><td><strong>Toggle Opaque</strong></td><td>开关透明度（看底层）</td><td></td></tr>
+</table>
+
+<div class="shortcut-card">
+  <code>Shift+F5</code> <code>Shift+F6</code>
+  <p style="margin:0.3rem 0 0 0; font-size:0.85rem;">记忆口诀：<strong>"Shift+F5 高亮亮，Shift+F6 取消光"</strong></p>
+</div>
+
+<hr>
+<h2>进阶操作 — 走线中的辅助键</h2>
+
+<table class="table-fit">
+  <tr><td><code>Backspace</code></td><td><strong>Undo Last</strong></td><td>走线时取消上一步</td><td>走线走错了，不用退出，按 Backspace 回退一段</td></tr>
+  <tr><td><code>Tab</code></td><td><strong>Place Multiple</strong></td><td>连续放置多个器件（OrCAD）</td><td>放电阻时特别有用</td></tr>
+  <tr><td><code>Shift+拖动</code></td><td><strong>Lock Axis</strong></td><td>锁定水平/垂直方向</td><td>走线时按住 Shift 再拖</td></tr>
+  <tr><td><code>Ctrl+A</code></td><td><strong>Select All</strong></td><td>全选</td><td></td></tr>
+  <tr><td><code>Ctrl+S</code></td><td><strong>Save</strong></td><td>保存</td><td>经常按！</td></tr>
+</table>
+
+<hr>
+<h2>记忆卡片：每日练习法</h2>
+
+<div class="practice-box">
+  <h3 style="margin-top:0;">Day 1-2：OrCAD 基本操作</h3>
+  <p>每天花 3 分钟，打开 OrCAD 新建一个空白原理图页，重复以下动作 5 遍：</p>
+  <ol>
+    <li>按 <code>P</code> 打开 Place Part &#8594; 选一个电阻 &#8594; 放置 &#8594; 按 <code>Esc</code> 退出</li>
+    <li>按 <code>W</code> 走线 &#8594; 在两个焊盘之间走一条线 &#8594; 按 <code>Esc</code></li>
+    <li>按 <code>F</code> 放电源 &#8594; 按 <code>G</code> 放地</li>
+    <li>按 <code>I</code>/<code>O</code> 放大缩小 &#8594; 按 <code>R</code> 旋转</li>
+  </ol>
+  <p><strong>目标</strong>：这 5 个键不用想就能按出来</p>
+</div>
+
+<div class="practice-box">
+  <h3 style="margin-top:0;">Day 3-4：Allegro 核心 5 键</h3>
+  <p>打开之前做的 TIA_BOARD.brd 文件：</p>
+  <ol>
+    <li>按 <code>M</code> 移动一个电阻 &#8594; 按 <code>R</code> 旋转 &#8594; 放回原位 &#8594; <code>F2</code> 结束</li>
+    <li>按 <code>I</code> 开始走线 &#8594; 走一小段 &#8594; 按 <code>V</code> 打个孔 &#8594; 继续走 &#8594; <code>F2</code></li>
+    <li>按 <code>Backspace</code> 回退一步（练习回退的感觉）</li>
+    <li>按 <code>F5</code>/<code>F6</code>/<code>F7</code> 练习视图控制</li>
+  </ol>
+  <p><strong>目标</strong>：M / I / R / V / Delete 不用想就能按</p>
+</div>
+
+<div class="practice-box">
+  <h3 style="margin-top:0;">Day 5-6：组合操作</h3>
+  <ol>
+    <li>打开原理图：<code>P</code> 放器件 &#8594; <code>W</code> 走线 &#8594; <code>N</code> 标网名 &#8594; <code>Ctrl+S</code> 保存</li>
+    <li>打开 PCB：<code>I</code> 走一段信号线 &#8594; 走歪了按 <code>Backspace</code> 回退</li>
+    <li>按 <code>Shift+F5</code> 高亮 TIA_OUT 网络 &#8594; 按 <code>Shift+F6</code> 取消</li>
+    <li>按 <code>`</code> 切换透明度看底层</li>
+  </ol>
+  <p><strong>目标</strong>：能连续按键完成一个完整的操作序列</p>
+</div>
+
+<div class="practice-box">
+  <h3 style="margin-top:0;">Day 7：全流程计时挑战</h3>
+  <p>从零开始，计时完成以下操作序列：</p>
+  <ol>
+    <li>OrCAD 打开 &#8594; 按 <code>P</code> 放一个运放 + 几个电阻电容</li>
+    <li>按 <code>W</code> 走通 </li>
+    <li>按 <code>F</code>/<code>G</code> 加电源地</li>
+    <li>按 <code>Ctrl+S</code> 保存</li>
+    <li>切换到 Allegro &#8594; <code>F7</code> 全屏显示</li>
+    <li>按 <code>M</code> 调整个器件位置 &#8594; <code>R</code> 旋转</li>
+    <li>按 <code>I</code> 走一段线</li>
+    <li>按 <code>Ctrl+S</code> 保存</li>
+  </ol>
+  <p><strong>目标</strong>：能在 2 分钟内完成以上所有操作，<strong>全程不碰鼠标</strong></p>
+</div>
+
+<hr>
+<h2>速查总表（可打印）</h2>
+
+<table class="table-fit">
+  <tr><th colspan="3">OrCAD Capture 快捷键速查</th></tr>
+  <tr><td><code>P</code></td><td>Place Part</td><td>放置器件</td></tr>
+  <tr><td><code>W</code></td><td>Place Wire</td><td>走线连接</td></tr>
+  <tr><td><code>N</code></td><td>Place Net Alias</td><td>标注网络别名</td></tr>
+  <tr><td><code>F</code></td><td>Place Power</td><td>电源符号</td></tr>
+  <tr><td><code>G</code></td><td>Place Ground</td><td>地符号</td></tr>
+  <tr><td><code>R</code></td><td>Rotate</td><td>旋转</td></tr>
+  <tr><td><code>I</code></td><td>Zoom In</td><td>放大</td></tr>
+  <tr><td><code>O</code></td><td>Zoom Out</td><td>缩小</td></tr>
+  <tr><td><code>E</code> (Ctrl+E)</td><td>Edit Properties</td><td>编辑属性</td></tr>
+  <tr><td><code>Tab</code></td><td>Repeat Place</td><td>连续放置</td></tr>
+</table>
+
+<table class="table-fit">
+  <tr><th colspan="3">Allegro PCB 快捷键速查</th></tr>
+  <tr><td><code>M</code></td><td>Move</td><td>移动</td></tr>
+  <tr><td><code>I</code></td><td>Add Connect</td><td>走线</td></tr>
+  <tr><td><code>R</code></td><td>Rotate</td><td>旋转</td></tr>
+  <tr><td><code>V</code></td><td>Add Via</td><td>打过孔</td></tr>
+  <tr><td><code>Delete</code></td><td>Delete</td><td>删除</td></tr>
+  <tr><td><code>F5</code></td><td>Zoom In</td><td>放大</td></tr>
+  <tr><td><code>F6</code></td><td>Zoom Out</td><td>缩小</td></tr>
+  <tr><td><code>F7</code></td><td>Zoom Fit</td><td>全屏显示</td></tr>
+  <tr><td><code>F3</code></td><td>Show Measure</td><td>测量</td></tr>
+  <tr><td><code>F4</code></td><td>Toggle Grid</td><td>栅格开关</td></tr>
+  <tr><td><code>Shift+F5</code></td><td>Highlight</td><td>高亮</td></tr>
+  <tr><td><code>Shift+F6</code></td><td>Dehighlight</td><td>取消高亮</td></tr>
+  <tr><td><code>`</code> (波浪号)</td><td>Toggle Opaque</td><td>透明度</td></tr>
+  <tr><td><code>Backspace</code></td><td>Undo Last</td><td>走线中回退</td></tr>
+  <tr><td><code>F2</code></td><td>Done</td><td>完成当前操作</td></tr>
+  <tr><td><code>Ctrl+F5</code></td><td>Refresh</td><td>刷新</td></tr>
+</table>
+
+<div class="key-point">
+  <strong>记忆策略总结</strong><br><br>
+  <strong>优先记忆</strong>（每天必用）：<br>
+  OrCAD：<code>P</code> <code>W</code> <code>F</code> <code>G</code> <code>R</code> — 5 个键完成 80% 的原理图操作<br>
+  Allegro：<code>M</code> <code>I</code> <code>R</code> <code>V</code> <code>F5</code> <code>F6</code> <code>F7</code> — 7 个键完成 80% 的 PCB 操作<br><br>
+  <strong>记忆方法</strong>：不要死记硬背，而是<strong>用的时候想三秒</strong>——第一次按键盘快捷键可能比点菜单慢，但第二次就一样快，第三次就更快了。一周后就不需要想了。<br><br>
+  <strong>可以打印这一页</strong>，贴在显示器边上。
+</div>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Lesson KM01 · Study_TIA 教学工坊 · 快捷键记忆
+</p>
+
+</body>
+</html>

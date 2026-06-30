@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 6：DRC + 丝印 + Gerber 投板</title>
+  <link rel="stylesheet" href="../../assets/lesson.css">
+  <style>
+    .step { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.8rem; margin: 0.6rem 0; }
+    .step h3 { color: #1e40af; margin: 0 0 0.3rem 0; font-size: 1rem; }
+    .act { background: #fffbeb; border-left: 4px solid #d97706; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .info { background: #eff6ff; border-left: 4px solid #2563eb; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .warn { background: #fef2f2; border-left: 4px solid #dc2626; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .chk-list { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; }
+    .kbd { display: inline-block; background: #1e293b; color: #e2e8f0; border-radius: 4px; padding: 0.1em 0.5em; font-family: monospace; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+
+<h1>📅 Day 6 · DRC + 丝印 + Gerber 投板</h1>
+<p style="color: var(--text-secondary);">
+  预计用时 1.5 小时 · 完成 4 项检查清单后进入 Day 7
+</p>
+
+<blockquote>
+  <strong>本日目标</strong><br>
+  ✅ DRC 零错误通过<br>
+  ✅ 丝印没有压在焊盘上<br>
+  ✅ Gerber 文件生成成功<br>
+  ✅ 钻孔文件生成成功
+</blockquote>
+
+<hr>
+
+<h2>任务 6.1：DRC 最终检查</h2>
+
+<div class="step">
+  <h3>▶ 6.1.1 运行 DRC（设计规则检查）</h3>
+  <div class="info">DRC 会检查：线距是否足够、有没有未连接的引脚、有没有漏走的线。在投板前必须确保 DRC = 0。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Display → Status</kbd></div>
+  <div class="act"><span class="chk">☐</span> 在弹出的 Status 窗口中，找到 <strong>DRC Errors</strong>：</div>
+  <ul>
+    <li>如果显示 <span style="color:green;">0</span> → 太好了！跳到 6.2</li>
+    <li>如果显示 > 0 → 需要修复</li>
+  </ul>
+</div>
+
+<div class="step">
+  <h3>▶ 6.1.2 查找和修复 DRC 错误</h3>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>Shift+F5</kbd>（Highlight）</div>
+  <div class="act"><span class="chk">☐</span> 在 Options 面板中 → Find By Name → 选择 <strong>DRC Error</strong></div>
+  <div class="act"><span class="chk">☐</span> 点击 OK → 所有的 DRC 错误会被高亮显示</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>F5</kbd> 放大靠近一个 DRC 标记</div>
+  <div class="act"><span class="chk">☐</span> <strong>常见 DRC 错误及修复：</strong></div>
+  <table>
+    <tr><th>标记类型</th><th>含义</th><th>修复方法</th></tr>
+    <tr><td><span style="color:red;">红色圆圈或菱形</span></td><td>间距冲突（Line to Line spacing）</td><td>把离太近的线移开</td></tr>
+    <tr><td><span style="color:yellow;">黄色标记</span></td><td>未走完的网络（Unrouted Net）</td><td>按 I 键继续走完</td></tr>
+    <tr><td><span style="color:white; background:#333;">白色标记</span></td><td>未连接的引脚（Unconnected Pin）</td><td>检查这个引脚是否应该连接</td></tr>
+  </table>
+  <div class="act"><span class="chk">☐</span> 修复一个错误后，检查 Status 中 DRC Errors 是否减少</div>
+  <div class="act"><span class="chk">☐</span> 重复直到 <strong>DRC Errors = 0</strong></div>
+</div>
+
+<div class="step">
+  <h3>⚠ 6.1.3 特殊注意：铺铜后的 DRC</h3>
+  <div class="info">如果你铺了铜皮，Allegro 的 DRC 可能会报铜皮相关的错误（如铜皮间距不足）。常见修复：</div>
+  <ul>
+    <li>铜皮与焊盘/走线的间距不足 → 在约束管理器中调整 Shape to Line 间距</li>
+    <li>铜皮有孤岛（Island）→ 不修也可以，孤岛不影响电路</li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 确认 DRC Errors = 0</div>
+</div>
+
+<hr>
+
+<h2>任务 6.2：丝印调整</h2>
+
+<div class="step">
+  <h3>▶ 6.2.1 生成丝印</h3>
+  <div class="info">丝印（Silkscreen）是 PCB 上的白色文字，标注位号（R1、C2、U1）和器件轮廓。板厂会根据丝印层知道器件怎么焊。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Manufacture → Silkscreen</kbd></p>
+  <div class="act"><span class="chk">☐</span> 在 Silkscreen 窗口中，用默认设置 → OK</div>
+  <div class="act"><span class="chk">☐</span> 丝印会自动生成在 Board Geometry/Silkscreen_Top 层</div>
+</div>
+
+<div class="step">
+  <h3>▶ 6.2.2 检查并调整丝印位置</h3>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>F5</kbd> 放大查看丝印文字</div>
+  <div class="act"><span class="chk">☐</span> 如果丝印文字<strong>压在焊盘上或重叠在一起</strong>，需要调整：</div>
+  <ul>
+    <li>按 <kbd>M</kbd> 键 → 点击丝印文字（Ref Des）→ 移到空白位置 → 左键放下</li>
+    <li>按 <kbd>R</kbd> 可以旋转丝印方向</li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 把所有丝印文字都调整到清晰可见的位置</div>
+  <div class="info">💡 好的丝印规范：文字不压在焊盘上、文字方向尽量统一（从左到右或从下到上）。</div>
+</div>
+
+<hr>
+
+<h2>任务 6.3：生成 Gerber 和钻孔文件</h2>
+
+<div class="step">
+  <h3>▶ 6.3.1 配置 Gerber 输出</h3>
+  <div class="info">Gerber（RS-274X）是 PCB 制造的标准文件格式。Allegro 把 PCB 的每一层（走线层、阻焊层、丝印层）分别输出成 .art 文件。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Manufacture → Artwork</kbd></p>
+  <div class="act"><span class="chk">☐</span> 在 Artwork Control Form 窗口中：</div>
+  <ul>
+    <li>General Parameters 标签：保持默认（Format = RS-274X）</li>
+    <li>点击 <strong>Film Control</strong> 标签</li>
+  </ul>
+</div>
+
+<div class="step">
+  <h3>▶ 6.3.2 添加 Film（每一层对应一个 Film）</h3>
+  <div class="act"><span class="chk">☐</span> 点击 <strong>Add</strong> 按钮 → 输入 <code>TOP</code> → OK</div>
+  <div class="act"><span class="chk">☐</span> 点击 TOP → 在右侧勾选以下 subclass：</div>
+  <ul>
+    <li>勾选 <strong>ETCH/TOP</strong>（顶层走线）</li>
+    <li>勾选 <strong>PIN/TOP</strong>（顶层焊盘）</li>
+    <li>勾选 <strong>VIA/TOP</strong>（顶层过孔）</li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 点击 <strong>Add</strong> → 输入 <code>GND_INNER</code> → 右侧勾选 ETCH/GND_INNER</div>
+  <div class="act"><span class="chk">☐</span> 点击 <strong>Add</strong> → 输入 <code>PWR_INNER</code> → 右侧勾选 ETCH/PWR_INNER</div>
+  <div class="act"><span class="chk">☐</span> 点击 <strong>Add</strong> → 输入 <code>BOTTOM</code> → 右侧勾选 ETCH/BOTTOM、PIN/BOTTOM、VIA/BOTTOM</div>
+  <div class="act"><span class="chk">☐</span> 点击 <strong>Add</strong> → 输入 <code>SOLDERMASK_TOP</code> → 勾选 SOLDERMASK/TOP</div>
+  <div class="act"><span class="chk">☐</span> 点击 <strong>Add</strong> → 输入 <code>SOLDERMASK_BOTTOM</code> → 勾选 SOLDERMASK/BOTTOM</div>
+  <div class="act"><span class="chk">☐</span> 点击 <strong>Add</strong> → 输入 <code>SILKSCREEN_TOP</code> → 勾选 BOARD GEOMETRY/SILKSCREEN_TOP</div>
+</div>
+
+<div class="step">
+  <h3>▶ 6.3.3 生成 Gerber 文件</h3>
+  <div class="act"><span class="chk">☐</span> 在 Film Control 中，勾选 <strong>所有</strong> Film 前面的复选框</div>
+  <div class="act"><span class="chk">☐</span> 点击 <strong>Generate Artwork</strong> 按钮</div>
+  <div class="act"><span class="chk">☐</span> 看命令栏：应该显示 "Artwork generation completed successfully"</div>
+  <div class="act"><span class="chk">☐</span> 如果报错，通常是 Film 配置问题（某个 subclass 没勾或层名不对）</div>
+</div>
+
+<div class="step">
+  <h3>▶ 6.3.4 生成钻孔文件</h3>
+  <div class="info">钻孔文件告诉板厂在 PCB 上打多大的孔（过孔、插件引脚孔）。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Manufacture → NC → Drill Parameters</kbd></p>
+  <div class="act"><span class="chk">☐</span> 保持默认设置 → OK</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Manufacture → NC → Drill</kbd></p>
+  <div class="act"><span class="chk">☐</span> 保持默认 → <strong>Drill</strong> 按钮</div>
+  <div class="act"><span class="chk">☐</span> 看命令栏："NC Drill completed successfully"</div>
+</div>
+
+<div class="step">
+  <h3>▶ 6.3.5 验证输出文件</h3>
+  <div class="act"><span class="chk">☐</span> 打开项目文件夹 → 进入 <strong>artwork</strong> 子文件夹</div>
+  <div class="act"><span class="chk">☐</span> 确认以下文件都存在：</div>
+  <ul>
+    <li><code>TOP.art</code>、<code>BOTTOM.art</code>、<code>GND_INNER.art</code>、<code>PWR_INNER.art</code></li>
+    <li><code>SOLDERMASK_TOP.art</code>、<code>SOLDERMASK_BOTTOM.art</code></li>
+    <li><code>SILKSCREEN_TOP.art</code></li>
+    <li><code>NCDrill_1.drl</code>（钻孔文件）</li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> <kbd>File → Import → Artwork</kbd> → 选一个 .art 文件 → 打开查看</div>
+  <div class="info">💡 如果你安装了 CAM350，也可以用它打开 Gerber 文件检查。很多板厂也免费提供在线 Gerber 查看器。</div>
+</div>
+
+<hr>
+
+<h2>📋 Day 6 检查清单</h2>
+
+<div class="chk-list">
+  <ol>
+    <li><span class="chk">☐</span> <strong>DRC 零错误</strong> — Display → Status 显示 0</li>
+    <li><span class="chk">☐</span> <strong>丝印合理</strong> — 没有文字压在焊盘上，所有位号可见</li>
+    <li><span class="chk">☐</span> <strong>Gerber 文件生成成功</strong> — artwork/ 目录下有 .art 文件</li>
+    <li><span class="chk">☐</span> <strong>钻孔文件生成成功</strong> — .drl 文件存在</li>
+  </ol>
+  <p style="text-align:center; margin:0.5rem 0 0 0;">
+    <strong>✅ 全部打勾 → 进入 Day 7（综合盲走，毕业！）</strong><br>
+    <strong>❌ 没打完 → 明天先补完</strong>
+  </p>
+</div>
+
+<hr>
+
+<h2>常见问题</h2>
+
+<table>
+  <tr><th>问题</th><th>原因</th><th>解决方法</th></tr>
+  <tr><td>Artwork 报 "Undefined line width for..."</td><td>某层走线未定义线宽</td><td>回到该层，检查走线属性，或者设置全局默认线宽</td></tr>
+  <tr><td>钻孔文件有 Warning</td><td>孔比焊盘直径还小</td><td>检查焊盘设计，通常孔直径 = 焊盘直径 / 2</td></tr>
+  <tr><td>Gerber 生成后看不到走线</td><td>Film 配置中没勾选对应的 subclass</td><td>重新检查每个 Film 勾选的 subclass 是否正确</td></tr>
+</table>
+
+<blockquote>
+  <strong>今天的任务到此结束。</strong><br><br>
+  你已经生成了可以发往板厂的生产文件！Gerber + 钻孔，板厂拿到后就能做 PCB。<br>
+  明天（Day 7）是结业日——不靠教程、不靠笔记，独立完成一整个设计流程。<br>
+  全部完成约 1.5 小时。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Day 6 of 7 · Study_TIA Cadence 学习营 · 2026
+</p>
+
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 4：Allegro PCB 布局入门</title>
+  <link rel="stylesheet" href="../../assets/lesson.css">
+  <style>
+    .step { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.8rem; margin: 0.6rem 0; }
+    .step h3 { color: #1e40af; margin: 0 0 0.3rem 0; font-size: 1rem; }
+    .act { background: #fffbeb; border-left: 4px solid #d97706; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .info { background: #eff6ff; border-left: 4px solid #2563eb; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .warn { background: #fef2f2; border-left: 4px solid #dc2626; padding: 0.4rem 0.7rem; margin: 0.3rem 0; font-size: 0.88rem; }
+    .chk-list { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; }
+    .kbd { display: inline-block; background: #1e293b; color: #e2e8f0; border-radius: 4px; padding: 0.1em 0.5em; font-family: monospace; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+
+<h1>📅 Day 4 · Allegro PCB 布局入门</h1>
+<p style="color: var(--text-secondary);">
+  预计用时 2 小时 · 完成 6 项检查清单后进入 Day 5
+</p>
+
+<blockquote>
+  <strong>本日目标</strong><br>
+  ✅ 会配置 Cross-section 叠层（4 层板）<br>
+  ✅ 会画 Board Outline（板框）<br>
+  ✅ 能成功导入 Day 3 生成的网表<br>
+  ✅ 知道 padpath/psmpath 在哪设置<br>
+  ✅ 会用 M/R 摆放器件，知道摆放顺序
+</blockquote>
+
+<hr>
+
+<h2>任务 4.1：创建 Allegro 项目 + 叠层配置</h2>
+
+<div class="step">
+  <h3>▶ 4.1.1 启动 Allegro PCB Designer</h3>
+  <div class="act"><span class="chk">☐</span> 开始菜单 → 搜索 <strong>Allegro PCB Designer</strong> → 打开</div>
+  <div class="act"><span class="chk">☐</span> Product Choices → 选 <strong>Allegro PCB Designer</strong> → Options 全勾 → Use as default → OK</div>
+</div>
+
+<div class="step">
+  <h3>▶ 4.1.2 新建 Board 文件</h3>
+  <div class="act"><span class="chk">☐</span> <kbd>File → New</kbd></p>
+  <div class="act"><span class="chk">☐</span> Drawing Type：<strong>Board</strong></div>
+  <div class="act"><span class="chk">☐</span> Drawing Name：<code>DAY4_BOARD.brd</code></div>
+  <div class="act"><span class="chk">☐</span> 选择一个目录保存（建议和 Day 3 的 Project 放一起）</div>
+  <div class="info">💡 .brd 是 Allegro 的 PCB 文件格式。在 Allegro 中不存在"项目文件"的概念，只有一个 .brd 文件。</div>
+</div>
+
+<div class="step">
+  <h3>▶ 4.1.3 配置叠层（Cross-section）</h3>
+  <div class="info">叠层决定了 PCB 有多少层铜、每层多厚、绝缘层多厚。我们配一个标准的 4 层板。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Setup → Cross-section</kbd></div>
+  <div class="act"><span class="chk">☐</span> 在 Cross-section Editor 中，删除不需要的层，只保留：</div>
+  <ul>
+    <li><strong>TOP</strong> — Type: <strong>Conductor</strong>（信号层）</li>
+    <li><strong>GND_INNER</strong> — Type: <strong>Plane</strong>（地层，完整地平面）</li>
+    <li><strong>PWR_INNER</strong> — Type: <strong>Plane</strong>（电源层）</li>
+    <li><strong>BOTTOM</strong> — Type: <strong>Conductor</strong>（信号层）</li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 选中 <strong>GND_INNER</strong> 层 → 在右侧的 <strong>Net</strong> 字段中填入 <code>GND</code>（给地层分配网络）</div>
+  <div class="act"><span class="chk">☐</span> 点击 OK 关闭 Cross-section Editor</div>
+  <div class="info">💡 如果你的设计中只有 2 层板，可以不配 4 层，只保留 TOP + BOTTOM 就行。</div>
+</div>
+
+<hr>
+
+<h2>任务 4.2：画板框 + 导入网表</h2>
+
+<div class="step">
+  <h3>▶ 4.2.1 画板框（Board Outline）</h3>
+  <div class="info">板框就是 PCB 的物理外形。Allegro 中必须先在 Board Geometry/Outline 层画一个闭合的矩形，Allegro 才知道板子有多大。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Add → Line</kbd></div>
+  <div class="act"><span class="chk">☐</span> 在右侧 <strong>Options</strong> 面板中设置：</div>
+  <ul>
+    <li>Class：<strong>Board Geometry</strong></li>
+    <li>Subclass：<strong>Outline</strong></li>
+    <li>Line Width：<strong>0</strong>（使用默认最小宽度）</li>
+    <li>Active Class/Subclass：同上</li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 在绘图区内点击左键开始画框：</div>
+  <ul>
+    <li>点第一点 → 往右移 → 点第二点 → 往下移 → 点第三点 → 往左移 → 点第四点</li>
+    <li>最后回到起点，<strong>右键 → Done</strong>（或按 <kbd>F2</kbd>）</li>
+  </ul>
+  <div class="info">💡 推荐尺寸：50 x 40 mm（一个不大的练习板尺寸）。如果你画的不是闭合的，Allegro 会报错。</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>F7</kbd>（Zoom Fit）全屏查看完整的板框</div>
+</div>
+
+<div class="step">
+  <h3>▶ 4.2.2 设置封装库路径（重要！）</h3>
+  <div class="warn">⚠️ 很多人卡在这一步。Allegro 需要知道你的封装文件放在哪里，通过 padpath 和 psmpath 来指定路径。</div>
+  <div class="act"><span class="chk">☐</span> <kbd>Setup → User Preferences</kbd></p>
+  <div class="act"><span class="chk">☐</span> 在 Search Paths → <strong>Design_paths</strong> 中找到：</div>
+  <ul>
+    <li><strong>padpath</strong>：焊盘库路径，例如 <code>C:\Cadence\SPB_17.4\share\pcb\pcb_lib\symbols</code></li>
+    <li><strong>psmpath</strong>：封装库路径，同上</li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 如果不知道你的 Cadence 安装路径，可以在 Windows 搜索 <code>.dra</code> 文件，看它们在哪</div>
+  <div class="act"><span class="chk">☐</span> 也可以新建自己的封装库文件夹：比如 <code>D:\Cadence_Library\symbols</code>，把路径加进去</div>
+  <div class="info">💡 记下你设置的路径，以后所有项目都指向同一个库文件夹。</div>
+</div>
+
+<div class="step">
+  <h3>▶ 4.2.3 导入网表</h3>
+  <div class="act"><span class="chk">☐</span> <kbd>File → Import → Logic</kbd></p>
+  <div class="act"><span class="chk">☐</span> 在 Import Logic 窗口中：</div>
+  <ul>
+    <li>选择 <strong>Cadence</strong> 标签页</li>
+    <li>Import Type：<strong>DesignNetlist</strong></li>
+    <li>Import directory：点击文件夹图标 → 选择 Day 3 生成的 <strong>netlistallegro</strong> 文件夹</li>
+    <li>勾选 <strong>Allow etch removal when converting to FREE</strong></li>
+    <li>点击 <strong>Import Cadence</strong></li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 看下面的命令栏（Command Window）：</div>
+  <ul>
+    <li>✅ 如果看到 <span style="color:green;">"Completed successfully"</span> → 导入成功！</li>
+    <li>❌ 如果看到 <span style="color:red;">"Footprint not found: R0603"</span> → 封装库路径没配好，或者 OrCAD 中填的封装名不对</li>
+  </ul>
+  <div class="act"><span class="chk">☐</span> 导入成功后，按 <kbd>F7</kbd> 全屏，你应该看到所有器件散落在板框附近</div>
+</div>
+
+<div class="step">
+  <h3>⚠ 4.2.4 网表导入失败的解决方法</h3>
+  <div class="info">如果报"Footprint not found"，不是你的错——是封装名不匹配。解决办法：</div>
+  <ul>
+    <li>方法一：去 OrCAD 中修改 PCB Footprint 名称，重新生成网表</li>
+    <li>方法二：在 Allegro 中跳过不存在的封装（不推荐，因为你需要自己去补）</li>
+    <li>方法三：如果你的 Cadence 没有标准库封装，需要先创建焊盘和封装（这是另一个大的主题，Day 7 之后可以学）</li>
+  </ul>
+  <div class="info">💡 对于今天的练习：如果 R0603、C0402 报错，可以先在 OrCAD 中临时改为 <strong>SM0805</strong>（0805 封装的标准库名），重新生成网表再导入。</div>
+</div>
+
+<hr>
+
+<h2>任务 4.3：摆放器件</h2>
+
+<div class="step">
+  <h3>▶ 4.3.1 快速摆放所有器件</h3>
+  <div class="act"><span class="chk">☐</span> <kbd>Place → Manually</kbd></p>
+  <div class="act"><span class="chk">☐</span> 在 Placement 对话框中，点击 <strong>Quick</strong> 标签</div>
+  <div class="act"><span class="chk">☐</span> 点击 <strong>Place All</strong> → 所有器件会自动放置到板框内</div>
+  <div class="act"><span class="chk">☐</span> 关闭 Placement 对话框</div>
+</div>
+
+<div class="step">
+  <h3>▶ 4.3.2 手动调整位置</h3>
+  <div class="act"><span class="chk">☐</span> 按 <kbd class="kbd" style="background:#92400e;">M</kbd>（Move）→ 点击一个器件 → 移动鼠标到合适位置 → 左键放下</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd class="kbd" style="background:#92400e;">R</kbd>（Rotate）→ 点击器件 → 每点一次转 90 度</div>
+  <div class="act"><span class="chk">☐</span> 按下面的<strong>摆放顺序</strong>原则来布局：</div>
+  <ol>
+    <li><strong>先放连接器</strong> — 固定在板框边缘（通常左边或右边）</li>
+    <li><strong>再放核心 IC</strong> — OPA381 放在板子中央附近</li>
+    <li><strong>最后放外围 R/C</strong> — 电阻电容紧靠对应的 IC 引脚</li>
+  </ol>
+  <div class="info">💡 摆放时注意飞线（Ratsnest）的变化——飞线越短说明布局越合理。飞线是黄色细线，表示两个焊盘之间需要走线。</div>
+</div>
+
+<div class="step">
+  <h3>▶ 4.3.3 检查布局</h3>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>F7</kbd> 全屏看整体效果</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>F5</kbd>/<kbd>F6</kbd> 放大缩小检查细节</div>
+  <div class="act"><span class="chk">☐</span> 检查：是否有器件叠在一起？是否所有器件都在板框内部？</div>
+  <div class="act"><span class="chk">☐</span> 按 <kbd>Ctrl+S</kbd> 保存</div>
+</div>
+
+<hr>
+
+<h2>📋 Day 4 检查清单</h2>
+
+<div class="chk-list">
+  <ol>
+    <li><span class="chk">☐</span> <strong>会配置 Cross-section 四层板叠层</strong> — TOP/GND/PWR/BOTTOM 配置完成</li>
+    <li><span class="chk">☐</span> <strong>会画 Board Outline</strong> — Add → Line → Board Geometry/Outline → 闭合矩形</li>
+    <li><span class="chk">☐</span> <strong>导入网表成功</strong> — 无 Footprint 报错</li>
+    <li><span class="chk">☐</span> <strong>知道 padpath/psmpath 在哪设置</strong> — Setup → User Preferences → Design_paths</li>
+    <li><span class="chk">☐</span> <strong>会用 M 移动、R 旋转</strong> — 能自由移动器件</li>
+    <li><span class="chk">☐</span> <strong>布局整齐</strong> — 连接器靠边、IC 居中、电阻电容靠近对应引脚</li>
+  </ol>
+  <p style="text-align:center; margin:0.5rem 0 0 0;">
+    <strong>✅ 全部打勾 → 进入 Day 5（布线实战！）</strong><br>
+    <strong>❌ 没打完 → 明天先补完</strong>
+  </p>
+</div>
+
+<blockquote>
+  <strong>今天的任务到此结束。</strong><br><br>
+  原理图变成了 PCB 布局——恭喜你走到了这一步！<br>
+  从明天开始，你会真正在 PCB 上走线，把那些黄色的飞线变成真正的铜线。<br>
+  全部完成约 2 小时。
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Day 4 of 7 · Study_TIA Cadence 学习营 · 2026
+</p>
+
+</body>
+</html>

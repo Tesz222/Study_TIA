@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实操：OrCAD + Allegro 从零到投板 — TIA 电路</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .key-point { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .step-box { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin: 0.8rem 0; }
+    .step-box h3 { color: #1e40af; margin-top: 0; font-size: 1rem; }
+    .do-this { background: #f0fdf4; border-left: 4px solid #16a34a; padding: 0.5rem 0.8rem; margin: 0.5rem 0; }
+    .check-this { background: #fffbeb; border-left: 4px solid #d97706; padding: 0.5rem 0.8rem; margin: 0.5rem 0; }
+    .cmd-box { background: #1e293b; color: #e2e8f0; border-radius: 6px; padding: 0.5rem 0.8rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; margin: 0.3rem 0; }
+  </style>
+</head>
+<body>
+
+<h1>实操：单通道 TIA 电路 — OrCAD 原理图到 Allegro 投板</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  Lesson PR01 · 实战演练 · 预计用时 60 分钟
+</p>
+
+<blockquote>
+  <strong>实操目标</strong>
+  跟着步骤，在 Cadence 中完整走完一遍：从打开 OrCAD 画原理图，到 Allegro 布局布线，最后出 Gerber。每一步都告诉你按什么键、点哪里。
+</blockquote>
+
+<h2>电路说明</h2>
+
+<p>我们要画的是一最简单的单通道 TIA 电路：</p>
+<ul>
+  <li>光电二极管 PD1 &#8594; OPA381（TIA）&#8594; 输出 V<sub>OUT</sub></li>
+  <li>R<sub>f</sub> = 100 k&Omega;，C<sub>f</sub> = 0.68 pF</li>
+  <li>单电源 +5 V 供电</li>
+  <li>BOM：PD x1, OPA381 x1, R x3, C x4, 连接器 x1, TP x3</li>
+</ul>
+
+<hr>
+
+<h2>第一部分：OrCAD Capture 原理图（预计 25 min）</h2>
+
+<h3>Step 0：启动 OrCAD Capture — 选对 Product Choice</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：开始菜单 &#8594; 搜索 <strong>OrCAD Capture CIS</strong> &#8594; 打开</div>
+  <p>第一次启动时，会弹出 <strong>Product Choices</strong> 窗口，这是 Cadence 让你选择以哪个产品模式运行：</p>
+  <ul>
+    <li><strong>选：OrCAD Capture CIS</strong>（列表中找到这一项）</li>
+    <li>如果你公司买的是 Allegro 套装，选 <strong>Allegro Design Entry CIS</strong></li>
+    <li>如果你接下来不需要元器件数据库（CIS），选 <strong>OrCAD Capture</strong> 启动更快</li>
+  </ul>
+  <div class="check-this">勾选左下角 <strong>Use as default</strong>，下次就不会再弹这个窗口了</div>
+</div>
+
+<h4>Product Choices 速查</h4>
+<div class="step-box">
+  <table>
+    <tr><th>这个选项</th><th>含义</th><th>你什么时候选</th></tr>
+    <tr><td>OrCAD Capture</td><td>纯原理图，无 CIS 无 PSpice</td><td>个人画简单原理图，启动最快</td></tr>
+    <tr><td><strong>OrCAD Capture CIS</strong></td><td>原理图 + 元器件库管理</td><td><strong>默认推荐</strong></td></tr>
+    <tr><td>OrCAD PSpice Designer</td><td>原理图 + 仿真</td><td>需要仿真模拟电路时</td></tr>
+    <tr><td>Allegro Design Entry CIS</td><td>Allegro 版原理图</td><td>公司用 Allegro 套装时</td></tr>
+  </table>
+  <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:0.5rem;margin:0.5rem 0;font-size:0.9rem;">
+    <strong>注意</strong>：如果选错了或想切换产品特性，不需要退出重开——在 OrCAD 菜单栏上 <strong>File &#8594; Change Product</strong> 可以随时切换。
+  </div>
+</div>
+
+<h3>Step 1：创建项目</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：File &#8594; New &#8594; Project</div>
+  <ul>
+    <li>Name：<code>TIA_AMP_PRACTICE</code></li>
+    <li>Location：选一个你常用的工作目录</li>
+    <li>选中 <strong>Analog or Mixed A/D</strong>（带 PSpice 仿真能力）</li>
+    <li>点击 OK</li>
+  </ul>
+  <div class="check-this">确认项目管理器中出现了 <code>.dsn</code> 文件（原理图文件）和 <code>.opj</code> 文件（项目文件）</div>
+</div>
+
+<h3>Step 1：放置 OPA381</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：按 <strong>P</strong> 键打开 Place Part 面板</div>
+  <ul>
+    <li>先确认 Libraries 里有没有 OPA381。如果没有：</li>
+    <li style="list-style:none; margin-left:1.5rem;">点击 <strong>Add Library</strong> 按钮（文件夹图标）</li>
+    <li style="list-style:none; margin-left:1.5rem;">找到 Cadence 自带库路径：<code>...\tools\capture\library\opamp.olb</code></li>
+    <li>在 <strong>Part List</strong> 中搜索 <code>OPA381</code>，如果找不到就用 <code>LM741</code> 代替（只是练习）</li>
+    <li>双击放置到原理图。按 <strong>R</strong> 可以旋转方向</li>
+    <li>按 <strong>Esc</strong> 或右键 &#8594; End Mode 退出放置</li>
+  </ul>
+  <div class="check-this">确认原理图页上出现了一个运放符号，默认位号 U1</div>
+</div>
+
+<h3>Step 2：放置电阻、电容和光电二极管</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：按 <strong>P</strong> 继续放置</div>
+  <ul>
+    <li>在 Libraries 中添加 <code>DISCRETE.olb</code>（在 capture\library 下）</li>
+    <li>搜索并放置：</li>
+    <li style="list-style:none; margin-left:1.5rem;"><code>R</code>（电阻）&times; 3 个：R1, R2, R3<br>— R1 = R<sub>f</sub>（反馈电阻，稍后改值为 100k）<br>— R2 = 10k（偏置电阻）<br>— R3 = 1k（输出限流）</li>
+    <li style="list-style:none; margin-left:1.5rem;"><code>C</code>（电容）&times; 3 个：C1, C2, C3<br>— C1 = C<sub>f</sub>（反馈电容，0.68 pF）<br>— C2 = 0.1 uF（去耦）<br>— C3 = 10 uF（去耦）</li>
+    <li style="list-style:none; margin-left:1.5rem;">搜索 <code>LED</code> 或 <code>PHOTODIODE</code>：如果没有，用一个普通二极管 <code>D</code>（DIODE）代替<br>（练习中只是走通流程，符号不重要）</li>
+  </ul>
+  <div class="check-this">按 <strong>I</strong> 键放大查看，确认所有器件都在原理图页上</div>
+</div>
+
+<h3>Step 3：修改器件参数</h3>
+
+<div class="step-box">
+  <p><strong>修改位号和 Value</strong>：</p>
+  <ol>
+    <li>双击电阻 R1 弹出属性框</li>
+    <li>将 <strong>Value</strong> 改为 <code>100k</code></li>
+    <li>将 <strong>PCB Footprint</strong> 改为 <code>R0603</code></li>
+    <li>对 R2（10k）、R3（1k）做同样操作</li>
+    <li>对 C1 将 Value 改为 <code>0.68pF</code>，Footprint 改为 <code>C0402</code></li>
+    <li>对 C2 改 Value 为 <code>0.1uF</code></li>
+    <li>对 C3 改 Value 为 <code>10uF</code></li>
+  </ol>
+  <p><strong>批量修改的快捷技巧</strong>：</p>
+  <ul>
+    <li>选中一个器件 &#8594; 右键 &#8594; <strong>Edit Properties</strong>（快捷键 Ctrl+E）</li>
+    <li>在 Property Editor 中，可以看到所有器件列表，直接在一张表里修改所有值</li>
+  </ul>
+</div>
+
+<h3>Step 4：走线连接</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：按 <strong>W</strong> 键开始走线</div>
+  <p>按以下连接方式逐个连接（从左上到右下布局）：</p>
+  <pre>
+  PD1（光电二极管）
+    &#9500; 阴极 &#8594; U1 Pin 2（OPA381 反相输入）
+    &#9492; 阳极 &#8594; GND
+
+  U1（OPA381）
+    Pin 2（-IN）&#8594; R1 一端
+    Pin 3（+IN）&#8594; R2 到 GND
+    Pin 4（VEE）&#8594; GND（单电源供电）
+    Pin 6（OUT）&#8594; R1 另一端、C1 另一端、R3 一端
+    Pin 7（VCC）&#8594; +5V
+    Pin 1、5、8 &#8594; 不连（NC）
+
+  R3 另一端 &#8594; 输出接插件（CON1 / HEADER 2）
+
+  +5V &#8594; C2 一端、C3 一端
+  C2 另一端 &#8594; GND
+  C3 另一端 &#8594; GND
+  </pre>
+  <div class="cmd-box">走线时按住 Shift 可锁定水平/垂直方向</div>
+</div>
+
+<h3>Step 5：放置电源和地</h3>
+
+<div class="step-box">
+  <ul>
+    <li>按 <strong>F</strong> 键（Place Power）<br>
+    — 在 Library 中选择 <code>SOURCE</code> 库<br>
+    — 选择 <code>VCC</code>（或 <code>+5V</code>）符号，放置到 U1 的 Pin 7</li>
+    <li>按 <strong>G</strong> 键（Place Ground）<br>
+    — 在 Library 中选择 <code>SOURCE</code> 库<br>
+    — 选择 <code>0</code>（或 GND）符号，放置到 PD 阳极、U1 Pin 3/4、C2/C3 另一端</li>
+  </ul>
+</div>
+
+<h3>Step 6：标注网络名</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：按 <strong>N</strong> 键（Place Net Alias）</div>
+  <ul>
+    <li>输入 <code>PD_IN</code>，放在 PD 阴极到 U1 Pin 2 的线上</li>
+    <li>输入 <code>TIA_OUT</code>，放在 U1 Pin 6 的输出线上</li>
+    <li>输入 <code>+5V_A</code>，放在电源线上（区分模拟电源）</li>
+  </ul>
+  <div class="check-this">走线完成后，按 <strong>Ctrl+S</strong> 保存，确保所有连接点出现红色的小圆点</div>
+</div>
+
+<h3>Step 7：Annotate（自动编号）</h3>
+
+<div class="step-box">
+  <p>如果之前手动放了器件，位号可能不连续或有冲突：</p>
+  <div class="do-this">Tools &#8594; Annotate</div>
+  <ul>
+    <li>勾选 <strong>Reset part references to "?"</strong>（不勾也可以，直接选 Incremental）</li>
+    <li>选中 <strong>Incremental reference update</strong></li>
+    <li>点击 OK</li>
+  </ul>
+  <p>系统会自动将位号整理为 R1、R2、R3、C1、C2、C3、U1、D1 等</p>
+</div>
+
+<h3>Step 8：DRC 检查</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：Tools &#8594; Design Rules Check</div>
+  <ul>
+    <li>勾选 <strong>Check single node nets</strong>（检查孤立节点）</li>
+    <li>点击 OK</li>
+    <li>查看 Session Log 下方的信息。如果有错误（红色 X），双击错误条目定位到原理图上修改</li>
+    <li>常见错误：<strong>Floating input pin</strong>（输入引脚没连上）</li>
+  </ul>
+  <div class="check-this">确认 DRC 结果为 0 Errors（可以有 Warnings）</div>
+</div>
+
+<h3>Step 9：生成网表</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：Tools &#8594; Create Netlist</div>
+  <ul>
+    <li>选择 <strong>PCB Editor</strong> 标签页</li>
+    <li>勾选 <strong>Create PCB Editor Netlist</strong></li>
+    <li>确定 <strong>PCB Footprint</strong> 也勾选了</li>
+    <li>点击 <strong>确定</strong></li>
+  </ul>
+  <div class="check-this">确认 Session Log 显示 <span style="color:green;">"Netlist successfully completed"</span><br>
+  打开项目文件夹，看是否有 <code>netlistallegro</code> 文件夹生成</div>
+</div>
+
+<hr>
+
+<h2>第二部分：Allegro PCB Editor 布局布线（预计 30 min）</h2>
+
+<h3>Step 10：启动 Allegro PCB Editor — 选对 Product Choice</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：开始菜单 &#8594; 搜索 <strong>Allegro PCB Designer</strong> &#8594; 打开</div>
+  <p>同样会弹出 Product Choices 窗口，这次你要选的是 PCB 布局相关选项：</p>
+  <ul>
+    <li><strong>选：OrCAD PCB Designer Professional</strong>（如果你用的 OrCAD 套装，这是默认推荐）</li>
+    <li><strong>选：Allegro PCB Designer</strong>（如果你用的 Allegro 套装）</li>
+    <li>不确定？先问同事公司买的哪个版本。问不到就选 OrCAD PCB Designer Professional</li>
+  </ul>
+  <div class="check-this">同样勾选 <strong>Use as default</strong>，下次不弹窗</div>
+  <p style="font-size:0.9rem; color:#555; margin-top:0.3rem;">💡 如果 Product Choices 窗口中有 <strong>Options</strong> 列表，建议把能勾的全勾上，避免后续用到某个功能时提示 License 不足。</p>
+</div>
+
+<div class="step-box">
+  <div class="do-this"><strong>建新文件</strong>：File &#8594; New</div>
+  <ul>
+    <li>Drawing Type：<strong>Board</strong></li>
+    <li>Name：<code>TIA_AMP_BOARD.brd</code></li>
+    <li>Template 可以选 Allegro 自带的 <code>board_template_4layer.template</code> 或先不选，后面手动设</li>
+  </ul>
+</div>
+
+<h3>Step 11：设置叠层（简单版 — 2 层板）</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：Setup &#8594; Cross-section</div>
+  <ul>
+    <li>删除多余的层，保留：</li>
+    <li style="list-style:none; margin-left:1.5rem;"><strong>TOP</strong> — 信号层，做模拟走线<br>
+    <strong>BOTTOM</strong> — 信号层，辅助走线 + 地铜填充</li>
+    <li>在 TOP 下添加一个平面层（右键 Add Layer Above）：</li>
+    <li style="list-style:none; margin-left:1.5rem;"><strong>GND</strong> — Plane 类型，网络赋值为 GND<br>
+    （如果做 4 层板，可以加 TOP/GND/PWR/BOTTOM）</li>
+  </ul>
+  <div class="check-this">确认 Cross-section 编辑器中没有红色报错</div>
+</div>
+
+<h3>Step 12：设置板框（Outline）</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：用 Add &#8594; Line 画板框</div>
+  <ul>
+    <li>在 Options 面板中：</li>
+    <li style="list-style:none; margin-left:1.5rem;">Class：<strong>Board Geometry</strong><br>
+    Subclass：<strong>Outline</strong></li>
+    <li>画一个 30 mm x 20 mm 的矩形板框</li>
+    <li>画完后在工具面板里点 <strong>Done</strong>（或按 F2）结束</li>
+  </ul>
+</div>
+
+<h3>Step 13：导入网表</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：File &#8594; Import &#8594; Logic</div>
+  <ul>
+    <li>选择 <strong>Cadence</strong> 标签页</li>
+    <li>Import Type：<strong>DesignNetlist</strong></li>
+    <li>Import directory：点击右边的文件夹图标，选择刚才 OrCAD 生成的 <code>netlistallegro</code> 文件夹</li>
+    <li>确保勾选 <strong>Allow etch removal when converting to FREE</strong></li>
+    <li>点击 <strong>Import Cadence</strong></li>
+  </ul>
+  <div class="cmd-box">如果提示找不到封装（Footprint not found），说明 OrCAD 中对某个器件的 PCB Footprint 名称和 Allegro 中的 .dra 文件名不一致。记下缺失的封装名，后面需要创建或映射。</div>
+  <div class="check-this">导入成功后，按 <strong>F6</strong> 缩小，你应该看到器件散落在板框附近</div>
+</div>
+
+<h3>Step 14：放置器件（布局）</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：Place &#8594; Manually</div>
+  <ul>
+    <li>在弹出的 Placement 对话框中：</li>
+    <li>选中 <strong>Quick</strong> 标签，点击 <strong>Place All</strong>（所有器件先自动放置到板框内）</li>
+    <li>关闭对话框</li>
+  </ul>
+  <p><strong>手工精细布局</strong>：</p>
+  <ul>
+    <li>按 <strong>M</strong>（Move），点击一个器件开始移动</li>
+    <li>按 <strong>R</strong> 旋转</li>
+    <li>按 <strong>F5</strong> 放大 / <strong>F6</strong> 缩小</li>
+  </ul>
+  <p><strong>推荐的布局位置</strong>（左到右）：</p>
+  <pre>
+  [PD1] &#8594; [R1/C1] &#8594; [U1 OPA381] &#8594; [R3] &#8594; [CON1]
+                           ^
+                          [R2]
+                           v
+                         [C2/C3 去耦电容]
+  </pre>
+  <ul>
+    <li>PD1 紧靠 U1 的 Pin 2（反相输入），间距 &le; 3 mm</li>
+    <li>R1（反馈电阻）和 C1（反馈电容）跨在 U1 的 Pin 2 和 Pin 6 之间</li>
+    <li>R2 在 U1 的 Pin 3 到 GND 之间</li>
+    <li>C2（0.1 uF）和 C3（10 uF）紧靠 U1 的 Pin 7（VCC）</li>
+    <li>CON1 在板框最右边</li>
+  </ul>
+  <div class="check-this">布局完成后，按 <strong>F7</strong> 缩小看全板效果</div>
+</div>
+
+<h3>Step 15：设置约束规则</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：Setup &#8594; Constraints &#8594; Constraint Manager</div>
+  <ul>
+    <li>在 <strong>Physical</strong> 标签页中：</li>
+    <li style="list-style:none; margin-left:1.5rem;">右键 &#8594; Create &#8594; Physical CSet<br>
+    — 名称：<code>ANALOG</code><br>
+    — Min Line Width：<code>0.2 mm</code><br>
+    — Default Via：选择一个你创建好的过孔（如果没有，先创建：Setup &#8594; Via &#8594; Define）
+    </li>
+    <li>在 <strong>Spacing</strong> 标签页中：</li>
+    <li style="list-style:none; margin-left:1.5rem;">右键 &#8594; Create &#8594; Spacing CSet<br>
+    — 名称：<code>ANALOG_SPACE</code><br>
+    — Line to Line：<code>0.2 mm</code></li>
+    <li>回到 Constraint Manager 主界面：</li>
+    <li style="list-style:none; margin-left:1.5rem;">在 <strong>Net</strong> → <strong>Physical</strong> 中，找到 <code>PD_IN</code> 和 <code>TIA_OUT</code> 网络<br>
+    在 Referenced Physical CSet 列中，选择 <code>ANALOG</code></li>
+  </ul>
+</div>
+
+<h3>Step 16：手动走线</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：按 <strong>I</strong> 键开始走线（Add Connect）</div>
+  <p><strong>走线顺序</strong>（先走最重要的模拟信号）：</p>
+  <ol>
+    <li><strong>PD1 到 U1 Pin 2</strong>（最关键——TIA 输入）<br>
+    — 最短路径 &#8594; 直接连，不要绕弯<br>
+    — 走线宽度 0.3 mm</li>
+    <li><strong>U1 Pin 6 到 R3 到 CON1</strong>（TIA 输出）<br>
+    — 和输入保持距离</li>
+    <li><strong>R1 和 C1</strong>（反馈网络）<br>
+    — 跨接在 Pin 2 和 Pin 6 之间</li>
+    <li><strong>R2</strong>（同相端偏置）<br>
+    — Pin 3 到 GND</li>
+    <li><strong>电源走线</strong><br>
+    — Pin 7 先到 C2 &#8594; C3 &#8594; 然后走宽线（0.5 mm）到连接器</li>
+    <li><strong>GND 走线</strong><br>
+    — 尽量使用星形接地（所有 GND 点汇聚到一点）</li>
+  </ol>
+  <div class="cmd-box">走线过程中按 <strong>V</strong> 键打孔换层；按 <strong>Backspace</strong> 取消上一步</div>
+  <div class="check-this">走线完成后按 <strong>F2</strong>（Done），检查是否有未连接的线（显示的飞线）</div>
+</div>
+
+<h3>Step 17：覆铜（静态铜皮）</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：Shape &#8594; Add Rect（快捷键要自己配置，或直接点菜单）</div>
+  <ul>
+    <li>在 Options 面板中：</li>
+    <li style="list-style:none; margin-left:1.5rem;">Class：<strong>Etch</strong><br>
+    Subclass：<strong>TOP</strong><br>
+    Assign net：<strong>GND</strong><br>
+    Shape type：<strong>Static Solid</strong></li>
+    <li>在板框内画一个矩形覆盖整个板面</li>
+    <li>铺好后，如果有不需要铺铜的地方，用 <strong>Shape &#8594; Void &#8594; Circular</strong> 挖掉</li>
+    <li>在 <strong>PD_IN 焊盘</strong>周围画一个圈挖掉地铜（减少寄生电容！）</li>
+  </ul>
+  <div class="check-this">覆铜后检查走线和铜皮间距是否满足约束规则</div>
+</div>
+
+<h3>Step 18：DRC 最终检查</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：Display &#8594; Status</div>
+  <ul>
+    <li>查看 <strong>DRC Errors</strong> 是否为 0</li>
+    <li>如果有错误：</li>
+    <li style="list-style:none; margin-left:1.5rem;">按 <strong>Shift+F5</strong>（Highlight），把 DRC 错误高亮出来<br>
+    按 <strong>F5</strong> 放大查看错误位置<br>
+    修改后按 <strong>Shift+F6</strong> 取消高亮</li>
+  </ul>
+  <div class="check-this">确认 <strong>Unconnected Pins</strong> = 0<br>
+  <strong>Unrouted Nets</strong> = 0<br>
+  <strong>DRC Errors</strong> = 0</div>
+</div>
+
+<h3>Step 19：出 Gerber（投板文件）</h3>
+
+<div class="step-box">
+  <div class="do-this"><strong>操作</strong>：Manufacture &#8594; Artwork</div>
+  <ul>
+    <li>在 Film Control 中配置：</li>
+    <li style="list-style:none; margin-left:1.5rem;">点击 <strong>Add</strong> 按钮，添加以下 Film：<br>
+    — <code>TOP</code>（顶层走线）<br>
+    — <code>BOTTOM</code>（底层走线）<br>
+    — <code>SOLDERMASK_TOP</code>（顶层阻焊）<br>
+    — <code>SOLDERMASK_BOTTOM</code>（底层阻焊）<br>
+    — <code>SILKSCREEN_TOP</code>（顶层丝印）<br>
+    — <code>NC_DRILL</code>（钻孔）</li>
+    <li>勾选所有 Film，点击 <strong>Generate Artwork</strong></li>
+    <li>再生成钻孔文件：<strong>Manufacture &#8594; NC &#8594; Drill</strong></li>
+    <li>点击 <strong>Drill</strong> 按钮</li>
+  </ul>
+  <div class="check-this">确认所有 Gerber 文件生成到 <code>.\artwork\</code> 目录下<br>
+  用 CAM350 或 Allegro 自带的 ViewPlot 打开其中一个 .art 文件检查</div>
+</div>
+
+<hr>
+
+<h2>完整流程图（一步接一步）</h2>
+
+<pre style="font-size:0.85rem;">
+OrCAD Capture:
+  [0] New Project (.opj)
+  [1] Place OPA381   (P)
+  [2] Place R/C/PD   (P)
+  [3] Edit Values    (双击)
+  [4] Wire           (W)
+  [5] Power & GND    (F / G)
+  [6] Net Alias      (N)
+  [7] Annotate       (Tools)
+  [8] DRC            (Tools)
+  [9] Netlist        (Tools)
+         │
+         ▼
+Allegro PCB:
+  [10] New Board (.brd)
+  [11] Cross-section  (Setup)
+  [12] Board Outline  (Add/Line)
+  [13] Import Netlist (File/Import/Logic)
+  [14] Place Parts    (Place/Manually)
+  [15] Manual Layout  (M / R)
+  [16] Constraints    (Setup/Constraints)
+  [17] Route          (I)
+  [18] Copper Pour    (Shape/Add Rect)
+  [19] DRC            (Display/Status)
+  [20] Gerber Out     (Manufacture/Artwork)
+  [21] Drill Out      (Manufacture/NC/Drill)
+         │
+         ▼
+  投板！
+</pre>
+
+<blockquote>
+  <strong>做完之后</strong><br><br>
+  如果这是你第一次完整走完 Cadence 流程，恭喜你！你已经掌握了从原理图到投板的完整能力。<br><br>
+  建议每个步骤多做几次，目标是：<br>
+  - 不看这个页面能走完一遍<br>
+  - 知道每个快捷键按什么<br>
+  - 知道遇到错误去哪里查（Session Log / DRC / 封装库路径）
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Lesson PR01 · Study_TIA 教学工坊 · 实战演练
+</p>
+
+</body>
+</html>
+
+

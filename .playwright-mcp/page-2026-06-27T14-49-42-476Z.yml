@@ -1,0 +1,77 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "ЮЕ-Фотоника" [ref=e6] [cursor=pointer]:
+        - /url: http://www.yephotonics.ru/
+        - img "ЮЕ-Фотоника" [ref=e7]
+      - navigation [ref=e8]:
+        - list [ref=e9]:
+          - listitem [ref=e10]:
+            - link "Главная" [ref=e11] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e12]:
+            - link "Продукция" [ref=e13] [cursor=pointer]:
+              - /url: /products/
+          - listitem [ref=e14]:
+            - link "Новости" [ref=e15] [cursor=pointer]:
+              - /url: /news/
+          - listitem [ref=e16]:
+            - link "Каталоги" [ref=e17] [cursor=pointer]:
+              - /url: /catalogs/
+          - listitem [ref=e18]:
+            - link "Контакты" [ref=e19] [cursor=pointer]:
+              - /url: /contacts/
+      - textbox "Поиск" [ref=e21]
+      - img "ЮЕ ТЕХ" [ref=e23]
+  - generic [ref=e24]:
+    - list [ref=e28]:
+      - listitem [ref=e29]:
+        - link "Главная" [ref=e30] [cursor=pointer]:
+          - /url: /
+      - listitem [ref=e31]: Ошибка
+    - generic [ref=e33]:
+      - complementary [ref=e35]:
+        - navigation [ref=e36]:
+          - list [ref=e37]:
+            - listitem [ref=e38]:
+              - generic [ref=e39] [cursor=pointer]: ФЭУ и модули ФЭУ
+            - listitem [ref=e40]:
+              - generic [ref=e41] [cursor=pointer]: Фотодиоды и фотодиодные линейки
+            - listitem [ref=e42]:
+              - generic [ref=e43] [cursor=pointer]: MPPC
+            - listitem [ref=e44]:
+              - generic [ref=e45] [cursor=pointer]: Детекторы изображения
+            - listitem [ref=e46]:
+              - generic [ref=e47] [cursor=pointer]: Спектрометры и мини-спектрометры
+            - listitem [ref=e48]:
+              - generic [ref=e49] [cursor=pointer]: Источники света
+            - listitem [ref=e50]:
+              - generic [ref=e51] [cursor=pointer]: Лазерная продукция
+            - listitem [ref=e52]:
+              - generic [ref=e53] [cursor=pointer]: Считывающая электроника
+      - main [ref=e55]:
+        - generic [ref=e56]:
+          - heading "404" [level=1] [ref=e57]
+          - generic [ref=e58]: Страница не найдена.
+          - link "Вернуться на главную" [ref=e60] [cursor=pointer]:
+            - /url: /
+  - contentinfo [ref=e61]:
+    - generic [ref=e62]:
+      - img "ЮЕ-Фотоника" [ref=e64]
+      - generic [ref=e65]:
+        - list:
+          - listitem [ref=e66]:
+            - link "Сертификат" [ref=e67] [cursor=pointer]:
+              - /url: /docs/HAMAMATSU_Certificate_2016.pdf
+          - listitem [ref=e68]:
+            - link "Архив" [ref=e69] [cursor=pointer]:
+              - /url: /archive/
+          - listitem [ref=e70]:
+            - link "www.yephotonics.ru" [ref=e71] [cursor=pointer]:
+              - /url: http://www.yephotonics.ru/
+          - listitem [ref=e72]:
+            - link "www.yetech.ru" [ref=e73] [cursor=pointer]:
+              - /url: https://yetech.ru/
+          - listitem [ref=e74]:
+            - link "www.hamamatsu.com" [ref=e75] [cursor=pointer]:
+              - /url: http://www.hamamatsu.com/

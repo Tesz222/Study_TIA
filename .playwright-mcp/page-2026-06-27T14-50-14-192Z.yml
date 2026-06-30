@@ -1,0 +1,193 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "Close" [ref=e6] [cursor=pointer]:
+      - /url: "#"
+      - text: Close
+    - generic [ref=e8]:
+      - link "Skip to main content" [ref=e10] [cursor=pointer]:
+        - /url: "#"
+      - generic [ref=e11]:
+        - link "Home" [ref=e12] [cursor=pointer]:
+          - /url: //www.ti.com
+          - img "Texas Instruments" [ref=e13]
+        - generic [ref=e14]:
+          - generic [ref=e20]:
+            - generic:
+              - generic:
+                - status
+                - status
+              - generic [ref=e22]:
+                - combobox "Enter a query with minimum of 2 character(s) to enable search." [ref=e24]
+                - button "Search" [disabled] [ref=e25]
+          - link "Cross-reference" [ref=e27] [cursor=pointer]:
+            - /url: //www.ti.com/cross-reference-search/en-us/
+            - generic [ref=e30]: Cross-reference
+        - generic [ref=e31]:
+          - link "Login / Register" [ref=e34] [cursor=pointer]:
+            - /url: /secure-link-forward/?gotoUrl=https%3A%2F%2Fwww.ti.com%2Fdocument-viewer%2FSBOA268
+          - generic:
+            - generic:
+              - option "English" [selected]
+              - option "简体中文"
+              - option "繁體中文"
+              - option "Deutsch"
+              - option "日本語"
+              - option "한국어"
+              - option "Español"
+              - option "USD" [selected]
+            - generic:
+              - generic: Save
+              - generic: Cancel
+    - navigation "Primary" [ref=e35]:
+      - menubar [ref=e36]:
+        - button "Menu" [ref=e37] [cursor=pointer]:
+          - generic [ref=e38]: Menu
+        - menuitem "Language" [ref=e39] [cursor=pointer]:
+          - generic [ref=e40]: Language
+        - menuitem "My cart" [ref=e41] [cursor=pointer]:
+          - generic [ref=e42]: My cart
+  - generic [ref=e44]:
+    - generic [ref=e45]:
+      - heading "We can't find this page" [level=1] [ref=e46]
+      - heading "Error 404" [level=5] [ref=e47]
+      - paragraph [ref=e48]: Try searching again or use the link below to find what you're looking for.
+      - paragraph [ref=e49]:
+        - link "Go to homepage" [ref=e50] [cursor=pointer]:
+          - /url: /
+    - img [ref=e54]
+  - contentinfo [ref=e56]:
+    - generic [ref=e57]:
+      - generic [ref=e58]:
+        - img
+        - generic [ref=e59]:
+          - heading "About TI" [level=2] [ref=e60]
+          - list [ref=e61]:
+            - listitem [ref=e62]:
+              - link "About TI overview" [ref=e63] [cursor=pointer]:
+                - /url: //www.ti.com/about-ti.html
+            - listitem [ref=e64]:
+              - link "Careers" [ref=e65] [cursor=pointer]:
+                - /url: https://careers.ti.com/en/sites/CX
+            - listitem [ref=e66]:
+              - link "Newsroom" [ref=e67] [cursor=pointer]:
+                - /url: //www.ti.com/about-ti/newsroom.html
+            - listitem [ref=e68]:
+              - link "Our stories | Behind the Chip" [ref=e69] [cursor=pointer]:
+                - /url: //www.ti.com/about-ti/behind-chip.html
+            - listitem [ref=e70]:
+              - link "Events" [ref=e71] [cursor=pointer]:
+                - /url: //www.ti.com/about-ti/events/overview.html
+            - listitem [ref=e72]:
+              - link "Investor relations" [ref=e73] [cursor=pointer]:
+                - /url: https://investor.ti.com/
+            - listitem [ref=e74]:
+              - link "Manufacturing" [ref=e75] [cursor=pointer]:
+                - /url: //www.ti.com/about-ti/manufacturing.html
+            - listitem [ref=e76]:
+              - link "Corporate citizenship" [ref=e77] [cursor=pointer]:
+                - /url: //www.ti.com/about-ti/citizenship-community/overview.html
+        - generic [ref=e78]:
+          - heading "Quick links" [level=2] [ref=e79]
+          - list [ref=e80]:
+            - listitem [ref=e81]:
+              - link "Contact us" [ref=e82] [cursor=pointer]:
+                - /url: //www.ti.com/info/contact-us.html
+            - listitem [ref=e83]:
+              - link "TI E2E™ design support forums" [ref=e84] [cursor=pointer]:
+                - /url: https://e2e.ti.com/
+            - listitem [ref=e85]:
+              - link "Cross-reference search" [ref=e86] [cursor=pointer]:
+                - /url: //www.ti.com/cross-reference-search/en-us/
+            - listitem [ref=e87]:
+              - link "Customer support center" [ref=e88] [cursor=pointer]:
+                - /url: //www.ti.com/info/customer-support.html
+            - listitem [ref=e89]:
+              - link "Packaging" [ref=e90] [cursor=pointer]:
+                - /url: //www.ti.com/support-packaging/packaging.html
+            - listitem [ref=e91]:
+              - link "Quality & reliability" [ref=e92] [cursor=pointer]:
+                - /url: //www.ti.com/support-quality/quality-reliability.html
+            - listitem [ref=e93]:
+              - link "myTI account FAQs" [ref=e94] [cursor=pointer]:
+                - /url: //www.ti.com/info/myti-faq.html
+        - generic [ref=e95]:
+          - heading "Buying" [level=2] [ref=e96]
+          - list [ref=e97]:
+            - listitem [ref=e98]:
+              - link "TI API suites" [ref=e99] [cursor=pointer]:
+                - /url: //www.ti.com/ordering-resources/api-buying.html
+            - listitem [ref=e100]:
+              - link "myTI company accounts" [ref=e101] [cursor=pointer]:
+                - /url: //www.ti.com/ordering-resources/myti-company-account.html
+            - listitem [ref=e102]:
+              - link "Shipping, payment & taxes" [ref=e103] [cursor=pointer]:
+                - /url: //www.ti.com/ordering-resources/shipping-payment-tax-information.html
+            - listitem [ref=e104]:
+              - link "Ordering FAQs" [ref=e105] [cursor=pointer]:
+                - /url: //www.ti.com/ordering-resources/faqs/overview.html
+            - listitem [ref=e106]:
+              - link "Authorized distributors" [ref=e107] [cursor=pointer]:
+                - /url: //www.ti.com/ordering-resources/faqs/purchasing-online/authorized-distributors.html
+        - generic [ref=e108]:
+          - heading "Connect with us" [level=2] [ref=e110]
+          - list [ref=e111]:
+            - listitem [ref=e112]:
+              - link "Texas Instruments Instagram, opens in new tab" [ref=e113] [cursor=pointer]:
+                - /url: https://www.instagram.com/txinstruments/
+                - img [ref=e114]
+            - listitem [ref=e116]:
+              - link "Texas Instruments Facebook, opens in new tab" [ref=e117] [cursor=pointer]:
+                - /url: https://www.facebook.com/texasinstruments
+                - img [ref=e118]
+            - listitem [ref=e121]:
+              - link "Texas Instruments X, opens in new tab" [ref=e122] [cursor=pointer]:
+                - /url: https://twitter.com/txinstruments
+                - img [ref=e123]
+            - listitem [ref=e125]:
+              - link "Texas Instruments LinkedIn, opens in new tab" [ref=e126] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/texas-instruments
+                - img [ref=e127]
+            - listitem [ref=e129]:
+              - link "Texas Instruments E2E (Design support forum), opens in new tab" [ref=e130] [cursor=pointer]:
+                - /url: https://e2e.ti.com/
+                - img [ref=e131]
+            - listitem [ref=e133]:
+              - link "Texas Instruments YouTube, opens in new tab" [ref=e134] [cursor=pointer]:
+                - /url: https://www.youtube.com/texasinstruments
+                - img [ref=e135]
+      - separator [ref=e137]
+      - generic [ref=e138]:
+        - link [ref=e140] [cursor=pointer]:
+          - /url: //www.ti.com
+          - img [ref=e142]
+        - paragraph [ref=e146]: Texas Instruments has been making progress possible for decades. We are a global semiconductor company that designs, manufactures, tests and sells analog and embedded processing chips. Our products help our customers efficiently manage power, accurately sense and transmit data and provide the core control or processing in their designs.
+      - list [ref=e151]:
+        - listitem [ref=e152]:
+          - link "Accessibility" [ref=e153] [cursor=pointer]:
+            - /url: //www.ti.com/legal/terms-conditions/accessibility.html
+        - listitem [ref=e154]:
+          - link "Cookie policy" [ref=e155] [cursor=pointer]:
+            - /url: //www.ti.com/legal/terms-conditions/cookie-policy.html
+        - listitem [ref=e156]:
+          - link "Privacy policy" [ref=e157] [cursor=pointer]:
+            - /url: //www.ti.com/legal/terms-conditions/privacy-policy.html
+        - listitem [ref=e158]:
+          - link "Terms of sale" [ref=e159] [cursor=pointer]:
+            - /url: //www.ti.com/legal/terms-conditions/terms-of-sale.html
+        - listitem [ref=e160]:
+          - link "Terms of use" [ref=e161] [cursor=pointer]:
+            - /url: //www.ti.com/legal/terms-conditions/terms-of-use.html
+        - listitem [ref=e162]:
+          - link "Trademarks" [ref=e163] [cursor=pointer]:
+            - /url: //www.ti.com/legal/terms-conditions/trademarks.html
+        - listitem [ref=e164]:
+          - link "Website feedback" [ref=e165] [cursor=pointer]:
+            - /url: //www.ti.com/guidedsupport/docs/webform/tiwebsitefeedback.tsp
+        - listitem [ref=e166]:
+          - link "Imprint" [ref=e167] [cursor=pointer]:
+            - /url: //www.ti.com/legal/terms-conditions/imprint.html
+      - paragraph [ref=e170]:
+        - link "© Copyright 1995-2026" [ref=e171] [cursor=pointer]:
+          - /url: //www.ti.com/legal/terms-conditions/copyright.html
+        - text: Texas Instruments Incorporated. All rights reserved.
+  - img [ref=e173]

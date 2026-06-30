@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadence OrCAD + Allegro 七天入门到熟练</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <style>
+    .key-point { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.8rem 1rem; margin: 0.8rem 0; }
+    .day-card { background: white; border: 2px solid #93c5fd; border-radius: 12px; padding: 1rem; margin: 1rem 0; }
+    .day-card h2 { color: #1e40af; margin-top: 0; border: none; padding: 0; }
+    .task-list { padding-left: 1.2rem; }
+    .task-list li { margin: 0.4rem 0; }
+    .shortcut-box { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.6rem 1rem; margin: 0.5rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    .check-item { background: #fffbeb; border-left: 4px solid #d97706; padding: 0.3rem 0.6rem; margin: 0.2rem 0; font-size: 0.9rem; }
+    .hotkey { display: inline-block; background: #dbeafe; color: #1e40af; font-weight: 700; padding: 0.1em 0.5em; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+    .quote-day { background: #f0fdf4; border: none; border-left: 4px solid #16a34a; padding: 0.5rem 0.8rem; margin: 0.5rem 0; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<h1>Cadence OrCAD + Allegro 七天入门到熟练</h1>
+<p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0;">
+  完整自学路线 · 每天 2-3 小时 · 从零到能画板投板
+</p>
+
+<blockquote>
+  <strong>学习目标</strong><br>
+  第 1-2 天：掌握 OrCAD Capture 原理图绘制，能画简单电路<br>
+  第 3 天：掌握原理图进阶（建库、DRC、网表）<br>
+  第 4-5 天：掌握 Allegro PCB Editor 布局布线，能画 2 层板<br>
+  第 6 天：掌握 Gerber 输出和设计检查<br>
+  第 7 天：综合实战，完整体验原理图 → PCB → Gerber 全流程
+</blockquote>
+
+<hr>
+
+<div class="day-card">
+<h2>📅 第 1 天：环境搭建与界面导航</h2>
+<p><strong>耗时</strong>：2 小时 &nbsp;|&nbsp; <strong>核心键</strong>：<span class="hotkey">P</span> <span class="hotkey">W</span> <span class="hotkey">F</span> <span class="hotkey">G</span> <span class="hotkey">R</span> <span class="hotkey">I</span> <span class="hotkey">O</span></p>
+
+<h3>1.1 启动 Cadence（20 min）</h3>
+<ul class="task-list">
+  <li>开始菜单找到 <strong>Capture CIS</strong> 和 <strong>PCB Editor</strong>，发送快捷方式到桌面</li>
+  <li>打开 Capture CIS，<strong>第一次启动时 Product Choices 选 OrCAD Capture CIS</strong>，勾选 Use as default</li>
+  <li>认识界面四个区域：项目管理器、原理图编辑区、工具栏、Session Log</li>
+  <li>File → Change Product 随时切换产品特性</li>
+</ul>
+
+<div class="check-item">✅ 能独立启动 Capture CIS，知道 Product Choices 的含义</div>
+
+<h3>1.2 创建第一个项目（20 min）</h3>
+<ul class="task-list">
+  <li>File → New → Project，选 Analog or Mixed A/D</li>
+  <li>项目名：<code>TIA_PRACTICE</code></li>
+  <li>认识生成的文件：<code>.opj</code>（项目文件）、<code>.dsn</code>（原理图文件）、<code>.olb</code>（库文件）</li>
+</ul>
+
+<h3>1.3 放置第一个器件（30 min）</h3>
+<ul class="task-list">
+  <li>按 <span class="hotkey">P</span> 打开 Place Part 面板</li>
+  <li>添加库：<code>...\tools\capture\library\opamp.olb</code> 和 <code>discrete.olb</code></li>
+  <li>搜索 <code>LM741</code> 放置一个运放</li>
+  <li>搜索 <code>R</code> 放置一个电阻</li>
+  <li>按 <span class="hotkey">R</span> 旋转，按 <span class="hotkey">I</span>/<span class="hotkey">O</span> 放大缩小</li>
+</ul>
+
+<h3>1.4 走线和放置电源地（30 min）</h3>
+<ul class="task-list">
+  <li>按 <span class="hotkey">W</span> 在两个器件之间走线</li>
+  <li>按 <span class="hotkey">F</span> 放置电源符号（选 VCC）</li>
+  <li>按 <span class="hotkey">G</span> 放置地符号（选 0/GND）</li>
+  <li>按 <span class="hotkey">Esc</span> 退出当前操作</li>
+  <li>按 <span class="hotkey">Ctrl+S</span> 保存</li>
+</ul>
+
+<h3>1.5 今日复习（20 min）</h3>
+<div class="shortcut-box">
+  今日快捷键：<span class="hotkey">P</span> 放器件 &nbsp; <span class="hotkey">W</span> 走线 &nbsp; <span class="hotkey">F</span> 电源 &nbsp; <span class="hotkey">G</span> 地 &nbsp; <span class="hotkey">R</span> 旋转 &nbsp; <span class="hotkey">I</span> 放大 &nbsp; <span class="hotkey">O</span> 缩小 &nbsp; <span class="hotkey">Ctrl+S</span> 保存 &nbsp; <span class="hotkey">Esc</span> 退出
+</div>
+<div class="quote-day">打开 Capture，新建空白页，练习 5 遍：P → 放电阻 → R 旋转 → W 走线 → F 电源 → G 地 → Ctrl+S → Esc</div>
+</div>
+
+<div class="day-card">
+<h2>📅 第 2 天：原理图设计入门</h2>
+<p><strong>耗时</strong>：2.5 小时 &nbsp;|&nbsp; <strong>核心键</strong>：<span class="hotkey">N</span> <span class="hotkey">T</span> <span class="hotkey">E</span> <span class="hotkey">Tab</span></p>
+
+<h3>2.1 认识库文件结构（20 min）</h3>
+<ul class="task-list">
+  <li>Cadence 标准库路径：<code>...\tools\capture\library\</code></li>
+  <li>常用库：<code>discrete.olb</code>（R, C, L, D, Q）, <code>opamp.olb</code>（运放）, <code>connector.olb</code>（连接器）</li>
+  <li>区分：<strong>库文件 (.olb)</strong> vs <strong>设计文件 (.dsn)</strong> vs <strong>项目文件 (.opj)</strong></li>
+</ul>
+
+<h3>2.2 完整原理图：单级 TIA（60 min）</h3>
+<ul class="task-list">
+  <li>放置器件：1x OPA381 + 1x 光电二极管 + 3x 电阻 + 3x 电容 + 1x 连接器</li>
+  <li>按 <span class="hotkey">P</span> 放器件，按 <span class="hotkey">Tab</span> 连续放置多个</li>
+  <li>按 <span class="hotkey">W</span> 走线连接</li>
+  <li>按 <span class="hotkey">F</span>/<span class="hotkey">G</span> 加电源/地</li>
+  <li>按 <span class="hotkey">N</span> 添加网络别名 <code>PD_IN</code>、<code>TIA_OUT</code></li>
+  <li>按 <span class="hotkey">T</span> 添加文字注释</li>
+  <li>双击器件修改 Value（R1=100k, C1=0.68pF 等）</li>
+  <li>按 <span class="hotkey">Ctrl+E</span> 批量修改属性</li>
+</ul>
+
+<h3>2.3 设计规则与检查（30 min）</h3>
+<ul class="task-list">
+  <li><strong>Annotate</strong>：Tools → Annotate → Incremental reference update → OK（自动重排位号）</li>
+  <li><strong>DRC</strong>：Tools → Design Rules Check → 勾选 Check single node nets → OK</li>
+  <li>查看 Session Log，双击错误条目定位修改</li>
+  <li>保存：<span class="hotkey">Ctrl+S</span></li>
+</ul>
+
+<h3>2.4 今日复习（20 min）</h3>
+<div class="shortcut-box">
+  新增快捷键：<span class="hotkey">N</span> 网络别名 &nbsp; <span class="hotkey">T</span> 文字 &nbsp; <span class="hotkey">Ctrl+E</span> 编辑属性 &nbsp; <span class="hotkey">Tab</span> 连续放置 &nbsp; <span class="hotkey">Ctrl+Z</span> 撤销
+</div>
+<div class="quote-day">打开 .dsn → P 放器件 → W 走完 → N 标网名 → Tools → DRC → 检查通过 → Ctrl+S 保存。今天的目标：完整画出 TIA 原理图且 DRC 零错误。</div>
+</div>
+
+<div class="day-card">
+<h2>📅 第 3 天：原理图进阶——建库与网表</h2>
+<p><strong>耗时</strong>：2.5 小时 &nbsp;|&nbsp; <strong>核心概念</strong>：.olb 创建、PCB Footprint、Netlist</p>
+
+<h3>3.1 创建自定义器件符号（45 min）</h3>
+<ul class="task-list">
+  <li>File → New → Library，创建 <code>my_lib.olb</code></li>
+  <li>在 .olb 上右键 → New Part</li>
+  <li>填写参数：Name=<code>OPA381</code>, PCB Footprint=<code>SOIC8</code>, Parts per Package=1</li>
+  <li>用 Place Pin 放置 8 个引脚：</li>
+  <li style="list-style:none; margin-left:1.5rem;">Pin 1 (NC) &nbsp; Pin 2 (-IN, Input) &nbsp; Pin 3 (+IN, Input)<br>
+  Pin 4 (VEE, Power) &nbsp; Pin 5 (NC) &nbsp; Pin 6 (OUT, Output)<br>
+  Pin 7 (VCC, Power) &nbsp; Pin 8 (NC)</li>
+  <li>保存后按 <span class="hotkey">P</span> 刷新即可在库中找到</li>
+</ul>
+
+<div class="check-item">✅ 能独立创建一个标准 IC 的原理图符号</div>
+
+<h3>3.2 理解 PCB Footprint 的映射（30 min）</h3>
+<ul class="task-list">
+  <li>原理图中每个器件必须有 <strong>PCB Footprint</strong> 属性，值必须和 Allegro 中的封装文件名一致</li>
+  <li>常见封装命名：<code>R0603</code>、<code>C0402</code>、<code>SOIC8</code>、<code>TSSOP28</code></li>
+  <li>在 Property Editor 中批量设置 Footprint</li>
+  <li>Tools → Create Netlist → PCB Editor 标签页 → 勾选 PCB Footprint 检查</li>
+</ul>
+
+<h3>3.3 生成网表并检查错误（30 min）</h3>
+<ul class="task-list">
+  <li>Tools → Create Netlist → PCB Editor 标签页 → Create PCB Editor Netlist → 确定</li>
+  <li>检查 Session Log 是否显示 "Netlist successfully completed"</li>
+  <li>常见错误及解决：</li>
+  <li style="list-style:none; margin-left:1.5rem;">- <strong>Footprint not found</strong>：封装名不匹配，去 Allegro 中查正确的 .dra 文件名<br>
+  - <strong>Pin number mismatch</strong>：原理图引脚编号和封装焊盘编号不一致<br>
+  - <strong>Net syntax error</strong>：网络名包含了非法字符（空格、特殊符号）</li>
+  <li>生成的文件在项目目录下的 <code>netlistallegro</code> 文件夹中</li>
+</ul>
+
+<h3>3.4 今日复习（20 min）</h3>
+<div class="shortcut-box">
+  今日核心：New Part 对话框的每一项含义 &nbsp;|&nbsp; PCB Footprint 是 OrCAD 和 Allegro 之间的"桥梁" &nbsp;|&nbsp; 网表错误 80% 来自 Footprint 名称不匹配
+</div>
+<div class="quote-day">创建一个 OPA381 符号 → 分配 Footprint → 生成网表零错误。如果你的网表报错，先检查 Footprint 名称。</div>
+</div>
+
+<div class="day-card">
+<h2>📅 第 4 天：Allegro PCB Editor 入门</h2>
+<p><strong>耗时</strong>：3 小时 &nbsp;|&nbsp; <strong>核心键</strong>：<span class="hotkey">M</span> <span class="hotkey">I</span> <span class="hotkey">R</span> <span class="hotkey">V</span> <span class="hotkey">F5</span> <span class="hotkey">F6</span> <span class="hotkey">F7</span></p>
+
+<h3>4.1 认识 Allegro 界面（20 min）</h3>
+<ul class="task-list">
+  <li>开始菜单 → <strong>Allegro PCB Designer</strong> → Product Choices 选 <strong>Allegro PCB Designer</strong>（Options 全勾上）</li>
+  <li>界面五大区域：菜单栏、Options 面板（右键/双击弹出）、Find 面板（过滤选择对象）、工作区、命令行（底部输入命令）</li>
+  <li>认识 <strong>Class/Subclass</strong> 体系：Etch（走线层）、Board Geometry（板框）、Package Geometry（封装外形）、Silkscreen（丝印）</li>
+</ul>
+
+<h3>4.2 叠层与板框（30 min）</h3>
+<ul class="task-list">
+  <li>Setup → Cross-section：配置叠层</li>
+  <li style="list-style:none; margin-left:1.5rem;">2 层板：TOP（走线） + BOTTOM（走线+地铜）<br>
+  4 层板：TOP + GND + PWR + BOTTOM（模拟设计推荐）</li>
+  <li>画板框：Add → Line，Class=Board Geometry，Subclass=Outline</li>
+  <li>画一个 40x30 mm 的矩形</li>
+</ul>
+
+<h3>4.3 导入网表与布局（40 min）</h3>
+<ul class="task-list">
+  <li>File → Import → Logic → Cadence → Import directory 选择 <code>netlistallegro</code> 文件夹 → Import Cadence</li>
+  <li>导入成功后按 <span class="hotkey">F7</span> 全屏查看</li>
+  <li>Place → Manually → Quick 标签 → Place All（全部放入板框）</li>
+  <li>按 <span class="hotkey">M</span> 移动器件，按 <span class="hotkey">R</span> 旋转</li>
+  <li>布局原则：</li>
+  <li style="list-style:none; margin-left:1.5rem;">- PD 紧靠运放输入 (&le; 3 mm)<br>
+  - 去耦电容紧靠 IC 电源引脚 (&le; 5 mm)<br>
+  - 连接器靠板框边缘</li>
+</ul>
+
+<h3>4.4 手动走线入门（40 min）</h3>
+<ul class="task-list">
+  <li>按 <span class="hotkey">I</span> 进入走线模式（Add Connect）</li>
+  <li>点击焊盘开始走线，点击目标焊盘结束</li>
+  <li>按 <span class="hotkey">V</span> 在走线中打孔换层</li>
+  <li>按 <strong>Backspace</strong> 回退上一步（对应 Allegro 的 Oops 命令）</li>
+  <li>走完按 <span class="hotkey">F2</span>（Done）结束</li>
+  <li>走线宽度在 Options 面板设置：模拟信号 0.3 mm，电源 0.5 mm，普通 0.25 mm</li>
+</ul>
+
+<h3>4.5 今日复习（20 min）</h3>
+<div class="shortcut-box">
+  今日快捷键：<span class="hotkey">M</span> 移动 &nbsp; <span class="hotkey">I</span> 走线 &nbsp; <span class="hotkey">R</span> 旋转 &nbsp; <span class="hotkey">V</span> 打孔 &nbsp; <span class="hotkey">F2</span> 完成 &nbsp; <span class="hotkey">F5</span>/<span class="hotkey">F6</span> 放大缩小 &nbsp; <span class="hotkey">F7</span> 全屏 &nbsp; <span class="hotkey">Backspace</span> 回退
+</div>
+<div class="quote-day">今天的目标：把原理图成功导入 Allegro，器件摆好，至少走通一个信号。第一次看到飞线消失的感觉很棒。</div>
+</div>
+
+<div class="day-card">
+<h2>📅 第 5 天：PCB 布局进阶</h2>
+<p><strong>耗时</strong>：3 小时 &nbsp;|&nbsp; <strong>核心功能</strong>：约束管理器、覆铜、Room 布局</p>
+
+<h3>5.1 约束管理器（30 min）</h3>
+<ul class="task-list">
+  <li>Setup → Electrical Constraints（或 Setup → Constraints → Constraint Manager）</li>
+  <li>Physical 标签：右键 → Create → Physical CSet → 名称 <code>ANALOG</code></li>
+  <li style="list-style:none; margin-left:1.5rem;">Min Line Width = 0.2 mm，Max = 0.5 mm</li>
+  <li>Spacing 标签：右键 → Create → Spacing CSet → 名称 <code>ANALOG_SPACE</code></li>
+  <li style="list-style:none; margin-left:1.5rem;">Line to Line = 0.2 mm</li>
+  <li>将模拟信号网络（PD_IN、TIA_OUT）关联到 ANALOG 约束集</li>
+</ul>
+
+<h3>5.2 完整布线（60 min）</h3>
+<ul class="task-list">
+  <li>走线顺序：<strong>先模拟信号 → 再电源 → 最后普通信号</strong></li>
+  <li>第一优先级：PD_IN（TIA 输入，走线最短，包地）</li>
+  <li>第二优先级：TIA_OUT（输出，远离输入）</li>
+  <li>第三优先级：电源（宽线 0.5 mm）</li>
+  <li>第四优先级：其他信号</li>
+  <li>走线技巧：按 <span class="hotkey">Shift</span> 锁定水平/垂直</li>
+</ul>
+
+<h3>5.3 覆铜（30 min）</h3>
+<ul class="task-list">
+  <li>Shape → Add Rect（或 Add Polygon）</li>
+  <li>Options：Class=Etch，Subclass=TOP，Assign net=GND</li>
+  <li>画一个矩形覆盖板框内部的空白区域</li>
+  <li>在 PD_IN 焊盘下方：Shape → Void → Circular → 画圈挖掉铜皮（减少寄生电容）</li>
+  <li>底层同样操作（Subclass=BOTTOM）</li>
+</ul>
+
+<h3>5.4 模拟地 vs 数字地处理（30 min）</h3>
+<ul class="task-list">
+  <li>如果板上有模拟和数字部分，建议用 0 Ω 电阻或磁珠做单点连接</li>
+  <li>在覆铜时不直接连接，铺两块独立的 GND 铜皮</li>
+  <li>用一条走线（或 0 Ω 电阻）连接模拟地和数字地</li>
+</ul>
+
+<h3>5.5 今日复习（20 min）</h3>
+<div class="shortcut-box">
+  今日核心命令：Setup → Electrical Constraints &nbsp; Shape → Add Rect 覆铜 &nbsp; Shape → Void 挖空
+</div>
+<div class="quote-day">今天的目标：走完所有主要信号、覆铜完成、DRC 错误 &le; 5 个。如果走线遇到瓶颈，先走完关键的模拟信号，其他信号可以放宽。</div>
+</div>
+
+<div class="day-card">
+<h2>📅 第 6 天：DRC、Gerber 输出与设计检查</h2>
+<p><strong>耗时</strong>：2.5 小时 &nbsp;|&nbsp; <strong>核心技能</strong>：DRC 检查、Gerber 配置、钻孔文件</p>
+
+<h3>6.1 DRC 错误排查（40 min）</h3>
+<ul class="task-list">
+  <li>Display → Status 查看 DRC 错误总数</li>
+  <li>按 <span class="hotkey">Shift+F5</span> 高亮错误：在 Options 面板中选择 DRC Errors</li>
+  <li>常见错误及修正：</li>
+  <li style="list-style:none; margin-left:1.5rem;">
+    - <strong>Line to Line Spacing</strong>：两根走线间距不足 → 拉开或调整约束<br>
+    - <strong>Unconnected Pin</strong>：有引脚没走线 → 连接或确认 NC<br>
+    - <strong>Unrouted Net</strong>：网络未完成布线 → 走完或检查是否被忽略<br>
+    - <strong>Stub</strong>：走线分支 → 对模拟信号可以不处理，右键 Mark as satisfied
+  </li>
+  <li>按 <span class="hotkey">Shift+F6</span> 取消高亮</li>
+</ul>
+
+<h3>6.2 Gerber 文件输出（50 min）</h3>
+<ul class="task-list">
+  <li>Manufacture → Artwork</li>
+  <li>Film Configuration：点击 Add 添加以下 Film</li>
+  <li style="list-style:none; margin-left:1.5rem;">
+    - <code>TOP</code>：Etch/TOP + Pin/TOP + Via/TOP<br>
+    - <code>BOTTOM</code>：Etch/BOTTOM + Pin/BOTTOM + Via/BOTTOM<br>
+    - <code>SOLDERMASK_TOP</code>：Soldermask/TOP<br>
+    - <code>SOLDERMASK_BOTTOM</code>：Soldermask/BOTTOM<br>
+    - <code>SILKSCREEN_TOP</code>：Silkscreen/TOP + Package Geometry/Silkscreen_Top<br>
+    - <code>NC_DRILL</code>：钻孔图
+  </li>
+  <li>点击 Generate Artwork，生成 .art 文件到 <code>.\artwork\</code> 目录</li>
+</ul>
+
+<h3>6.3 钻孔文件（20 min）</h3>
+<ul class="task-list">
+  <li>Manufacture → NC → NC Drill Parameters → 设置格式（可以使用默认值）</li>
+  <li>Manufacture → NC → NC Drill → Drill → 生成 .drl 文件</li>
+  <li>Manufacture → NC → NC Route（如果板上有槽孔）</li>
+</ul>
+
+<h3>6.4 投板前的检查清单（20 min）</h3>
+<div class="shortcut-box">
+  <strong>投板检查清单</strong><br>
+  ✅ DRC 零错误（Display → Status）<br>
+  ✅ 所有网络已连接（Unrouted Nets = 0）<br>
+  ✅ 所有引脚已连接（Unconnected Pins = 0）<br>
+  ✅ Gerber 已生成（artwork 文件夹中有 .art 文件）<br>
+  ✅ 钻孔文件已生成（.drl 文件）<br>
+  ✅ 用 CAM350 打开 Gerber 检查无误<br>
+  ✅ 板框尺寸正确（Setup → Drawing Size）<br>
+  ✅ 丝印清晰、无重叠<br>
+  ✅ 所有器件封装方向一致<br>
+  ✅ 关键模拟信号有包地或间距足够
+</div>
+
+<h3>6.5 今日复习（20 min）</h3>
+<div class="quote-day">今天的目标：DRC 零错误 + 完整 Gerber 输出。如果 DRC 错误实在消不完，先解决所有 Unconnected Pins 和 Unrouted Nets，间距警告可以酌情放宽。</div>
+</div>
+
+<div class="day-card">
+<h2>📅 第 7 天：综合实战 + 全流程盲操</h2>
+<p><strong>耗时</strong>：3 小时 &nbsp;|&nbsp; <strong>核心目标</strong>：不翻教程走完一遍完整流程</p>
+
+<h3>7.1 全流程盲操（120 min）</h3>
+<p><strong>任务</strong>：从零开始设计一个双通道 TIA 电路板</p>
+<ul class="task-list">
+  <li><strong>规格要求</strong>：</li>
+  <li style="list-style:none; margin-left:1.5rem;">
+    - 2 通道 TIA（2x OPA381）<br>
+    - 单电源 +5V<br>
+    - 输出经 2-pin 连接器引出<br>
+    - 板卡尺寸 30x20 mm
+  </li>
+  <li><strong>OrCAD 部分（< 40 min，不翻教程）</strong></li>
+  <li style="list-style:none; margin-left:1.5rem;">
+    - 创建项目 (1 min)<br>
+    - 放置器件 (10 min)<br>
+    - 走线 + 网络别名 (15 min)<br>
+    - 电源和地 (3 min)<br>
+    - Annotate (1 min)<br>
+    - DRC (2 min)<br>
+    - 生成网表 (2 min)<br>
+    - 检查 Session Log 无错误
+  </li>
+  <li><strong>Allegro 部分（< 60 min，不翻教程）</strong></li>
+  <li style="list-style:none; margin-left:1.5rem;">
+    - 创建 Board，设置叠层 (3 min)<br>
+    - 画板框 (3 min)<br>
+    - 导入网表 (2 min)<br>
+    - 布局 (15 min)<br>
+    - 设置约束 (3 min)<br>
+    - 走线 (20 min)<br>
+    - 覆铜 (5 min)<br>
+    - DRC 检查 (3 min)<br>
+    - 出 Gerber + 钻孔 (5 min)
+  </li>
+</ul>
+
+<h3>7.2 常见错误速查表（20 min）</h3>
+<table>
+  <tr><th>错误现象</th><th>可能原因</th><th>解决方法</th></tr>
+  <tr><td>OrCAD DRC 报 ERROR(ORCAP-3606)</td><td>引脚类型冲突</td><td>检查元件的 Pin Type 设置（Input/Output/Power）</td></tr>
+  <tr><td>网表生成失败：Footprint not found</td><td>PCB Footprint 名称不匹配</td><td>打开 Allegro，查看正确的 .dra 文件名</td></tr>
+  <tr><td>Allegro 导入网表后无器件</td><td>Import directory 指向错误</td><td>确认指向 netlistallegro 文件夹</td></tr>
+  <tr><td>走线时提示违反约束</td><td>Spacing 规则过严</td><td>修改约束或调整走线</td></tr>
+  <tr><td>覆铜后看不到铜皮</td><td>Z-order 问题或未 Assign net</td><td>确认铜皮已 Assign net，按 Shift+F5 刷新</td></tr>
+  <tr><td>Gerber 打开后缺失一层</td><td>Film 配置缺少 subclass</td><td>检查 Artwork 中该 Film 包含的 Subclass</td></tr>
+  <tr><td>钻孔文件不对齐</td><td>单位和格式设置不一致</td><td>NC Drill 中的格式必须和板厂要求一致</td></tr>
+  <tr><td>丝印重叠看不清</td><td>位号放在器件上面</td><td>手动调整位置，或使用 Silkscreen → Auto Silkscreen</td></tr>
+</table>
+
+<h3>7.3 最终快捷键盲测（10 min）</h3>
+<div class="shortcut-box">
+  <strong>OrCAD 盲测（8 个键）</strong><br>
+  <span class="hotkey">P</span> ? &nbsp; <span class="hotkey">W</span> ? &nbsp; <span class="hotkey">N</span> ? &nbsp; <span class="hotkey">F</span> ? &nbsp; <span class="hotkey">G</span> ? &nbsp; <span class="hotkey">R</span> ? &nbsp; <span class="hotkey">I</span> ? &nbsp; <span class="hotkey">O</span> ?<br><br>
+  <strong>Allegro 盲测（7 个键）</strong><br>
+  <span class="hotkey">M</span> ? &nbsp; <span class="hotkey">I</span> ? &nbsp; <span class="hotkey">R</span> ? &nbsp; <span class="hotkey">V</span> ? &nbsp; <span class="hotkey">F5</span> ? &nbsp; <span class="hotkey">F6</span> ? &nbsp; <span class="hotkey">F7</span> ?<br><br>
+  <strong>答案：</strong>P=放器件 W=走线 N=网络别名 F=电源 G=地 R=旋转 I=放大 O=缩小 | M=移动 I=走线 R=旋转 V=打孔 F5=放大 F6=缩小 F7=全屏
+</div>
+
+<h3>7.4 毕业总结（10 min）</h3>
+<div class="key-point">
+  <strong>7 天学完后你应该能：</strong><br><br>
+  ✅ 独立用 OrCAD Capture 画原理图（放置、走线、网络标号、电源地、DRC、网表）<br>
+  ✅ 创建自定义器件符号并分配封装<br>
+  ✅ 用 Allegro PCB Editor 布局布线（导入网表、手动走线、打过孔、覆铜）<br>
+  ✅ 设置约束规则（线宽、间距）<br>
+  ✅ 输出 Gerber 和钻孔文件<br>
+  ✅ 读懂并排查 80% 的常见错误<br><br>
+  <strong>还不够熟练的地方</strong>：<br>
+  - 高频/高速设计约束（差分对、等长）<br>
+  - 多页原理图（Off-page connector）<br>
+  - BGA 扇出<br>
+  - SKILL 脚本自动化<br><br>
+  这些可以在实际工作中遇到时针对性地学。
+</div>
+
+<blockquote>
+  <strong>7 天后怎么办？</strong><br><br>
+  工具的学习——尤其是 EDA 工具——不是一次性的。7 天课程让你从零到能干活，但真正的熟练是在实际项目中积累的。<br><br>
+  建议：<br>
+  1. 自己定一个小项目（比如你工作中的一块小板子），用 Cadence 完整走一遍<br>
+  2. 遇到问题先看 Help 文档（F1 键）——Cadence 的帮助文档做得很好<br>
+  3. 把快捷键表打印出来贴在显示器边上，每天提醒自己用快捷键而不是点菜单<br>
+  4. 遇到自己解决不了的问题，去 Cadence 官方论坛 community.cadence.com 搜索<br><br>
+  有任何问题随时回来讨论。Good luck!
+</blockquote>
+
+<p style="color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+  Cadence OrCAD + Allegro 七天入门到熟练 · Study_TIA 教学工坊
+</p>
+
+</body>
+</html>
